@@ -1,0 +1,25 @@
+[build]
+  publish = "public"
+  command = ""
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Old family links (/?f=...) now open the app at /app
+[[redirects]]
+  from = "/"
+  to = "/app/?f=:f"
+  query = {f = ":f"}
+  status = 301
+  force = true
+
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/img/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"

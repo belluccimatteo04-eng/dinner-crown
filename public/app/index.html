@@ -1,0 +1,1188 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dinner Crown · La cena di famiglia</title>
+<meta name="description" content="Crea il tuo personaggio, a turno uno fa lo chef, tutti votano in segreto e chi vince porta la corona.">
+<meta name="theme-color" content="#FDF2EC">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/bagel.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/nunito-800.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Dinner Crown">
+<link rel="manifest" href="/manifest.webmanifest">
+<script src="/avatar.js"></script>
+<style>:root{padding-top:env(safe-area-inset-top,0px)}</style>
+</head>
+<body>
+<style>
+@font-face{font-family:"Bagel Fat One";src:url("/fonts/bagel.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Nunito";src:url("/fonts/nunito-400.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Nunito";src:url("/fonts/nunito-600.woff2") format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Nunito";src:url("/fonts/nunito-800.woff2") format("woff2");font-weight:800;font-display:swap}
+@font-face{font-family:"Caveat";src:url("/fonts/caveat-600.woff2") format("woff2");font-weight:600;font-display:swap}
+/* Layout: phone game UI — one column, bottom tab bar, the home is a top-down family table with everyone's characters seated around it */
+:root{
+  --bg:#FDF2EC; --card:#FFFFFF; --ink:#3A1A1F; --muted:#8C6B6F; --line:#F0DDD5; --rim:#F3E3DE;
+  --red:#E5412F; --red-deep:#B92E20; --red-soft:#FCE3DD; --gold:#FFB21E; --gold-deep:#E99C00; --gold-soft:#FFF1CF;
+  --mint:#2E9D5B; --mint-soft:#DDF4E5; --sky:#E2ECFF; --pink:#FFE0E6; --white:#FFFFFF;
+  --f-display:"Bagel Fat One","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+  --f-body:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-hand:"Caveat","Bradley Hand","Segoe Print",cursive;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--f-body);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit}
+svg.av{display:block;width:100%;height:auto;overflow:visible}
+
+.app{max-width:560px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:14px calc(110px + env(safe-area-inset-bottom, 0px))}
+.app.bare{padding-bottom:calc(40px + env(safe-area-inset-bottom, 0px))}
+
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{width:44px;height:44px;flex:none;border-radius:14px;background:var(--red);display:grid;place-items:center;box-shadow:0 8px 16px -10px var(--red)}
+.logo svg{width:30px;height:22px}
+.brand-text{min-width:0}
+.brand-text b{display:block;font:400 1.4rem/1 var(--f-display)}
+.brand-text small{display:block;font:800 .74rem/1.25 var(--f-body);letter-spacing:.06em;color:var(--red);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.me-btn{width:56px;height:62px;flex:none;border:none;background:none;padding:0;cursor:pointer;position:relative}
+.me-btn .edit{position:absolute;right:-2px;bottom:2px;width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:.7rem;box-shadow:0 0 0 2px var(--bg)}
+
+main{display:flex;flex-direction:column}
+.view{display:flex;flex-direction:column;gap:16px}
+.demo{background:var(--sky);border-radius:16px;padding:10px 14px;font-size:.86rem;font-weight:600;line-height:1.4;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+
+/* greeting */
+.hello{display:flex;align-items:center;gap:12px}
+.hello h1{margin:0;font:400 1.6rem/1.05 var(--f-display);text-wrap:balance}
+.hello p{margin:2px 0 0;color:var(--muted);font-weight:600;font-size:.92rem}
+.streak{display:inline-flex;align-items:center;gap:6px;background:var(--gold-soft);border-radius:999px;padding:6px 12px;font-weight:800;font-size:.85rem;color:var(--ink)}
+
+/* table scene */
+.scene{background:var(--card);border-radius:30px;padding:18px 14px 16px;box-shadow:0 1px 0 var(--line),0 20px 36px -28px rgba(58,26,31,.55);display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
+.scene-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:0 4px}
+.scene-head h2{margin:0;font:400 1.3rem/1.1 var(--f-display)}
+.scene-head p{margin:2px 0 0;color:var(--muted);font-weight:700;font-size:.88rem}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 13px;font-weight:800;font-size:.85rem;white-space:nowrap;background:var(--red);color:#fff}
+.table-wrap{position:relative;width:100%;aspect-ratio:1/0.92;margin:0 auto;max-width:440px}
+.tabletop{position:absolute;left:18%;right:18%;top:24%;bottom:24%;border-radius:50%;
+  background-color:#fff;background-image:linear-gradient(90deg,rgba(229,65,47,.42) 50%,transparent 0),linear-gradient(rgba(229,65,47,.42) 50%,transparent 0);background-size:22px 22px;
+  box-shadow:0 14px 0 -4px #C98B5A,0 22px 30px -14px rgba(58,26,31,.6),inset 0 0 0 4px rgba(255,255,255,.7)}
+.dishplate{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#fff 0 55%,var(--rim) 56% 59%,#fff 60%);box-shadow:0 10px 18px -8px rgba(58,26,31,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12%}
+.dishplate b{font:400 clamp(.8rem,3.4vw,1.05rem)/1.05 var(--f-display);overflow-wrap:anywhere}
+.dishplate span{font-size:.7rem;font-weight:800;color:var(--muted);line-height:1.15;margin-top:2px}
+.dishplate .q{font:400 2rem/1 var(--f-display);color:var(--red)}
+.seat{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;width:var(--sz);transition:transform .3s}
+.seat .avw{width:100%;position:relative;filter:drop-shadow(0 6px 6px rgba(58,26,31,.2))}
+.seat.no .avw{filter:grayscale(1) opacity(.5)}
+.seat.unk .avw{opacity:.85}
+.seat .nm{font-weight:800;font-size:.72rem;line-height:1.1;text-align:center;max-width:120%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:rgba(255,255,255,.92);border-radius:999px;padding:2px 7px}
+.seat .st{position:absolute;right:-4px;bottom:16%;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:.7rem;font-weight:800;color:#fff;box-shadow:0 0 0 2px #fff}
+.seat.yes .st{background:var(--mint)}
+.seat.no .st{background:#9A8A8C}
+.seat.unk .st{background:var(--gold);color:var(--ink)}
+.seat.chef .nm{background:var(--red);color:#fff}
+.seat.me .nm{box-shadow:0 0 0 2px var(--gold)}
+.tally{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;font-weight:800;font-size:.82rem}
+.tally span{border-radius:999px;padding:5px 11px;background:var(--bg)}
+.rsvp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rsvp .btn{min-height:54px}
+.rsvp .btn.on-yes{background:var(--mint);color:#fff;box-shadow:0 10px 20px -12px var(--mint)}
+.rsvp .btn.on-no{background:#6E5B5E;color:#fff}
+.chefline{display:flex;align-items:center;gap:10px;background:var(--bg);border-radius:18px;padding:8px 12px 8px 8px}
+.chefline .mini{width:44px;flex:none}
+.chefline div{min-width:0}
+.chefline b{display:block;font:400 1.05rem/1.15 var(--f-display);overflow-wrap:anywhere}
+.chefline small{color:var(--muted);font-weight:700}
+.quote{margin:0;font:600 1.35rem/1.15 var(--f-hand);color:var(--red-deep);text-align:center}
+
+/* sections, cards */
+.section{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.section-title,.page-title{margin:0;font:400 1.4rem/1.15 var(--f-display);text-wrap:balance}
+.page-title{font-size:1.65rem}
+.card{background:var(--card);border-radius:24px;padding:20px;box-shadow:0 1px 0 var(--line),0 16px 30px -26px rgba(58,26,31,.5);display:flex;flex-direction:column;gap:14px;min-width:0}
+.card-title{margin:0;font:400 1.1rem var(--f-display)}
+.card.empty{align-items:center;text-align:center;padding:30px 22px}
+.card.empty p{margin:0;color:var(--muted);max-width:34ch}
+.big-emoji{font-size:3rem;line-height:1}
+.hint{font-size:.9rem;color:var(--muted);margin:0}
+.dishline{display:flex;align-items:center;gap:12px;min-width:0}
+.dishline .mini{width:52px;flex:none}
+.dishline > div{min-width:0}
+.dishline strong{display:block;font:400 1.2rem/1.15 var(--f-display);overflow-wrap:anywhere}
+
+/* vote */
+.vote{display:flex;flex-direction:column;gap:14px}
+.stars{display:flex;justify-content:space-between;gap:6px;max-width:360px}
+.star{flex:1;aspect-ratio:1;max-width:62px;border:none;background:none;padding:2px;cursor:pointer;border-radius:16px}
+.star svg{width:100%;height:100%;display:block;overflow:visible}
+.star path{fill:var(--rim);stroke:#EACCC3;stroke-width:1.1;stroke-linejoin:round;transition:fill .18s}
+.star.on path{fill:var(--gold);stroke:var(--gold-deep)}
+.star.pop svg{animation:pop .4s ease}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.28) rotate(-8deg)}100%{transform:scale(1)}}
+.star-word{font:600 1.7rem/1 var(--f-hand);color:var(--red-deep);min-height:1.1em}
+.field{display:flex;flex-direction:column;gap:8px;font-weight:800;font-size:.92rem;min-width:0}
+input[type=text],input[type=time],select,textarea{width:100%;font:600 1rem var(--f-body);color:var(--ink);background:var(--bg);border:2px solid transparent;border-radius:16px;padding:13px 14px;outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 20px) 50%,calc(100% - 14px) 50%;background-size:6px 6px;background-repeat:no-repeat;padding-right:36px}
+input::placeholder,textarea::placeholder{color:#B79C9F;font-weight:400}
+input:focus,textarea:focus,select:focus{border-color:var(--red)}
+textarea{min-height:96px;resize:vertical;display:block}
+.lock{display:flex;gap:8px;align-items:center;font-size:.84rem;color:var(--muted);font-weight:600}
+.lock svg{flex:none}
+.err{color:var(--red-deep);font-weight:800;font-size:.9rem}
+.err:empty{display:none}
+.teaser{background:var(--gold-soft);border-radius:16px;padding:12px 14px;font-weight:700;font-size:.9rem}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row .btn.block{flex:1 1 180px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.btn{appearance:none;border:none;border-radius:999px;padding:13px 22px;font:800 1rem var(--f-body);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;text-decoration:none;transition:transform .1s;text-align:center}
+.btn:active{transform:translateY(1px) scale(.98)}
+.btn.red{background:var(--red);color:var(--white);box-shadow:0 10px 20px -12px var(--red)}
+.btn.soft{background:var(--red-soft);color:var(--red-deep)}
+.btn.ghost{background:var(--bg);color:var(--ink)}
+.btn.gold{background:var(--gold);color:var(--ink);box-shadow:0 10px 20px -12px var(--gold-deep)}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.6}
+.link{background:none;border:none;color:var(--red-deep);font:800 .9rem var(--f-body);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:6px 0}
+.link.danger{color:var(--white);background:var(--red);text-decoration:none;border-radius:999px;padding:6px 12px}
+.btn:focus-visible,.star:focus-visible,.tab:focus-visible,.member:focus-visible,.link:focus-visible,.hrow:focus-visible,.opt:focus-visible,.cat:focus-visible,.me-btn:focus-visible,.seg button:focus-visible,.pcard:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* results */
+.mine{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:var(--bg);border-radius:16px;padding:8px 14px;font-weight:800;font-size:.9rem}
+.mine > span{display:inline-flex;align-items:center;gap:8px}
+.results{display:flex;flex-direction:column;gap:16px}
+.verdict{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.score{font:400 3.4rem/1 var(--f-display);color:var(--red);font-variant-numeric:tabular-nums}
+.score.sm{font-size:2.2rem}
+.mini-stars{display:inline-flex;gap:2px;vertical-align:middle}
+.mini-stars svg{width:17px;height:17px;display:block}
+.bars{display:flex;flex-direction:column;gap:6px}
+.bar{display:grid;grid-template-columns:2.4rem 1fr 1.4rem;align-items:center;gap:8px;font-weight:800;font-size:.84rem;font-variant-numeric:tabular-nums;color:var(--muted)}
+.bar .track{height:10px;border-radius:99px;background:var(--bg);overflow:hidden;display:block}
+.bar .fill{height:100%;background:var(--gold);border-radius:99px;display:block}
+.notes{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:14px;padding:4px 2px}
+.note{padding:12px 14px 16px;border-radius:4px 4px 16px 4px;box-shadow:0 10px 16px -14px rgba(58,26,31,.6);transform:rotate(var(--r,0deg));display:flex;flex-direction:column;gap:6px;min-width:0}
+.note p{margin:0;font:600 1.35rem/1.12 var(--f-hand);overflow-wrap:anywhere}
+
+/* chef */
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--card);border-radius:999px;padding:4px;box-shadow:0 1px 0 var(--line)}
+.seg button{border:none;background:none;border-radius:999px;padding:9px 8px;font:800 .9rem/1.2 var(--f-body);color:var(--muted);cursor:pointer}
+.seg button small{display:block;font-weight:600;font-size:.76rem}
+.seg button[aria-pressed="true"]{background:var(--red);color:var(--white)}
+.members{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;padding-top:8px}
+.member{border:2px solid transparent;background:var(--bg);border-radius:20px;padding:10px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;font:800 .9rem/1.2 var(--f-body);position:relative;overflow-wrap:anywhere;text-align:center}
+.member .mav{width:76px}
+.member[aria-checked="true"]{border-color:var(--red);background:var(--red-soft)}
+.member[aria-checked="true"]::after{content:"Chef";position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--red);color:var(--white);font:800 .66rem var(--f-body);letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:99px;white-space:nowrap}
+.suggest{background:var(--gold-soft);border-radius:16px;padding:12px 14px;font-size:.9rem;font-weight:600}
+.wheel-card{overflow:hidden}
+.wheel-box{position:relative;width:100%;max-width:340px;margin:0 auto;overflow:hidden}
+.wheel-svg{width:100%;height:auto;display:block;filter:drop-shadow(0 16px 18px rgba(58,26,31,.28))}
+.wheel-rot{transform:rotate(0deg)}
+.wheel-empty{position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);text-align:center;font-weight:800;color:var(--muted);font-size:.9rem;line-height:1.3;width:60%;margin-top:40px}
+.wlist{display:flex;flex-wrap:wrap;gap:8px}
+.wchip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border-radius:999px;padding:4px 10px 4px 4px;font-weight:800;font-size:.86rem;max-width:100%}
+.wchip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wchip .wav{width:28px;flex:none}
+.wchip button{border:none;background:none;color:var(--muted);font-weight:800;cursor:pointer;padding:2px 4px}
+.wchip.win{background:var(--gold);color:var(--ink)}
+.wresult{background:linear-gradient(160deg,#FFE7A8,var(--gold-soft));border-radius:20px;padding:14px 16px;text-align:center;display:flex;flex-direction:column;gap:2px;align-items:center}
+.wresult b{font:400 1.6rem/1.1 var(--f-display)}
+.addrow{display:flex;gap:8px;align-items:stretch}
+.addrow input{flex:1;min-width:0}
+
+/* crown */
+.crowncard{background:linear-gradient(165deg,#FFE7A8,var(--gold-soft) 45%,var(--card));border-radius:30px;padding:22px 20px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;box-shadow:0 1px 0 var(--line),0 20px 36px -28px rgba(233,156,0,.9);position:relative;overflow:hidden}
+.crowncard .rays{position:absolute;inset:-40%;background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.55) 0 10deg,transparent 10deg 20deg);animation:spinr 30s linear infinite;opacity:.6}
+@keyframes spinr{to{transform:rotate(360deg)}}
+.crowncard > *{position:relative}
+.crowncard .bigav{width:150px;animation:bob 2.6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px)}}
+.crowncard h2{margin:0;font:400 1.6rem/1.05 var(--f-display)}
+.crowncard p{margin:0;color:var(--muted);font-weight:700}
+.podium{display:grid;align-items:end;gap:10px;padding-top:6px}
+.step{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;min-width:0}
+.step .name{font-weight:800;font-size:.92rem;overflow-wrap:anywhere;line-height:1.2}
+.step .val{font:400 1.05rem var(--f-display)}
+.step .pav{width:84px}
+.pblock{width:100%;border-radius:18px 18px 6px 6px;display:grid;place-items:center;font:400 1.7rem var(--f-display);color:var(--white)}
+.p1 .pblock{height:104px;background:linear-gradient(var(--gold),var(--gold-deep))}
+.p2 .pblock{height:76px;background:linear-gradient(#CBD0D9,#A6ADBA)}
+.p3 .pblock{height:58px;background:linear-gradient(#E6A87C,#C27B4C)}
+.rlist{display:flex;flex-direction:column}
+.rrow{display:grid;grid-template-columns:1.6rem 46px 1fr auto;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.rrow:last-child{border-bottom:none}
+.pos{font:400 1.1rem var(--f-display);color:var(--muted);font-variant-numeric:tabular-nums}
+.rname{font-weight:800;min-width:0;overflow-wrap:anywhere;line-height:1.25}
+.rname small{display:block;font-weight:600;color:var(--muted);font-size:.8rem}
+.rval{font:400 1.1rem var(--f-display);white-space:nowrap}
+.best-dish{font:400 1.6rem/1.08 var(--f-display);text-wrap:balance;overflow-wrap:anywhere}
+.card.best{background:linear-gradient(160deg,var(--gold-soft),var(--card) 70%)}
+
+/* history */
+.hist{display:flex;flex-direction:column;gap:12px}
+.hitem{background:var(--card);border-radius:22px;box-shadow:0 1px 0 var(--line),0 14px 26px -24px rgba(58,26,31,.5);overflow:hidden}
+.hrow{display:grid;grid-template-columns:52px 44px 1fr auto;gap:10px;align-items:center;padding:10px 14px 10px 10px;border:none;background:none;width:100%;text-align:left;cursor:pointer}
+.date{background:var(--red-soft);border-radius:14px;text-align:center;padding:7px 0 5px;color:var(--red-deep)}
+.date b{display:block;font:400 1.4rem/1 var(--f-display)}
+.date span{font-weight:800;font-size:.66rem;text-transform:uppercase;letter-spacing:.08em}
+.hmain{min-width:0;display:flex;flex-direction:column}
+.hmain strong{font:400 1.05rem/1.15 var(--f-display);overflow-wrap:anywhere}
+.hval{display:flex;align-items:baseline;gap:3px;white-space:nowrap}
+.hval b{font:400 1.3rem var(--f-display);color:var(--red)}
+.hval small{font-weight:800;color:var(--muted);font-size:.78rem}
+.hval .gold{color:var(--gold-deep);font-size:1rem}
+.hbody{padding:4px 16px 18px}
+
+/* family */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+.pcard{background:var(--card);border:none;border-radius:24px;padding:12px 10px 14px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;box-shadow:0 1px 0 var(--line),0 14px 26px -24px rgba(58,26,31,.5);position:relative;text-align:center;font:inherit}
+.pcard .pav{width:100%;max-width:120px}
+.pcard b{font:400 1.05rem/1.1 var(--f-display);overflow-wrap:anywhere}
+.pcard small{font-weight:800;color:var(--muted);font-size:.75rem}
+.pcard .you{position:absolute;top:10px;left:10px;background:var(--gold);color:var(--ink);border-radius:999px;padding:2px 9px;font-weight:800;font-size:.7rem}
+.pcard.add{background:repeating-linear-gradient(45deg,var(--bg) 0 10px,#fff 10px 20px);border:2px dashed var(--line);justify-content:center;min-height:180px}
+.pcard.add .plus{width:64px;height:64px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font:400 2rem/1 var(--f-display);box-shadow:0 10px 20px -12px var(--red)}
+.codebox{background:var(--bg);border-radius:16px;padding:12px 14px;font:800 .9rem var(--f-body);word-break:break-all;user-select:all}
+
+/* welcome / who */
+.welcome{display:flex;flex-direction:column;gap:16px}
+.hero-img{border-radius:28px;overflow:hidden;box-shadow:0 24px 40px -28px rgba(58,26,31,.7);aspect-ratio:4/3.4;background:#F7D9B8}
+.hero-img img{width:100%;height:100%;object-fit:cover;object-position:50% 38%;display:block}
+.welcome h1{margin:0;font:400 2.1rem/1.02 var(--f-display);text-wrap:balance}
+.welcome .lead{margin:0;font-size:1.05rem;color:var(--muted);max-width:42ch}
+.or{display:flex;align-items:center;gap:10px;color:var(--muted);font-weight:800;font-size:.8rem;text-transform:uppercase;letter-spacing:.12em}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.center{text-align:center}
+
+/* tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));background:rgba(255,255,255,.95);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 -1px 0 var(--line)}
+.tabbar .inner{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
+.tab{border:none;background:none;border-radius:16px;padding:7px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font:800 .7rem var(--f-body);color:var(--muted);cursor:pointer}
+.tab svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tab[aria-current="page"]{color:var(--red);background:var(--red-soft)}
+
+/* editor */
+.editor{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;animation:edin .28s cubic-bezier(.2,.9,.3,1)}
+@keyframes edin{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
+.ed-inner{max-width:560px;width:100%;margin:0 auto;display:flex;flex-direction:column;height:100%;padding:calc(10px + env(safe-area-inset-top, 0px)) max(14px, env(safe-area-inset-right, 0px)) 0 max(14px, env(safe-area-inset-left, 0px))}
+.ed-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ed-top h2{margin:0;font:400 1.2rem var(--f-display);text-align:center;flex:1}
+.ed-top .btn{min-height:42px;padding:9px 16px;font-size:.92rem}
+.ed-stage{position:relative;display:flex;align-items:flex-end;justify-content:center;gap:12px;padding:6px 0 0;
+  background:radial-gradient(ellipse 60% 22% at 50% 96%,rgba(58,26,31,.16),transparent 70%)}
+.ed-stage .bigav{width:min(190px,46vw);animation:bob 2.6s ease-in-out infinite}
+.ed-stage .bigav.wiggle{animation:wig .45s ease}
+@keyframes wig{30%{transform:rotate(-5deg) scale(1.04)}60%{transform:rotate(4deg)}100%{transform:none}}
+.dice{position:absolute;right:0;bottom:12px;width:52px;height:52px;border-radius:16px;border:none;background:var(--card);box-shadow:0 1px 0 var(--line),0 10px 20px -14px rgba(58,26,31,.6);font-size:1.6rem;cursor:pointer}
+.dice span{display:block;font:800 .58rem var(--f-body);color:var(--muted);margin-top:-2px}
+.ed-name{margin:10px 0 8px}
+.ed-name input{background:#fff;border-color:var(--line);font-size:1.05rem}
+.presets{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none}
+.presets::-webkit-scrollbar{display:none}
+.preset{flex:none;border:2px solid transparent;background:var(--card);border-radius:18px;padding:6px 6px 4px;width:74px;display:flex;flex-direction:column;align-items:center;gap:0;cursor:pointer;font:800 .72rem var(--f-body)}
+.preset:focus-visible{outline:3px solid var(--gold)}
+.cats{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none;flex:none}
+.cats::-webkit-scrollbar{display:none}
+.cat{flex:none;border:none;background:var(--card);border-radius:16px;padding:8px 12px;display:flex;flex-direction:column;align-items:center;gap:2px;font:800 .72rem var(--f-body);color:var(--muted);cursor:pointer;min-width:66px;box-shadow:0 1px 0 var(--line)}
+.cat i{font-style:normal;font-size:1.3rem;line-height:1}
+.cat[aria-pressed="true"]{background:var(--red);color:#fff}
+.ed-panel{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--card);border-radius:24px 24px 0 0;padding:16px 14px calc(24px + env(safe-area-inset-bottom, 0px));box-shadow:0 -1px 0 var(--line)}
+.ed-panel h3{margin:4px 2px 10px;font:800 .78rem var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.ed-panel h3:not(:first-child){margin-top:18px}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.opt{border:3px solid transparent;background:var(--bg);border-radius:18px;padding:4px 4px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;font:800 .72rem/1.2 var(--f-body);color:var(--muted)}
+.opt[aria-checked="true"]{border-color:var(--red);background:var(--red-soft);color:var(--red-deep)}
+.opt .oav{width:100%}
+.swatches{display:flex;flex-wrap:wrap;gap:10px}
+.sw{width:46px;height:46px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px var(--line),inset 0 -6px 10px rgba(0,0,0,.12);cursor:pointer;padding:0}
+.sw[aria-checked="true"]{box-shadow:0 0 0 3px var(--red),inset 0 -6px 10px rgba(0,0,0,.12);transform:scale(1.08)}
+.sw:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.toggle-row{display:flex;gap:10px;flex-wrap:wrap}
+.toggle{border:none;border-radius:999px;padding:10px 16px;font:800 .9rem var(--f-body);background:var(--bg);color:var(--ink);cursor:pointer}
+.toggle[aria-pressed="true"]{background:var(--red);color:#fff}
+.ed-save{position:sticky;bottom:0;margin-top:16px}
+
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);background:var(--ink);color:var(--white);padding:12px 20px;border-radius:999px;font-weight:800;font-size:.92rem;z-index:80;box-shadow:0 14px 30px -14px rgba(58,26,31,.8);max-width:calc(100% - 32px);text-align:center}
+.toast.show{animation:toast .3s ease}
+@keyframes toast{from{transform:translate(-50%,12px);opacity:.4}to{transform:translate(-50%,0);opacity:1}}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:90}
+.loader{display:flex;flex-direction:column;align-items:center;gap:14px;padding:60px 0;color:var(--muted);font-weight:700}
+.loader .mini{width:70px;height:70px;border-radius:50%;background:radial-gradient(circle,#fff 0 55%,var(--rim) 56% 59%,#fff 60%);box-shadow:0 10px 20px -12px rgba(58,26,31,.5);animation:spin 1.6s ease-in-out infinite}
+@keyframes spin{50%{transform:scale(.9)}}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"><svg viewBox="0 0 40 28"><path d="M3 24 6 7l9 8 5-12 5 12 9-8 3 17z" fill="#FFB21E" stroke="#FFF" stroke-width="2" stroke-linejoin="round"/></svg></div>
+      <div class="brand-text"><b>Dinner Crown</b><small id="fam-name">La serata dello chef</small></div>
+    </div>
+    <button class="me-btn" id="me-btn" type="button" aria-label="Il mio personaggio" hidden></button>
+  </header>
+  <main>
+    <section class="view" id="v-welcome" hidden></section>
+    <section class="view" id="v-who" hidden></section>
+    <section class="view" id="v-cena" aria-label="Cena" hidden></section>
+    <section class="view" id="v-chef" aria-label="Chef" hidden></section>
+    <section class="view" id="v-corona" aria-label="Corona" hidden></section>
+    <section class="view" id="v-storico" aria-label="Storico" hidden></section>
+    <section class="view" id="v-famiglia" aria-label="Famiglia" hidden></section>
+  </main>
+</div>
+
+<nav class="tabbar" id="tabbar" aria-label="Sezioni" hidden>
+  <div class="inner">
+    <button class="tab" type="button" data-tab="cena"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.6"/></svg>Cena</button>
+    <button class="tab" type="button" data-tab="chef"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 17.5h9V21h-9zM7.5 17.5V13.2A4 4 0 0 1 8.3 5.4a4.6 4.6 0 0 1 7.4 0 4 4 0 0 1 .8 7.8v4.3"/></svg>Chef</button>
+    <button class="tab" type="button" data-tab="corona"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18 5 7l5 5 2-7 2 7 5-5 2 11z"/></svg>Corona</button>
+    <button class="tab" type="button" data-tab="storico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Storico</button>
+    <button class="tab" type="button" data-tab="famiglia"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20a6.5 6.5 0 0 1 13 0M15.5 4.6a3.5 3.5 0 0 1 0 6.3M17.5 14.2A6.5 6.5 0 0 1 21.5 20"/></svg>Famiglia</button>
+  </div>
+</nav>
+
+<div id="editor-root"></div>
+<div class="toast" id="toast" role="status" hidden></div>
+<canvas id="confetti" hidden></canvas>
+
+<script>
+(function(){
+"use strict";
+const AV = window.DCAvatar;
+const API = "/api";
+const DAYMS = 864e5;
+const WORDS = ["", "Da rifare", "Così così", "Buono", "Buonissimo", "Da corona!"];
+const NOTE_COLORS = ["#FFF4B8","#DDF4E5","#E2ECFF","#FFE0E6"];
+const DAYS = ["domenica","lunedì","martedì","mercoledì","giovedì","venerdì","sabato"];
+const DAYS_PL = ["la domenica","il lunedì","il martedì","il mercoledì","il giovedì","il venerdì","il sabato"];
+const STAR_D = "M12 2.8l2.75 5.86 6.4.78-4.72 4.4 1.22 6.33L12 17.08l-5.65 3.09 1.22-6.33-4.72-4.4 6.4-.78z";
+const VIEWS = ["cena","chef","corona","storico","famiglia"];
+const LOCK = '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 10V8a6 6 0 1 1 12 0v2h1v12H5V10h1Zm2 0h8V8a4 4 0 1 0-8 0v2Z" fill="currentColor"/></svg>';
+
+/* ---------- helpers ---------- */
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
+const DEV = (function(){ let d = lsGet("dc_device"); if(!d){ d = Math.random().toString(36).slice(2,10) + Date.now().toString(36); lsSet("dc_device", d); } return d; })();
+function h(tag, props){
+  const e = document.createElement(tag);
+  if(props) for(const k in props){
+    const v = props[k];
+    if(v == null || v === false) continue;
+    if(k === "class") e.className = v;
+    else if(k === "style") e.style.cssText = v;
+    else if(k === "html") e.innerHTML = v;
+    else if(k.slice(0,2) === "on") e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? "" : v);
+  }
+  const kids = Array.prototype.slice.call(arguments, 2).flat(Infinity);
+  for(const c of kids){ if(c == null || c === false) continue; e.append(c instanceof Node ? c : document.createTextNode(String(c))); }
+  return e;
+}
+/* avatar SVG strings are generated by our own renderer from integer indices only */
+function avEl(av, cls, opts){ return h("div",{class:cls || "", html: AV.render(av, opts || {})}); }
+function starSvg(on, size){
+  const ns = "http://www.w3.org/2000/svg";
+  const s = document.createElementNS(ns,"svg"); s.setAttribute("viewBox","0 0 24 24"); s.setAttribute("aria-hidden","true");
+  if(size){ s.setAttribute("width", size); s.setAttribute("height", size); }
+  const p = document.createElementNS(ns,"path"); p.setAttribute("d", STAR_D);
+  if(on !== null){ p.style.fill = on ? "var(--gold)" : "var(--rim)"; }
+  s.append(p); return s;
+}
+function miniStars(n){
+  const r = Math.round(n), w = h("span",{class:"mini-stars",role:"img","aria-label":fmtAvg(n)+" stelle su 5"});
+  for(let i=1;i<=5;i++) w.append(starSvg(i<=r, 17));
+  return w;
+}
+
+/* ---------- dates ---------- */
+const pad = n => String(n).padStart(2,"0");
+const idOf = d => d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const fromId = id => { const p = id.split("-").map(Number); return new Date(p[0], p[1]-1, p[2]); };
+const addDays = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+function at(day, time){ const d = typeof day === "string" ? fromId(day) : new Date(day); const p = (time || "20:00").split(":").map(Number); d.setHours(p[0]||0, p[1]||0, 0, 0); return d; }
+function fam(){ return Store.data; }
+function slots(){
+  const now = new Date(), time = fam().time || "20:00", wd = Number.isInteger(fam().day) ? fam().day : 3;
+  const t = new Date(now); t.setHours(0,0,0,0);
+  const w = addDays(t, -((t.getDay() - wd + 7) % 7));
+  let vot, up;
+  if(now >= at(w, time)){ vot = w; up = addDays(w, 7); } else { vot = addDays(w, -7); up = w; }
+  const today = idOf(t);
+  return { vot:idOf(vot), up:idOf(up), upAt:at(up, time), votToday:idOf(vot)===today, upToday:idOf(up)===today, today };
+}
+const fmtLong = id => fromId(id).toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long"});
+const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
+const fmtDM = id => fromId(id).toLocaleDateString("it-IT",{day:"numeric",month:"long"});
+const monShort = id => fromId(id).toLocaleDateString("it-IT",{month:"short"}).replace(".","");
+function countdown(target){
+  const ms = target - new Date(); if(ms <= 0) return "adesso!";
+  const t = new Date(); t.setHours(0,0,0,0); const td = new Date(target); td.setHours(0,0,0,0);
+  const days = Math.round((td - t) / DAYMS);
+  if(days === 0){ const min = Math.round(ms/6e4); if(min < 60) return "tra "+min+" min"; const hh = Math.floor(min/60); return "tra "+hh+(hh===1?" ora":" ore"); }
+  if(days === 1) return "domani";
+  return "tra "+days+" giorni";
+}
+
+/* ---------- data ---------- */
+const EMPTY = () => ({ name:"", members:[], day:3, time:"20:00", dinners:{}, votes:[] });
+const Store = {
+  mode:"none", ready:false, fid:null, data:EMPTY(), subs:[], timer:0,
+  emit(){ this.subs.forEach(f => f()); },
+  async init(){
+    const qs = new URLSearchParams(location.search);
+    const f = (qs.get("f") || lsGet("dc_family") || "").toLowerCase();
+    if(qs.get("demo") === "1"){ this.startDemo(); return; }
+    if(/^[a-z0-9]{10}$/.test(f)){
+      try{ await this.open(f); return; }
+      catch(e){
+        if(e.code === 404){ lsDel("dc_family"); toast("Questo link di famiglia non esiste"); }
+        else { this.mode = "offline"; this.fid = f; this.ready = true; this.emit(); return; }
+      }
+    }
+    this.mode = "none"; this.ready = true; this.emit();
+  },
+  async open(f){
+    const s = await this.fetchState(f);
+    this.fid = f; this.mode = "live"; lsSet("dc_family", f); this.setState(s); this.ready = true;
+    try{ const u = new URL(location.href); if(u.searchParams.get("f") !== f){ u.searchParams.set("f", f); history.replaceState(null, "", u.pathname + u.search + u.hash); } }catch(e){}
+    this.emit(); this.poll();
+  },
+  async fetchState(f){
+    let r;
+    try{ r = await fetch(API + "?f=" + encodeURIComponent(f), { cache:"no-store" }); }
+    catch(e){ const x = new Error("niente connessione"); x.code = 0; throw x; }
+    let body = null; try{ body = await r.json(); }catch(e){}
+    if(!r.ok || !body){ const x = new Error((body && body.error) || ("errore del server " + r.status)); x.code = r.status; throw x; }
+    return body;
+  },
+  setState(s){
+    const votes = s.votes || {};
+    this.data = { name:s.name || "", members:(s.members || []).map(m => ({ id:m.id, name:m.name, av:AV.clean(m.av) })), day:Number.isInteger(s.day) ? s.day : 3, time:s.time || "20:00", dinners:s.dinners || {}, votes:Object.keys(votes).map(k => Object.assign({ id:k }, votes[k])) };
+  },
+  poll(){
+    clearInterval(this.timer);
+    const tick = async () => {
+      if(document.hidden || this.mode !== "live" || ui.editor) return;
+      try{ const s = await this.fetchState(this.fid), before = JSON.stringify(this.data); this.setState(s); if(JSON.stringify(this.data) !== before) this.emit(); }catch(e){}
+    };
+    this.timer = setInterval(tick, 20000);
+    if(!this._vis){ this._vis = true; document.addEventListener("visibilitychange", () => { if(!document.hidden) tick(); }); }
+  },
+  async post(op){
+    let r;
+    try{ r = await fetch(API, { method:"POST", headers:{ "content-type":"application/json" }, body:JSON.stringify(op) }); }
+    catch(e){ throw new Error("niente connessione"); }
+    let body = null; try{ body = await r.json(); }catch(e){}
+    if(!r.ok || !body || body.error) throw new Error((body && body.error) || ("errore del server " + r.status));
+    return body;
+  },
+  async send(op){
+    if(this.mode !== "live"){ this.local(op); return; }
+    const body = await this.post(Object.assign({ f:this.fid }, op));
+    this.setState(body); this.emit();
+  },
+  local(op){
+    const d = this.data;
+    if(op.op === "settings"){ if(op.day != null) d.day = op.day; if(op.time) d.time = op.time; if(op.name) d.name = op.name; }
+    if(op.op === "member"){ const i = d.members.findIndex(m => m.id === op.member.id); if(i >= 0) d.members[i] = op.member; else d.members.push(op.member); }
+    if(op.op === "removeMember") d.members = d.members.filter(m => m.id !== op.id);
+    if(op.op === "dinner"){ const prev = d.dinners[op.date] || {}; d.dinners[op.date] = { chefId:op.chefId, chefName:op.chefName, dish:op.dish, note:op.note, rsvp:prev.rsvp || {}, wheel:prev.wheel || [], spin:(prev.spin && prev.dish === op.dish) ? prev.spin : null }; }
+    if(op.op === "chefOnly"){ const x = d.dinners[op.date] || (d.dinners[op.date] = { rsvp:{}, wheel:[] }); x.chefId = op.chefId; x.chefName = op.chefName; x.note = op.note; }
+    if(op.op === "wheelAdd"){
+      const x = d.dinners[op.date] || (d.dinners[op.date] = { rsvp:{}, wheel:[] }); x.wheel = x.wheel || [];
+      const dish = String(op.dish || "").trim().slice(0,40);
+      if(!dish) throw new Error("scrivi un piatto");
+      if(x.spin) throw new Error("la ruota ha già girato");
+      if(x.wheel.length >= 12) throw new Error("la ruota è piena (12 piatti)");
+      if(x.wheel.filter(w => w.by === op.mid).length >= 2) throw new Error("puoi proporre al massimo 2 piatti");
+      if(x.wheel.some(w => w.dish.toLowerCase() === dish.toLowerCase())) throw new Error("questo piatto è già sulla ruota");
+      x.wheel.push({ id:"w" + Math.random().toString(36).slice(2,9), dish, by:op.mid });
+    }
+    if(op.op === "wheelRemove"){ const x = d.dinners[op.date]; if(x && x.wheel && !x.spin) x.wheel = x.wheel.filter(w => w.id !== op.id); }
+    if(op.op === "spin"){
+      const x = d.dinners[op.date];
+      if(!x || !x.wheel || x.wheel.length < 2) throw new Error("servono almeno 2 piatti sulla ruota");
+      if(x.spin) throw new Error("la ruota ha già girato");
+      const i = Math.floor(Math.random() * x.wheel.length);
+      x.spin = { id:x.wheel[i].id, at:new Date().toISOString(), jitter:Math.random() - .5, by:op.mid }; x.dish = x.wheel[i].dish;
+    }
+    if(op.op === "wheelReset"){ const x = d.dinners[op.date]; if(x){ const w = (x.wheel || []).find(e => x.spin && e.id === x.spin.id); if(w && x.dish === w.dish) x.dish = ""; x.spin = null; } }
+    if(op.op === "rsvp"){ const x = d.dinners[op.date] || (d.dinners[op.date] = { rsvp:{} }); x.rsvp = x.rsvp || {}; if(op.v === 1 || op.v === 0) x.rsvp[op.mid] = op.v; else delete x.rsvp[op.mid]; }
+    if(op.op === "vote"){ const id = op.dinner + "_" + op.device, row = { id, dinner:op.dinner, stars:op.stars, comment:op.comment }, i = d.votes.findIndex(v => v.id === id); if(i >= 0) d.votes[i] = row; else d.votes.push(row); }
+    this.persist(); this.emit();
+  },
+  async create(name, code){ const body = await this.post({ op:"create", name, code }); await this.open(body.id); },
+  leave(){ lsDel("dc_family"); clearInterval(this.timer); this.fid = null; this.mode = "none"; this.data = EMPTY(); try{ history.replaceState(null, "", location.pathname); }catch(e){} this.emit(); },
+  startDemo(){
+    this.mode = "demo";
+    let d = null; try{ d = JSON.parse(lsGet("dc_demo_it") || "null"); }catch(e){}
+    this.data = d && d.dinners && d.members ? d : seedDemo();
+    if(!lsGet("dc_me_demo")) lsSet("dc_me_demo", "m3");
+    this.ready = true; this.persist(); this.emit();
+  },
+  persist(){ if(this.mode === "demo") lsSet("dc_demo_it", JSON.stringify(this.data)); },
+  resetDemo(){ this.data = seedDemo(); lsSet("dc_me_demo","m3"); this.persist(); this.emit(); }
+};
+function seedDemo(){
+  Store.data = Object.assign(EMPTY(), { day:3, time:"20:00" });
+  const s = slots(), v = fromId(s.vot), w = k => idOf(addDays(v, -7*k));
+  const P = AV.PRESETS;
+  const members = [
+    { id:"m1", name:"Mamma", av:AV.clean(P[0].av) }, { id:"m2", name:"Papà", av:AV.clean(P[1].av) },
+    { id:"m3", name:"Sofia", av:AV.clean(P[2].av) }, { id:"m4", name:"Leo", av:AV.clean(P[3].av) },
+    { id:"m5", name:"Nonna Rita", av:AV.clean(P[4].av) }, { id:"m6", name:"Nonno Gino", av:AV.clean(P[5].av) }
+  ];
+  const dinners = {}, votes = [];
+  const add = (id, chefId, dish, note, vs, rsvp) => {
+    dinners[id] = { chefId, chefName: members.find(m => m.id === chefId).name, dish, note, rsvp: rsvp || { m1:1, m2:1, m3:1, m4:1, m5:1, m6:1 } };
+    vs.forEach((x,i) => votes.push({ id:id+"_demo"+i, dinner:id, stars:x[0], comment:x[1] }));
+  };
+  add(w(4),"m5","Gnocchi al pomodoro","Fatti a mano, uno per uno",[[5,"Sanno di casa"],[5,"La nonna non sbaglia mai"],[4,"Ne volevo il doppio"]]);
+  add(w(3),"m2","Pollo arrosto e patate","",[[4,"Patate croccanti perfette"],[3,"Il pollo un po' asciutto"],[4,"Bravo papà!"]]);
+  add(w(2),"m3","Tacos arcobaleno","Ogni condimento di un colore diverso",[[5,"Divertentissimi da comporre"],[4,"Cipolle rosa top"],[5,"Sofia è un genio"]]);
+  add(w(1),"m6","Risotto ai funghi","Come lo faceva mia madre",[[5,"Cremoso al punto giusto"],[4,"Funghi raccolti da lui!"],[4,"Bis obbligatorio"]]);
+  add(s.vot,"m4","Pancake per cena","Gocce di cioccolato obbligatorie",[[5,"La serata più bella"],[4,"Cucina distrutta, pancia felice"]]);
+  dinners[s.up] = { chefId:"m1", chefName:"Mamma", dish:"", note:"Stavolta decide la ruota!", rsvp:{ m1:1, m2:1, m3:1, m5:1, m6:0 },
+    wheel:[ { id:"wa", dish:"Lasagna della domenica", by:"m5" }, { id:"wb", dish:"Pizza fatta in casa", by:"m4" }, { id:"wc", dish:"Sushi fatto in casa", by:"m3" }, { id:"wd", dish:"Polpette al sugo", by:"m6" }, { id:"we", dish:"Carbonara", by:"m2" } ] };
+  return { name:"Famiglia Bellucci", members, day:3, time:"20:00", dinners, votes };
+}
+
+function members(){ return fam().members || []; }
+function member(id){ return members().find(m => m.id === id) || null; }
+function meKey(){ return Store.mode === "demo" ? "dc_me_demo" : "dc_me_" + (Store.fid || ""); }
+function meId(){ const id = lsGet(meKey()); return id && member(id) ? id : null; }
+function setMe(id){ lsSet(meKey(), id); }
+function chefOf(c){ const m = c && member(c.chefId); return m ? m : { id:null, name:(c && c.chefName) || "Chef misterioso", av:AV.clean(AV.PRESETS[0].av), ghost:true }; }
+const votesOf = d => fam().votes.filter(v => v.dinner === d && v.stars >= 1 && v.stars <= 5);
+const avgOf = vs => vs.length ? vs.reduce((a,v) => a + v.stars, 0) / vs.length : 0;
+const fmtAvg = n => n.toLocaleString("it-IT",{minimumFractionDigits:1,maximumFractionDigits:1});
+const myVote = d => fam().votes.find(v => v.id === d + "_" + DEV) || null;
+function inviteUrl(){ return Store.fid ? location.origin + "/app/?f=" + Store.fid : ""; }
+function crownHolder(){
+  const s = slots(), month = s.vot.slice(0,7); let best = null;
+  Object.keys(fam().dinners).forEach(id => {
+    if(id > s.vot || id.slice(0,7) !== month) return;
+    const c = fam().dinners[id], vs = votesOf(id);
+    if(!c || !c.dish || !c.chefId || !vs.length) return;
+    const a = avgOf(vs);
+    if(!best || a > best.a) best = { id, a, chefId:c.chefId, dish:c.dish };
+  });
+  return best;
+}
+function streak(){
+  let n = 0, d = fromId(slots().vot);
+  while(true){ const c = fam().dinners[idOf(d)]; if(c && c.dish){ n++; d = addDays(d, -7); } else break; }
+  return n;
+}
+function avOf(m, opts){ const ch = crownHolder(); return AV.render(m.av, Object.assign({ crown: !!(ch && m.id && ch.chefId === m.id) }, opts || {})); }
+function mAv(m, cls, opts){ return h("div",{class:cls, html:avOf(m, opts)}); }
+
+/* ---------- ui state ---------- */
+const ui = {
+  tab: VIEWS.indexOf(location.hash.slice(1)) >= 0 ? location.hash.slice(1) : "cena",
+  stars:0, voteC:"", editing:false, pop:0, chefFor:"up", chef:null,
+  time:null, day:null, confirmDel:null, confirmLeave:false, openHist:null, err:{},
+  w:{ name:"", code:"", join:"" }, busy:false, editor:null, spinning:false, wheelIn:"", confirmSpin:null, confirmReset:null
+};
+function go(tab, chefFor){
+  ui.tab = tab;
+  if(chefFor){ ui.chefFor = chefFor; ui.chef = null; }
+  try{ history.replaceState(null, "", location.pathname + location.search + "#" + tab); }catch(e){}
+  render(); window.scrollTo(0, 0);
+}
+
+/* ---------- welcome ---------- */
+function viewWelcome(){
+  if(Store.mode === "offline") return [h("div",{class:"card empty"}, h("div",{class:"big-emoji"},"📡"), h("p",null,"Non riesco a raggiungere la tua famiglia. Controlla la connessione e riprova."), h("button",{class:"btn red",type:"button",onclick:() => location.reload()},"Riprova"))];
+  const nameIn = h("input",{id:"w-name",type:"text",maxlength:"30",autocomplete:"off",placeholder:"Es. Famiglia Bellucci",oninput:e => { ui.w.name = e.target.value; }}); nameIn.value = ui.w.name;
+  const codeIn = h("input",{id:"w-code",type:"text",maxlength:"30",autocomplete:"off",autocapitalize:"characters",placeholder:"Lo trovi a pagina 2 del kit",oninput:e => { ui.w.code = e.target.value; }}); codeIn.value = ui.w.code;
+  const joinIn = h("input",{id:"w-join",type:"text",maxlength:"200",autocomplete:"off",placeholder:"Incolla il link che ti hanno mandato",oninput:e => { ui.w.join = e.target.value; }}); joinIn.value = ui.w.join;
+  return [h("div",{class:"welcome"},
+    h("div",{class:"hero-img"}, h("img",{src:"/img/hero-family.webp",alt:"Una famiglia di personaggi festeggia lo chef della serata attorno alla tavola"})),
+    h("h1",null,"Una sera a settimana, tutta la famiglia a tavola."),
+    h("p",{class:"lead"},"Crea il tuo personaggio, a turno uno fa lo chef, tutti votano in segreto e chi vince porta la corona."),
+    h("form",{class:"card",onsubmit:createFamily,novalidate:true},
+      h("h2",{class:"card-title"},"Crea la tua famiglia"),
+      h("div",{class:"field"}, h("label",{for:"w-name"},"Nome della famiglia"), nameIn),
+      h("div",{class:"field"}, h("label",{for:"w-code"},"Codice del kit"), codeIn),
+      h("div",{class:"err",role:"alert"}, ui.err.create || ""),
+      h("button",{class:"btn red block",type:"submit",disabled:ui.busy}, ui.busy ? "Apparecchio la tavola…" : "Crea la famiglia")),
+    h("div",{class:"or"},"oppure"),
+    h("form",{class:"card",onsubmit:joinFamily,novalidate:true},
+      h("h2",{class:"card-title"},"Entra nella tua famiglia"),
+      h("p",{class:"hint"},"Qualcuno l'ha già creata? Apri il link che ti ha mandato, oppure incollalo qui."),
+      joinIn, h("div",{class:"err",role:"alert"}, ui.err.join || ""),
+      h("button",{class:"btn soft block",type:"submit"},"Entra")),
+    h("p",{class:"hint center"}, "Vuoi solo dare un'occhiata? ", h("button",{class:"link",type:"button",onclick:() => { Store.startDemo(); go("cena"); }},"Prova la famiglia demo"))
+  )];
+}
+async function createFamily(e){
+  e.preventDefault();
+  const name = ui.w.name.trim(), code = ui.w.code.trim();
+  if(!name){ ui.err.create = "Dai un nome alla tua famiglia."; render(); return; }
+  if(!code){ ui.err.create = "Inserisci il codice del kit."; render(); return; }
+  ui.busy = true; ui.err.create = ""; render();
+  try{ await Store.create(name, code); ui.busy = false; go("cena"); openEditor(null, { me:true, first:true }); }
+  catch(err){ ui.busy = false; ui.err.create = err.message + "."; render(); }
+}
+async function joinFamily(e){
+  e.preventDefault();
+  const m = ui.w.join.trim().toLowerCase().match(/(?:f=)?([a-z0-9]{10})\b/);
+  if(!m){ ui.err.join = "Non sembra un link di famiglia. Fattelo rimandare."; render(); return; }
+  try{ await Store.open(m[1]); ui.err.join = ""; go("cena"); }
+  catch(err){ ui.err.join = err.code === 404 ? "Nessuna famiglia trovata con questo link." : "Connessione non riuscita: " + err.message + "."; render(); }
+}
+
+/* ---------- who am I ---------- */
+function viewWho(){
+  const ms = members();
+  return [h("div",{class:"welcome"},
+    h("div",{class:"center",style:"display:flex;flex-direction:column;gap:8px;align-items:center"},
+      h("div",{class:"big-emoji"},"👋"),
+      h("h1",{style:"font-size:1.8rem"},"Benvenuto in " + (fam().name || "famiglia") + "!"),
+      h("p",{class:"lead"}, ms.length ? "Chi sei? Tocca il tuo personaggio." : "Sei il primo. Crea il tuo personaggio!")),
+    ms.length ? h("div",{class:"pgrid"}, ms.map(m => h("button",{class:"pcard",type:"button",onclick:() => { setMe(m.id); toast("Ciao " + m.name + "!"); go("cena"); }}, mAv(m,"pav"), h("b",null,m.name), h("small",null,"Sono io")))) : null,
+    h("button",{class:"btn red block",type:"button",onclick:() => openEditor(null, { me:true, first:true })}, ms.length ? "Non ci sono ancora: crea il mio personaggio" : "Crea il mio personaggio")
+  )];
+}
+
+/* ---------- home ---------- */
+function demoBanner(){
+  if(Store.mode !== "demo") return null;
+  return h("div",{class:"demo"}, h("span",null, h("b",null,"Famiglia demo. "), "Qui niente viene salvato online."), h("button",{class:"link",type:"button",onclick:() => { Store.leave(); go("cena"); }},"Crea la tua"));
+}
+function tableScene(s){
+  const id = s.up, c = fam().dinners[id] || {}, has = !!c.dish, ms = members(), me = meId();
+  const rsvp = c.rsvp || {};
+  const wrap = h("div",{class:"table-wrap"});
+  wrap.append(h("div",{class:"tabletop"}));
+  const plate = has ? h("div",{class:"dishplate"}, c.spin ? h("span",{style:"font-size:.9rem"},"🎡") : null, h("b",null,c.dish), h("span",null,"chef " + chefOf(c).name))
+              : c.chefId ? h("div",{class:"dishplate"}, h("div",{class:"q",style:"font-size:1.6rem"},"🎡"), h("span",null,"Lo decide la ruota"), h("span",null,"chef " + chefOf(c).name))
+                    : h("div",{class:"dishplate"}, h("div",{class:"q"},"?"), h("span",null,"Chi cucina?"));
+  wrap.append(plate);
+  const n = ms.length, sz = n <= 4 ? 27 : n <= 6 ? 24 : n <= 8 ? 21 : n <= 12 ? 17 : 15;
+  ms.forEach((m, i) => {
+    const a = -Math.PI/2 + (i / n) * Math.PI * 2;
+    const x = 50 + Math.cos(a) * 39, y = 50 + Math.sin(a) * 37;
+    const st = rsvp[m.id] === 1 ? "yes" : rsvp[m.id] === 0 ? "no" : "unk";
+    const seat = h("div",{class:"seat " + st + (has && c.chefId === m.id ? " chef" : "") + (me === m.id ? " me" : ""),style:"left:"+x+"%;top:"+y+"%;--sz:"+sz+"%"},
+      h("div",{class:"avw",html:avOf(m)}, h("span",{class:"st","aria-hidden":"true"}, st === "yes" ? "✓" : st === "no" ? "✕" : "?")),
+      h("span",{class:"nm"}, (has && c.chefId === m.id ? "👨‍🍳 " : "") + m.name));
+    seat.setAttribute("aria-label", m.name + ": " + (st === "yes" ? "ci sarà" : st === "no" ? "non ci sarà" : "non ha ancora risposto"));
+    wrap.append(seat);
+  });
+  const yes = ms.filter(m => rsvp[m.id] === 1).length, no = ms.filter(m => rsvp[m.id] === 0).length, unk = n - yes - no;
+  const mine = me ? rsvp[me] : undefined;
+  const scene = h("section",{class:"scene"},
+    h("div",{class:"scene-head"},
+      h("div",null, h("h2",null, s.upToday ? "Stasera si cena insieme" : "La prossima cena"), h("p",null, cap(fmtLong(id)) + " · " + (fam().time || "20:00"))),
+      h("span",{class:"chip"}, countdown(s.upAt))),
+    n ? wrap : h("div",{class:"card empty",style:"box-shadow:none;background:var(--bg)"}, h("p",null,"La tavola è vuota. Aggiungi i personaggi della famiglia."), h("button",{class:"btn red",type:"button",onclick:() => go("famiglia")},"Aggiungi la famiglia")),
+    n ? h("div",{class:"tally"}, h("span",null,"✓ " + yes + " a tavola"), no ? h("span",null,"✕ " + no + " assenti") : null, unk ? h("span",null,"? " + unk + " da sentire") : null) : null,
+    me ? h("div",{class:"rsvp"},
+      h("button",{class:"btn " + (mine === 1 ? "on-yes" : "ghost"),type:"button","aria-pressed":String(mine === 1),onclick:() => setRsvp(id, me, mine === 1 ? null : 1)}, "🙌 Ci sono!"),
+      h("button",{class:"btn " + (mine === 0 ? "on-no" : "ghost"),type:"button","aria-pressed":String(mine === 0),onclick:() => setRsvp(id, me, mine === 0 ? null : 0)}, "Stavolta salto")) : null,
+    has || c.chefId ? null : h("button",{class:"btn red block",type:"button",onclick:() => go("chef","up")},"Scegli lo chef"),
+    wheelTeaser(id, c),
+    has && c.note ? h("p",{class:"quote"}, "“" + c.note + "”") : null
+  );
+  return scene;
+}
+async function setRsvp(date, mid, v){
+  try{
+    await Store.send({ op:"rsvp", date, mid, v });
+    if(v === 1){ confetti(); toast("Ti aspettiamo a tavola!"); }
+    else if(v === 0) toast("Ci mancherai! La prossima volta?");
+  }catch(err){ toast("Non salvato: " + err.message); }
+}
+function voteSection(s){
+  const id = s.vot, c = fam().dinners[id];
+  if(!(c && c.dish)){
+    if(!Object.keys(fam().dinners).length) return null;
+    return h("section",{class:"section"},
+      h("h2",{class:"section-title"}, s.votToday ? "La cena di stasera" : "L'ultima cena"),
+      h("div",{class:"card"}, h("p",{class:"hint"}, "Per " + fmtLong(id) + " non è stato segnato nessun piatto."),
+        h("button",{class:"btn soft",type:"button",onclick:() => go("chef","vot")}, "Segna chef e piatto")));
+  }
+  const chef = chefOf(c), mine = myVote(id), vs = votesOf(id);
+  const head = h("div",{class:"dishline"}, mAv(chef,"mini"), h("div",null, h("strong",null, c.dish), h("span",{class:"hint"}, "chef " + chef.name)));
+  const title = s.votToday ? "Com'era la cena di stasera?" : "Com'era la cena di " + fmtLong(id) + "?";
+  let body;
+  if(mine && !ui.editing) body = [head, h("div",{class:"mine"}, h("span",null,"Il tuo voto", miniStars(mine.stars)), h("button",{class:"link",type:"button",onclick:startEdit},"Cambia")), results(id, vs)];
+  else body = [head, voteForm(id, vs, mine)];
+  return h("section",{class:"section"}, h("h2",{class:"section-title"}, title), h("div",{class:"card"}, body));
+}
+function voteForm(id, vs, mine){
+  const stars = h("div",{class:"stars",role:"radiogroup","aria-label":"Voto da 1 a 5 stelle"});
+  for(let i=1;i<=5;i++){
+    const b = h("button",{type:"button",class:"star"+(i<=ui.stars?" on":"")+(ui.pop===i?" pop":""),role:"radio","aria-checked":String(ui.stars===i),"aria-label":i+(i===1?" stella":" stelle")+": "+WORDS[i],
+      onclick:() => { ui.stars = i; ui.pop = i; ui.err.vote = ""; render(); ui.pop = 0; }});
+    b.append(starSvg(null)); stars.append(b);
+  }
+  const ta = h("textarea",{id:"vote-c",maxlength:"400",placeholder:"Es. Sugo pazzesco, pasta un filo scotta",oninput:e => { ui.voteC = e.target.value; }});
+  ta.value = ui.voteC;
+  const others = vs.filter(v => !mine || v.id !== mine.id).length;
+  return h("form",{class:"vote",onsubmit:submitVote(id),novalidate:true},
+    stars, h("div",{class:"star-word","aria-live":"polite"}, ui.stars ? WORDS[ui.stars] : "Tocca le stelle"),
+    h("div",{class:"field"}, h("label",{for:"vote-c"},"Perché questo voto?"), ta),
+    h("div",{class:"lock",html:LOCK + "<span>Voto anonimo: nessuno saprà chi l'ha scritto.</span>"}),
+    h("div",{class:"err",role:"alert"}, ui.err.vote || ""),
+    h("div",{class:"row"}, h("button",{class:"btn red block",type:"submit"}, mine ? "Aggiorna il voto" : "Invia il voto"),
+      ui.editing ? h("button",{class:"btn ghost",type:"button",onclick:() => { ui.editing = false; ui.err.vote = ""; render(); }},"Annulla") : null),
+    !mine && others > 0 ? h("div",{class:"teaser"}, (others === 1 ? "1 persona ha" : others + " persone hanno") + " già votato. I risultati si svelano dopo il tuo voto.") : null);
+}
+function submitVote(id){
+  return async function(e){
+    e.preventDefault();
+    if(!ui.stars){ ui.err.vote = "Scegli da 1 a 5 stelle."; render(); return; }
+    const c = ui.voteC.trim();
+    if(c.length < 2){ ui.err.vote = "Scrivi due parole sul perché."; render(); return; }
+    try{
+      const was = !!myVote(id);
+      await Store.send({ op:"vote", dinner:id, device:DEV, stars:ui.stars, comment:c });
+      ui.stars = 0; ui.voteC = ""; ui.editing = false; ui.err.vote = "";
+      render(); confetti(); toast(was ? "Voto aggiornato" : "Voto inviato, grazie!");
+    }catch(err){ ui.err.vote = "Voto non inviato: " + err.message + ". Riprova."; render(); }
+  };
+}
+function startEdit(){ const m = myVote(slots().vot); ui.editing = true; ui.stars = m ? m.stars : 0; ui.voteC = m ? (m.comment || "") : ""; ui.err.vote = ""; render(); }
+function results(id, vs){
+  if(!vs.length) return h("p",{class:"hint"},"Ancora nessun voto.");
+  const a = avgOf(vs);
+  const dist = [5,4,3,2,1].map(n => { const k = vs.filter(v => v.stars === n).length; return h("div",{class:"bar"}, h("span",null, n + " ★"), h("span",{class:"track"}, h("span",{class:"fill",style:"width:"+(k/vs.length*100)+"%"})), h("span",null, String(k))); });
+  return h("div",{class:"results"},
+    h("div",{class:"verdict"}, h("span",{class:"score"}, fmtAvg(a)), h("div",null, miniStars(a), h("p",{class:"hint"}, vs.length === 1 ? "1 voto" : vs.length + " voti"))),
+    h("div",{class:"bars"}, dist), notes(vs));
+}
+function notes(vs){
+  const list = vs.filter(v => v.comment).slice().sort((x,y) => (y.stars - x.stars) || (x.comment < y.comment ? -1 : 1));
+  if(!list.length) return null;
+  return h("div",{class:"notes"}, list.map((v,i) => h("div",{class:"note",style:"background:"+NOTE_COLORS[i%4]+";--r:"+(i%2 ? 1.4 : -1.2)+"deg"}, miniStars(v.stars), h("p",null, v.comment))));
+}
+function viewCena(){
+  const s = slots(), me = member(meId()), st = streak();
+  const hello = h("div",{class:"hello"},
+    h("div",null, h("h1",null, me ? "Ciao, " + me.name + "!" : "Ciao!"), h("p",null, fam().name || "")),
+    st >= 2 ? h("span",{class:"streak",style:"margin-left:auto"}, "🔥 " + st + " settimane insieme") : null);
+  const scene = tableScene(s), vote = voteSection(s);
+  return [demoBanner(), hello].concat(s.votToday ? [vote, scene] : [scene, vote]);
+}
+
+/* ---------- chef ---------- */
+function suggest(forId){
+  const ms = members(); if(ms.length < 2) return null;
+  const last = {};
+  Object.keys(fam().dinners).forEach(id => { const c = fam().dinners[id]; if(id < forId && c && c.chefId && (!last[c.chefId] || last[c.chefId] < id)) last[c.chefId] = id; });
+  let best = null;
+  ms.forEach(m => { const l = last[m.id] || ""; if(!best || l < best.l) best = { m, l }; });
+  return { name: best.m.name, why: best.l ? ": l'ultima volta ha cucinato il " + fmtDM(best.l) + "." : ": non ha ancora mai cucinato." };
+}
+function chefMode(c){ if(!c) return "chef"; if(c.spin || (c.wheel && c.wheel.length) || (c.chefId && !c.dish)) return "wheel"; return "chef"; }
+function viewChef(){
+  const s = slots(), forId = ui.chefFor === "vot" ? s.vot : s.up, isUp = forId === s.up;
+  const cur = fam().dinners[forId] || {};
+  if(!ui.chef || ui.chef.forId !== forId){ ui.chef = { forId, chefId:cur.chefId || "", dish:(cur.spin ? "" : cur.dish) || "", note:cur.note || "", mode: isUp ? chefMode(cur) : "chef" }; }
+  const d = ui.chef, ms = members();
+  const segBtn = (k, label, sub) => h("button",{type:"button","aria-pressed":String(ui.chefFor===k),onclick:() => { ui.chefFor = k; ui.chef = null; ui.err.chef = ""; render(); }}, label, h("small",null, sub));
+  const seg = h("div",{class:"seg",role:"group","aria-label":"Quale cena"}, segBtn("up", s.upToday ? "Stasera" : "Prossima", fmtDM(s.up)), segBtn("vot", s.votToday ? "Stasera" : "La scorsa", fmtDM(s.vot)));
+  const title = h("h2",{class:"page-title"}, "Chi cucina " + (forId === s.today ? "stasera" : fmtLong(forId)) + "?");
+  if(!ms.length) return [demoBanner(), seg, title, h("div",{class:"card empty"}, h("div",{class:"big-emoji"},"👨‍🍳"), h("p",null,"Prima crea i personaggi della famiglia, poi qui scegli lo chef della settimana."), h("button",{class:"btn red",type:"button",onclick:() => go("famiglia")},"Vai alla famiglia"))];
+  const sug = suggest(forId);
+  const grid = h("div",{class:"members",role:"radiogroup","aria-label":"Scegli lo chef"},
+    ms.map(m => h("button",{type:"button",class:"member",role:"radio","aria-checked":String(d.chefId===m.id),onclick:() => { d.chefId = m.id; ui.err.chef = ""; render(); }}, mAv(m,"mav"), h("span",null, m.name))));
+  const dish = h("input",{id:"chef-dish",type:"text",maxlength:"60",autocomplete:"off",placeholder:"Es. Lasagna della domenica",oninput:e => { d.dish = e.target.value; }}); dish.value = d.dish;
+  const note = h("input",{id:"chef-note",type:"text",maxlength:"120",autocomplete:"off",placeholder:"Es. Ricetta segreta della nonna",oninput:e => { d.note = e.target.value; }}); note.value = d.note;
+  const exists = !!(cur.chefId || cur.dish);
+  const modeSeg = isUp ? h("div",{class:"field"}, h("span",null,"Chi decide il piatto?"),
+    h("div",{class:"seg",role:"group","aria-label":"Chi decide il piatto"},
+      h("button",{type:"button","aria-pressed":String(d.mode==="chef"),onclick:() => { d.mode = "chef"; render(); }}, "👨‍🍳 Lo chef", h("small",null,"sceglie e cucina")),
+      h("button",{type:"button","aria-pressed":String(d.mode==="wheel"),onclick:() => { d.mode = "wheel"; render(); }}, "🎡 La ruota", h("small",null,"la famiglia propone")))) : null;
+  const dishField = d.mode === "wheel"
+    ? h("div",{class:"suggest",style:"background:var(--mint-soft)"}, cur.spin && cur.dish ? ["La ruota ha deciso: ", h("b",null,cur.dish), ". Lo chef deve cucinarlo!"] : "Il piatto lo decide la ruota qui sotto. Lo chef dovrà cucinare quello che esce!")
+    : h("div",{class:"field"}, h("label",{for:"chef-dish"},"Il piatto"), dish);
+  const form = h("form",{class:"card",onsubmit:saveChef,novalidate:true},
+      sug && !d.chefId ? h("div",{class:"suggest"}, "Tocca a ", h("b",null, sug.name), sug.why) : null,
+      h("div",{class:"field"}, h("span",null,"Lo chef"), grid),
+      modeSeg, dishField,
+      h("div",{class:"field"}, h("label",{for:"chef-note"},"Una nota per la famiglia (facoltativa)"), note),
+      h("div",{class:"err",role:"alert"}, ui.err.chef || ""),
+      h("button",{class:"btn red block",type:"submit"}, exists ? "Aggiorna" : "Salva"));
+  const out = [demoBanner(), seg, title, form];
+  if(isUp){
+    if(d.mode === "wheel" || (cur.wheel && cur.wheel.length) || cur.spin) out.push(wheelSection(forId));
+    else out.push(h("button",{class:"card",type:"button",style:"border:none;cursor:pointer;text-align:left;font:inherit;flex-direction:row;align-items:center",onclick:() => { d.mode = "wheel"; render(); }},
+      h("span",{style:"font-size:2.4rem;line-height:1"},"🎡"), h("span",null, h("b",{style:"display:block;font-family:var(--f-display);font-weight:400;font-size:1.1rem"},"Non sapete cosa cucinare?"), h("span",{class:"hint"},"Usate la ruota dei piatti: ognuno propone, la ruota decide."))));
+  }
+  return out;
+}
+async function saveChef(e){
+  e.preventDefault();
+  const d = ui.chef, cur = fam().dinners[d.forId] || {};
+  if(!d.chefId){ ui.err.chef = "Scegli chi cucina."; render(); return; }
+  const m = member(d.chefId), chefName = m ? m.name : "";
+  try{
+    if(d.mode === "wheel"){
+      if(cur.spin && cur.dish) await Store.send({ op:"dinner", date:d.forId, chefId:d.chefId, chefName, dish:cur.dish, note:d.note.trim() });
+      else await Store.send({ op:"chefOnly", date:d.forId, chefId:d.chefId, chefName, note:d.note.trim() });
+      ui.err.chef = ""; toast(cur.spin ? "Chef salvato" : "Chef salvato: ora fate girare la ruota!"); ui.chef = null; render();
+      return;
+    }
+    if(!d.dish.trim()){ ui.err.chef = "Scrivi il piatto."; render(); return; }
+    await Store.send({ op:"dinner", date:d.forId, chefId:d.chefId, chefName, dish:d.dish.trim(), note:d.note.trim() });
+    ui.err.chef = ""; ui.chef = null; toast("Menù salvato"); go("cena");
+  }catch(err){ ui.err.chef = "Non salvato: " + err.message + ". Riprova."; render(); }
+}
+
+/* ---------- wheel of dishes ---------- */
+function seenKey(date){ return "dc_spin_" + (Store.fid || "demo") + "_" + date; }
+function wheelTeaser(date, c){
+  const n = (c.wheel || []).length;
+  if(c.spin && c.dish) return h("button",{class:"chefline",type:"button",style:"border:none;cursor:pointer;width:100%;text-align:left;font:inherit",onclick:() => go("chef","up")}, h("span",{style:"font-size:1.8rem"},"🎡"), h("div",null, h("small",null,"La ruota ha deciso"), h("b",null,c.dish)));
+  if(!n && c.dish) return null;
+  return h("button",{class:"chefline",type:"button",style:"border:none;cursor:pointer;width:100%;text-align:left;font:inherit",onclick:() => go("chef","up")},
+    h("span",{style:"font-size:1.8rem"},"🎡"), h("div",null, h("b",null,"La ruota dei piatti"), h("small",null, n ? n + (n === 1 ? " piatto proposto" : " piatti proposti") + " · aggiungi il tuo o gira!" : "Proponi un piatto per la prossima cena")));
+}
+function wheelSection(date){
+  const c = fam().dinners[date] || {}, entries = c.wheel || [], me = meId(), spun = c.spin && entries.find(w => w.id === c.spin.id);
+  const W = window.DCWheel;
+  const box = h("div",{class:"wheel-box"});
+  const svg = W.wheel(entries.map(w => w.dish), { aria: "Ruota con " + entries.length + " piatti" });
+  box.append(svg);
+  if(spun){ const idx = entries.indexOf(spun); svg.querySelector(".wheel-rot").style.transform = "rotate(" + W.angleFor(idx, entries.length, c.spin.jitter, 0) + "deg)"; }
+  if(!entries.length) box.append(h("div",{class:"wheel-empty"}, "La ruota è vuota.", h("br"), "Aggiungi il primo piatto!"));
+  const list = h("div",{class:"wlist"}, entries.map(w => { const by = member(w.by); return h("div",{class:"wchip" + (spun && spun.id === w.id ? " win" : "")}, by ? mAv(by,"wav") : null, h("span",null, w.dish), !c.spin && w.by === me ? h("button",{type:"button","aria-label":"Togli " + w.dish,onclick:() => wheelRemove(date, w.id)},"✕") : null); }));
+  const input = h("input",{id:"wheel-in",type:"text",maxlength:"40",autocomplete:"off",placeholder:"Es. Sushi fatto in casa",oninput:e => { ui.wheelIn = e.target.value; }}); input.value = ui.wheelIn || "";
+  const add = !c.spin ? (me ? h("form",{class:"addrow",onsubmit:e => { e.preventDefault(); wheelAdd(date); }}, input, h("button",{class:"btn red",type:"submit"},"Aggiungi")) : h("p",{class:"hint"},"Scegli chi sei nella sezione Famiglia per proporre un piatto.")) : null;
+  const manual = c.dish && !c.spin;
+  const spinBtn = !c.spin ? h("button",{class:"btn gold block",type:"button",disabled:entries.length < 2 || ui.spinning,onclick:() => doSpin(date)}, entries.length < 2 ? "Servono almeno 2 piatti" : (ui.confirmSpin === date && manual ? "Sostituirà \"" + c.dish + "\": tocca ancora" : "🎡 Gira la ruota!")) : null;
+  const result = spun ? h("div",{class:"wresult"}, h("p",{class:"hint",style:"font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:.72rem"},"La ruota ha deciso"), h("b",null, spun.dish),
+      h("p",{class:"hint"}, c.chefId ? chefOf(c).name + " dovrà cucinarlo!" : "Ora scegliete chi lo cucinerà."),
+      h("button",{class:"link" + (ui.confirmReset === date ? " danger" : ""),type:"button",onclick:() => wheelReset(date)}, ui.confirmReset === date ? "Tocca ancora per rifare l'estrazione" : "Rifai l'estrazione")) : null;
+  return h("section",{class:"card wheel-card",id:"wheel-card"},
+    h("div",null, h("h3",{class:"card-title"},"🎡 La ruota dei piatti"), h("p",{class:"hint"},"Facoltativa: ognuno propone fino a 2 piatti, la ruota gira e lo chef deve cucinare quello che esce.")),
+    box, result, entries.length ? list : null, add, spinBtn, h("div",{class:"err",role:"alert"}, ui.err.wheel || ""));
+}
+async function wheelAdd(date){
+  const dish = (ui.wheelIn || "").trim();
+  if(!dish){ ui.err.wheel = "Scrivi un piatto."; render(); return; }
+  try{ await Store.send({ op:"wheelAdd", date, dish, mid:meId() }); ui.wheelIn = ""; ui.err.wheel = ""; toast("Piatto aggiunto alla ruota"); render(); const i = document.getElementById("wheel-in"); if(i) i.focus(); }
+  catch(err){ ui.err.wheel = err.message.charAt(0).toUpperCase() + err.message.slice(1) + "."; render(); }
+}
+async function wheelRemove(date, id){ try{ await Store.send({ op:"wheelRemove", date, id }); }catch(err){ toast(err.message); } }
+async function wheelReset(date){
+  if(ui.confirmReset !== date){ ui.confirmReset = date; render(); setTimeout(() => { if(ui.confirmReset === date){ ui.confirmReset = null; render(); } }, 3500); return; }
+  ui.confirmReset = null;
+  try{ await Store.send({ op:"wheelReset", date }); toast("Estrazione annullata: si può rigirare"); }catch(err){ toast(err.message); }
+}
+async function doSpin(date){
+  const c = fam().dinners[date] || {};
+  if(c.dish && !c.spin && ui.confirmSpin !== date){ ui.confirmSpin = date; render(); setTimeout(() => { if(ui.confirmSpin === date){ ui.confirmSpin = null; render(); } }, 3500); return; }
+  ui.confirmSpin = null;
+  const rotEl = document.querySelector("#wheel-card .wheel-rot");
+  ui.spinning = true; ui.err.wheel = "";
+  const btn = document.querySelector("#wheel-card .btn.gold"); if(btn){ btn.disabled = true; btn.textContent = "La ruota gira…"; }
+  try{
+    await Store.send({ op:"spin", date, mid:meId() });
+    animateSpin(date, rotEl);
+  }catch(err){ ui.spinning = false; ui.err.wheel = err.message.charAt(0).toUpperCase() + err.message.slice(1) + "."; render(); }
+}
+function animateSpin(date, rotEl){
+  const c = fam().dinners[date] || {}, entries = c.wheel || [], w = c.spin && entries.find(e => e.id === c.spin.id);
+  lsSet(seenKey(date), c.spin ? c.spin.at : "");
+  if(!w || !rotEl){ ui.spinning = false; render(); return; }
+  const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const target = window.DCWheel.angleFor(entries.indexOf(w), entries.length, c.spin.jitter, reduce ? 0 : 6);
+  ui.spinning = true;
+  rotEl.style.transition = "none"; rotEl.style.transform = "rotate(0deg)";
+  void rotEl.getBoundingClientRect();
+  requestAnimationFrame(() => {
+    rotEl.style.transition = reduce ? "none" : "transform 5.2s cubic-bezier(.12,.72,.16,1)";
+    rotEl.style.transform = "rotate(" + target + "deg)";
+    setTimeout(() => { ui.spinning = false; render(); confetti(); toast("🎉 La ruota ha deciso: " + w.dish + "!"); const card = document.getElementById("wheel-card"); if(card) card.scrollIntoView({ behavior:"smooth", block:"start" }); }, reduce ? 50 : 5400);
+  });
+}
+function checkRemoteSpin(){
+  if(ui.tab !== "chef" || ui.chefFor !== "up" || ui.spinning) return;
+  const date = slots().up, c = fam().dinners[date];
+  if(!c || !c.spin) return;
+  if(lsGet(seenKey(date)) === c.spin.at) return;
+  const rotEl = document.querySelector("#wheel-card .wheel-rot"); if(!rotEl) return;
+  animateSpin(date, rotEl);
+}
+
+/* ---------- crown ---------- */
+function chefStats(){
+  const s = slots(), map = {};
+  Object.keys(fam().dinners).forEach(id => {
+    if(id > s.vot) return;
+    const c = fam().dinners[id]; if(!c || !c.dish) return;
+    const vs = votesOf(id); if(!vs.length) return;
+    const ch = chefOf(c), key = ch.id || ("n:" + ch.name);
+    if(!map[key]) map[key] = { m:ch, sum:0, n:0, dinners:0 };
+    const e = map[key]; e.sum += vs.reduce((a,v) => a + v.stars, 0); e.n += vs.length; e.dinners++;
+  });
+  return Object.values(map).map(e => Object.assign(e, { a: e.sum / e.n })).sort((x,y) => (y.a - x.a) || (y.dinners - x.dinners));
+}
+function bestDish(){
+  const s = slots(); let best = null;
+  Object.keys(fam().dinners).forEach(id => { if(id > s.vot) return; const c = fam().dinners[id], vs = votesOf(id); if(!c || !c.dish || !vs.length) return; const a = avgOf(vs); if(!best || a > best.a || (a === best.a && vs.length > best.n)) best = { id, c, a, n:vs.length }; });
+  return best;
+}
+function viewCorona(){
+  const st = chefStats(), ch = crownHolder(), holder = ch && member(ch.chefId);
+  const month = new Date().toLocaleDateString("it-IT",{month:"long"});
+  const top = holder
+    ? h("div",{class:"crowncard"}, h("div",{class:"rays"}), mAv(holder,"bigav"), h("p",{class:"kick",style:"font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:.75rem;color:var(--gold-deep)"},"Porta la corona di " + month), h("h2",null, holder.name), h("p",null, "con " + ch.dish + " · " + fmtAvg(ch.a) + " ★"), h("p",{style:"font-size:.86rem"},"Batti il suo punteggio per rubargliela!"))
+    : h("div",{class:"crowncard"}, h("div",{class:"rays"}), h("div",{class:"big-emoji"},"👑"), h("h2",null,"La corona è libera"), h("p",null,"Il primo chef che riceve i voti questo mese la conquista."));
+  if(!st.length) return [demoBanner(), top];
+  const order = [1,0,2].filter(i => st[i]);
+  const podium = h("div",{class:"podium",style:"grid-template-columns:repeat("+order.length+",1fr)"},
+    order.map(i => { const e = st[i]; return h("div",{class:"step p"+(i+1)}, mAv(e.m,"pav"), h("span",{class:"name"}, e.m.name), h("span",{class:"val"}, fmtAvg(e.a) + " ★"), h("div",{class:"pblock"}, String(i+1))); }));
+  const list = h("div",{class:"rlist"}, st.map((e,i) => h("div",{class:"rrow"}, h("span",{class:"pos"}, String(i+1)), mAv(e.m,""), h("span",{class:"rname"}, e.m.name, h("small",null, (e.dinners === 1 ? "1 cena" : e.dinners + " cene") + " · " + (e.n === 1 ? "1 voto" : e.n + " voti"))), h("span",{class:"rval"}, fmtAvg(e.a) + " ★"))));
+  const b = bestDish();
+  return [demoBanner(), top,
+    h("h2",{class:"section-title"},"Classifica di sempre"),
+    h("div",{class:"card"}, podium),
+    b ? h("div",{class:"card best"}, h("p",{class:"hint",style:"font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:.75rem"},"Il piatto più amato"), h("div",{class:"best-dish"}, b.c.dish), h("p",{class:"hint"}, "di " + chefOf(b.c).name + " · " + fmtLong(b.id)), h("div",{class:"verdict"}, h("span",{class:"score sm"}, fmtAvg(b.a)), miniStars(b.a))) : null,
+    h("div",{class:"card"}, h("h3",{class:"card-title"},"Tutti gli chef"), list)];
+}
+
+/* ---------- history ---------- */
+function viewStorico(){
+  const s = slots();
+  const ids = Object.keys(fam().dinners).filter(id => id <= s.vot && fam().dinners[id] && fam().dinners[id].dish).sort().reverse();
+  const head = h("h2",{class:"page-title"},"Le nostre cene");
+  if(!ids.length) return [demoBanner(), head, h("div",{class:"card empty"}, h("div",{class:"big-emoji"},"📖"), h("p",null,"Qui si raccolgono tutte le cene, con voti e commenti. Il vostro album di famiglia."))];
+  return [demoBanner(), head, h("div",{class:"hist"}, ids.map(id => {
+    const c = fam().dinners[id], vs = votesOf(id), ch = chefOf(c), open = ui.openHist === id, canSee = !!myVote(id) || id !== s.vot;
+    const pres = c.rsvp ? Object.values(c.rsvp).filter(v => v === 1).length : 0;
+    return h("div",{class:"hitem"},
+      h("button",{class:"hrow",type:"button","aria-expanded":String(open),onclick:() => { ui.openHist = open ? null : id; render(); }},
+        h("span",{class:"date"}, h("b",null, String(fromId(id).getDate())), h("span",null, monShort(id))),
+        mAv(ch,""),
+        h("span",{class:"hmain"}, h("strong",null, c.dish), h("span",{class:"hint"}, ch.name + (pres ? " · " + pres + " a tavola" : ""))),
+        h("span",{class:"hval"}, vs.length && canSee ? [h("b",null, fmtAvg(avgOf(vs))), h("small",{class:"gold"},"★")] : h("small",null, vs.length ? "vota per vedere" : "nessun voto"))),
+      open ? h("div",{class:"hbody"}, canSee ? (vs.length ? results(id, vs) : h("p",{class:"hint"},"Nessuno ha votato questa cena.")) : h("p",{class:"hint"},"Vota questa cena per vedere il verdetto.")) : null);
+  }))];
+}
+
+/* ---------- family ---------- */
+function stamp(d){ return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+"T"+pad(d.getHours())+pad(d.getMinutes())+"00"; }
+const BYDAY = ["SU","MO","TU","WE","TH","FR","SA"];
+function downloadIcs(){
+  const s = slots(), start = at(s.up, fam().time), end = new Date(start.getTime() + 2*36e5), n = new Date(), url = inviteUrl();
+  const utc = n.getUTCFullYear()+pad(n.getUTCMonth()+1)+pad(n.getUTCDate())+"T"+pad(n.getUTCHours())+pad(n.getUTCMinutes())+"00Z";
+  const txt = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Dinner Crown//IT","CALSCALE:GREGORIAN","BEGIN:VEVENT","UID:cena-"+(Store.fid || "demo")+"-"+DEV+"@dinnercrown","DTSTAMP:"+utc,"DTSTART:"+stamp(start),"DTEND:"+stamp(end),
+    "RRULE:FREQ=WEEKLY;BYDAY="+BYDAY[fam().day],"SUMMARY:👑 Cena di famiglia","DESCRIPTION:Lo chef cucina\\, tutti votano."+(url ? " "+url : ""), url ? "URL:"+url : null,
+    "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:Stasera cena di famiglia!","TRIGGER:-PT2H","END:VALARM","BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:È ora di votare il piatto","TRIGGER:PT2H","END:VALARM","END:VEVENT","END:VCALENDAR"].filter(Boolean).join("\r\n");
+  try{ const u = URL.createObjectURL(new Blob([txt],{type:"text/calendar"})); const a = h("a",{href:u,download:"cena-di-famiglia.ics"}); document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 5000); toast("Apri il file per aggiungerlo al calendario"); }
+  catch(e){ toast("Usa il pulsante Google Calendar"); }
+}
+function gcalUrl(){
+  const s = slots(), start = at(s.up, fam().time), end = new Date(start.getTime() + 2*36e5), url = inviteUrl();
+  const q = new URLSearchParams({ action:"TEMPLATE", text:"👑 Cena di famiglia", dates:stamp(start)+"/"+stamp(end), ctz:(Intl.DateTimeFormat().resolvedOptions().timeZone) || "Europe/Rome", recur:"RRULE:FREQ=WEEKLY;BYDAY="+BYDAY[fam().day], details:"Lo chef cucina, tutti votano." + (url ? "\n" + url : "") });
+  return "https://calendar.google.com/calendar/render?" + q.toString();
+}
+async function shareInvite(){
+  const url = inviteUrl();
+  if(!url){ toast("Crea la tua famiglia per avere il link di invito"); return; }
+  const text = "Entra in " + (fam().name || "famiglia") + " su Dinner Crown: crea il tuo personaggio e ci vediamo a tavola 👑";
+  try{ if(navigator.share){ await navigator.share({ title:"Dinner Crown", text, url }); return; } }catch(e){ if(e && e.name === "AbortError") return; }
+  try{ await navigator.clipboard.writeText(url); toast("Link di invito copiato"); }catch(e){ toast("Copia il link qui sotto"); }
+}
+async function removeMember(id){
+  if(ui.confirmDel !== id){ ui.confirmDel = id; render(); setTimeout(() => { if(ui.confirmDel === id){ ui.confirmDel = null; render(); } }, 3500); return; }
+  ui.confirmDel = null; closeEditor();
+  try{ await Store.send({ op:"removeMember", id }); toast("Personaggio rimosso"); }catch(err){ toast("Non rimosso: " + err.message); }
+}
+async function saveWhen(e){
+  e.preventDefault();
+  const t = ui.time || fam().time, d = ui.day != null ? Number(ui.day) : fam().day;
+  if(!/^\d{2}:\d{2}$/.test(t)){ toast("Scegli un orario"); return; }
+  try{ await Store.send({ op:"settings", day:d, time:t }); toast("Si cena " + DAYS_PL[d] + " alle " + t); }catch(err){ toast("Non salvato: " + err.message); }
+}
+function viewFamiglia(){
+  const ms = members(), me = meId(), url = inviteUrl();
+  const day = h("select",{id:"day-in","aria-label":"Giorno della cena",onchange:e => { ui.day = Number(e.target.value); }}, DAYS.map((d,i) => h("option",{value:String(i)}, "Ogni " + d))); day.value = String(ui.day != null ? ui.day : fam().day);
+  const time = h("input",{id:"time-in",type:"time","aria-label":"Orario",oninput:e => { ui.time = e.target.value; }}); time.value = ui.time || fam().time || "20:00";
+  return [demoBanner(),
+    h("h2",{class:"page-title"},"I personaggi della famiglia"),
+    h("p",{class:"hint",style:"margin-top:-8px"},"Tocca un personaggio per modificarlo. Ognuno può creare il suo dal proprio telefono."),
+    h("div",{class:"pgrid"},
+      ms.map(m => h("button",{class:"pcard",type:"button",onclick:() => openEditor(m.id)}, me === m.id ? h("span",{class:"you"},"Tu") : null, mAv(m,"pav"), h("b",null,m.name), h("small",null,"Modifica"))),
+      h("button",{class:"pcard add",type:"button",onclick:() => openEditor(null, {})}, h("span",{class:"plus"},"+"), h("b",null,"Nuovo personaggio"), h("small",null,"Per chi non ha il telefono"))),
+    ms.length ? h("div",{class:"card"}, h("h3",{class:"card-title"},"Chi sei su questo telefono?"),
+      h("select",{"aria-label":"Chi sei",onchange:e => { if(e.target.value){ setMe(e.target.value); toast("Ok, sei " + member(e.target.value).name); render(); } }},
+        h("option",{value:""},"Scegli…"), ms.map(m => { const o = h("option",{value:m.id}, m.name); if(m.id === me) o.selected = true; return o; }))) : null,
+    h("div",{class:"card"}, h("h3",{class:"card-title"},"Invita la famiglia"),
+      h("p",{class:"hint"},"Mandalo nel gruppo di famiglia: ognuno apre il link, crea il suo personaggio e risponde se c'è. Anche chi vive lontano."),
+      url ? h("div",{class:"codebox"}, url) : null,
+      h("button",{class:"btn red block",type:"button",onclick:shareInvite},"Condividi il link di invito")),
+    h("form",{class:"card",onsubmit:saveWhen}, h("h3",{class:"card-title"},"Quando si cena insieme"), h("div",{class:"two"}, day, time), h("button",{class:"btn soft block",type:"submit"},"Salva")),
+    h("div",{class:"card"}, h("h3",{class:"card-title"},"Promemoria sul telefono"),
+      h("p",{class:"hint"},"Aggiungilo una volta: il telefono ti avvisa 2 ore prima della cena e poi quando è ora di votare."),
+      h("button",{class:"btn gold block",type:"button",onclick:downloadIcs},"Aggiungi al calendario"),
+      h("a",{class:"btn ghost block",href:gcalUrl(),target:"_blank",rel:"noopener"},"Usa Google Calendar")),
+    h("div",{class:"card"}, h("h3",{class:"card-title"},"Consiglio"), h("p",{class:"hint"},"Su iPhone: Condividi → Aggiungi alla schermata Home, e Dinner Crown si apre come un'app.")),
+    Store.mode === "demo"
+      ? h("div",{class:"card"}, h("h3",{class:"card-title"},"Famiglia demo"), h("button",{class:"btn ghost block",type:"button",onclick:() => { Store.resetDemo(); toast("Demo ripristinata"); }},"Ripristina la demo"), h("button",{class:"btn red block",type:"button",onclick:() => { Store.leave(); go("cena"); }},"Crea la tua famiglia"))
+      : h("div",{class:"center"}, h("button",{class:"link" + (ui.confirmLeave ? " danger" : ""),type:"button",onclick:() => { if(!ui.confirmLeave){ ui.confirmLeave = true; render(); setTimeout(() => { ui.confirmLeave = false; render(); }, 3500); return; } Store.leave(); go("cena"); }}, ui.confirmLeave ? "Tocca ancora per uscire su questo telefono" : "Esci da questa famiglia su questo telefono"))
+  ];
+}
+
+/* ---------- character editor ---------- */
+const CATS = [
+  { k:"skin", label:"Pelle", icon:"🎨" }, { k:"face", label:"Viso", icon:"🙂" }, { k:"hair", label:"Capelli", icon:"💇" },
+  { k:"hairColor", label:"Colore", icon:"🖌️" }, { k:"eyes", label:"Occhi", icon:"👀" }, { k:"brows", label:"Sopracc.", icon:"〰️" },
+  { k:"nose", label:"Naso", icon:"👃" }, { k:"mouth", label:"Bocca", icon:"👄" }, { k:"beard", label:"Barba", icon:"🧔" },
+  { k:"glasses", label:"Occhiali", icon:"👓" }, { k:"acc", label:"Accessori", icon:"🎀" }, { k:"shirt", label:"Vestiti", icon:"👕" }, { k:"bg", label:"Sfondo", icon:"🟡" }
+];
+function openEditor(id, opt){
+  opt = opt || {};
+  const m = id ? member(id) : null;
+  ui.editor = { id: m ? m.id : null, name: m ? m.name : "", av: m ? Object.assign({}, m.av) : AV.clean(AV.random()), cat:"hair", me: !!opt.me, first: !!opt.first, wig:false, err:"" };
+  if(!m && opt.me && !opt.keepRandom) ui.editor.av = AV.clean(AV.PRESETS[(members().length) % AV.PRESETS.length].av);
+  renderEditor();
+}
+function closeEditor(){ ui.editor = null; renderEditor(); render(); }
+function edSet(k, v){ const e = ui.editor; e.av[k] = v; e.wig = true; renderEditor(); }
+function swatches(k, labelFn){
+  const e = ui.editor, opts = AV.OPTS[k];
+  return h("div",{class:"swatches",role:"radiogroup","aria-label":labelFn || k}, opts.map((c,i) => h("button",{type:"button",class:"sw",role:"radio","aria-checked":String(e.av[k]===i),"aria-label":"Colore " + (i+1),style:"background:"+c,onclick:() => edSet(k,i)})));
+}
+function optionGrid(k){
+  const e = ui.editor, opts = AV.OPTS[k];
+  return h("div",{class:"opts",role:"radiogroup"}, opts.map((label,i) => {
+    const variant = Object.assign({}, e.av, { [k]: i });
+    return h("button",{type:"button",class:"opt",role:"radio","aria-checked":String(e.av[k]===i),onclick:() => edSet(k,i)}, h("div",{class:"oav",html:AV.render(variant)}), h("span",null,label));
+  }));
+}
+function toggleRow(k, label){
+  const e = ui.editor;
+  return h("div",{class:"toggle-row"}, h("button",{type:"button",class:"toggle","aria-pressed":String(e.av[k]===1),onclick:() => edSet(k, e.av[k] ? 0 : 1)}, (e.av[k] ? "✓ " : "") + label));
+}
+function edPanel(){
+  const k = ui.editor.cat;
+  switch(k){
+    case "skin": return [h("h3",null,"Colore della pelle"), swatches("skin"), h("h3",null,"Dettagli"), h("div",{class:"toggle-row"}, toggleRow("freckles","Lentiggini"), toggleRow("blush","Guance rosa"))];
+    case "face": return [h("h3",null,"Forma del viso"), optionGrid("face")];
+    case "hair": return [h("h3",null,"Taglio di capelli"), optionGrid("hair")];
+    case "hairColor": return [h("h3",null,"Colore dei capelli"), swatches("hairColor")];
+    case "eyes": return [h("h3",null,"Occhi"), optionGrid("eyes"), h("h3",null,"Colore degli occhi"), swatches("eyeColor")];
+    case "brows": return [h("h3",null,"Sopracciglia"), optionGrid("brows")];
+    case "nose": return [h("h3",null,"Naso"), optionGrid("nose")];
+    case "mouth": return [h("h3",null,"Bocca"), optionGrid("mouth")];
+    case "beard": return [h("h3",null,"Barba e baffi"), optionGrid("beard")];
+    case "glasses": return [h("h3",null,"Occhiali"), optionGrid("glasses"), h("h3",null,"Colore della montatura"), swatches("glassesColor")];
+    case "acc": return [h("h3",null,"Accessori"), optionGrid("acc"), h("h3",null,"Colore"), swatches("accColor")];
+    case "shirt": return [h("h3",null,"Colore della maglia"), swatches("shirt"), h("h3",null,"Stile"), optionGrid("pattern")];
+    case "bg": return [h("h3",null,"Sfondo del badge"), swatches("bg")];
+  }
+  return [];
+}
+async function saveEditor(){
+  const e = ui.editor, name = e.name.trim();
+  if(!name){ e.err = "Dai un nome al personaggio."; renderEditor(); const n = document.getElementById("ed-name"); if(n) n.focus(); return; }
+  if(members().some(m => m.id !== e.id && m.name.toLowerCase() === name.toLowerCase())){ e.err = "C'è già un personaggio con questo nome."; renderEditor(); return; }
+  const id = e.id || ("m" + Date.now().toString(36) + Math.random().toString(36).slice(2,5));
+  try{
+    await Store.send({ op:"member", member:{ id, name, av:AV.clean(e.av) } });
+    if(e.me) setMe(id);
+    const first = e.first; ui.editor = null; renderEditor();
+    confetti(); toast(first ? "Benvenuto a tavola, " + name + "!" : "Personaggio salvato");
+    if(first) go("cena"); else render();
+  }catch(err){ e.err = "Non salvato: " + err.message + "."; renderEditor(); }
+}
+function renderEditor(){
+  const root = document.getElementById("editor-root");
+  if(!ui.editor){ root.replaceChildren(); document.body.style.overflow = ""; return; }
+  document.body.style.overflow = "hidden";
+  const e = ui.editor, prevPanel = root.querySelector(".ed-panel"), scroll = prevPanel ? prevPanel.scrollTop : 0, sameCat = root.dataset.cat === e.cat;
+  const focused = document.activeElement && document.activeElement.id === "ed-name";
+  const name = h("input",{id:"ed-name",type:"text",maxlength:"20",autocomplete:"off",placeholder:"Come ti chiami? (es. Nonna Rita)",oninput:ev => { e.name = ev.target.value; }}); name.value = e.name;
+  const big = h("div",{class:"bigav" + (e.wig ? " wiggle" : ""),html:AV.render(e.av, { label:"Anteprima del personaggio" })});
+  e.wig = false;
+  const isNew = !e.id;
+  const ed = h("div",{class:"editor",role:"dialog","aria-modal":"true","aria-labelledby":"ed-title"},
+    h("div",{class:"ed-inner"},
+      h("div",{class:"ed-top"},
+        e.first && !members().length ? h("span",{style:"width:90px"}) : h("button",{class:"btn ghost",type:"button",onclick:closeEditor},"Annulla"),
+        h("h2",{id:"ed-title"}, isNew ? (e.me ? "Crea il tuo personaggio" : "Nuovo personaggio") : "Modifica " + e.name),
+        h("button",{class:"btn red",type:"button",onclick:saveEditor},"Salva")),
+      h("div",{class:"ed-stage"}, big, h("button",{class:"dice",type:"button","aria-label":"Personaggio a caso",onclick:() => { e.av = AV.clean(AV.random()); e.wig = true; renderEditor(); }}, "🎲", h("span",null,"A caso"))),
+      h("div",{class:"ed-name"}, name, e.err ? h("div",{class:"err",role:"alert",style:"margin-top:6px"}, e.err) : null),
+      isNew ? h("div",{class:"presets","aria-label":"Personaggi pronti"}, AV.PRESETS.map(p => h("button",{class:"preset",type:"button",onclick:() => { e.av = AV.clean(p.av); if(!e.name) e.name = p.name; e.wig = true; renderEditor(); }}, h("div",{style:"width:60px",html:AV.render(p.av)}), p.name))) : null,
+      h("div",{class:"cats",role:"tablist"}, CATS.map(c => h("button",{class:"cat",type:"button",role:"tab","aria-pressed":String(e.cat===c.k),"aria-selected":String(e.cat===c.k),onclick:() => { e.cat = c.k; renderEditor(); }}, h("i",null,c.icon), c.label))),
+      h("div",{class:"ed-panel"}, edPanel(),
+        !isNew ? h("div",{style:"margin-top:22px;text-align:center"}, h("button",{class:"link" + (ui.confirmDel === e.id ? " danger" : ""),type:"button",onclick:() => removeMember(e.id)}, ui.confirmDel === e.id ? "Tocca ancora per eliminare" : "Elimina questo personaggio")) : null)
+    ));
+  root.replaceChildren(ed);
+  root.dataset.cat = e.cat;
+  const panel = ed.querySelector(".ed-panel"); if(panel && sameCat) panel.scrollTop = scroll;
+  if(focused){ const n = document.getElementById("ed-name"); if(n){ n.focus(); n.setSelectionRange(n.value.length, n.value.length); } }
+  const cur = ed.querySelector('.cat[aria-pressed="true"]'); if(cur && !sameCat) cur.scrollIntoView({ inline:"center", block:"nearest" });
+}
+
+/* ---------- feedback ---------- */
+let toastT = 0;
+function toast(msg){ const t = document.getElementById("toast"); t.textContent = msg; t.hidden = false; t.classList.remove("show"); void t.offsetWidth; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 2600); }
+function confetti(){
+  if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cv = document.getElementById("confetti"), ctx = cv.getContext("2d"); if(!ctx) return;
+  const dpr = window.devicePixelRatio || 1, W = cv.width = innerWidth*dpr, H = cv.height = innerHeight*dpr;
+  cv.hidden = false;
+  const cols = ["#E5412F","#FFB21E","#2E9D5B","#5B8DEF","#FF8FA8"];
+  const ps = Array.from({length:120}, () => ({ x:W/2, y:H*.6, vx:(Math.random()-.5)*W*.03, vy:-(Math.random()*H*.018 + H*.01), r:(Math.random()*6+5)*dpr, c:cols[Math.random()*5|0], a:Math.random()*6, va:(Math.random()-.5)*.35 }));
+  const g = H*.0007, t0 = performance.now();
+  (function frame(t){ ctx.clearRect(0,0,W,H); ps.forEach(p => { p.vy += g; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.a += p.va; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a); ctx.fillStyle = p.c; ctx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2); ctx.restore(); }); if(t - t0 < 2400) requestAnimationFrame(frame); else { ctx.clearRect(0,0,W,H); cv.hidden = true; } })(t0);
+}
+
+/* ---------- render ---------- */
+const VIEW_FN = { cena:viewCena, chef:viewChef, corona:viewCorona, storico:viewStorico, famiglia:viewFamiglia };
+function saveFocus(){ const a = document.activeElement; return a && a.id && (a.tagName === "INPUT" || a.tagName === "TEXTAREA") ? { id:a.id, s:a.selectionStart, e:a.selectionEnd } : null; }
+function restoreFocus(f){ if(!f) return; const el = document.getElementById(f.id); if(el){ el.focus({preventScroll:true}); try{ el.setSelectionRange(f.s, f.e); }catch(e){} } }
+function render(){
+  if(ui.spinning) return;
+  const f = saveFocus();
+  const inFamily = Store.ready && (Store.mode === "live" || Store.mode === "demo");
+  const needWho = inFamily && !meId();
+  const showTabs = inFamily && !needWho;
+  document.getElementById("app").classList.toggle("bare", !showTabs);
+  document.getElementById("tabbar").hidden = !showTabs;
+  const meBtn = document.getElementById("me-btn"), me = member(meId());
+  meBtn.hidden = !showTabs || !me;
+  if(me){ meBtn.replaceChildren(h("div",{html:avOf(me)}), h("span",{class:"edit","aria-hidden":"true"},"✎")); meBtn.onclick = () => openEditor(me.id); }
+  document.getElementById("fam-name").textContent = inFamily && fam().name ? fam().name : "La serata dello chef";
+  ["welcome","who"].concat(VIEWS).forEach(v => { document.getElementById("v-"+v).hidden = true; });
+  VIEWS.forEach(v => { const b = document.querySelector('[data-tab="'+v+'"]'); if(showTabs && ui.tab === v) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
+  let box;
+  if(!Store.ready){ box = document.getElementById("v-cena"); box.replaceChildren(h("div",{class:"loader"}, h("div",{class:"mini"}), h("p",null,"Apparecchio la tavola…"))); }
+  else if(!inFamily){ box = document.getElementById("v-welcome"); box.replaceChildren.apply(box, viewWelcome()); }
+  else if(needWho){ box = document.getElementById("v-who"); box.replaceChildren.apply(box, viewWho()); }
+  else { box = document.getElementById("v-"+ui.tab); box.replaceChildren.apply(box, VIEW_FN[ui.tab]().filter(Boolean)); }
+  box.hidden = false;
+  restoreFocus(f);
+  setTimeout(checkRemoteSpin, 300);
+}
+
+document.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => go(b.dataset.tab)));
+document.addEventListener("keydown", e => { if(e.key === "Escape" && ui.editor && !(ui.editor.first && !members().length)) closeEditor(); });
+setInterval(() => { const a = document.activeElement; if(!document.hidden && !ui.editor && !(a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA" || a.tagName === "SELECT"))) render(); }, 60000);
+Store.subs.push(() => { render(); });
+render();
+Store.init();
+})();
+</script>
+
+</body>
+</html>
