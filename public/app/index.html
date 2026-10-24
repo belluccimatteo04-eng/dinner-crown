@@ -15,6 +15,8 @@
 <meta name="apple-mobile-web-app-title" content="Dinner Crown">
 <link rel="manifest" href="/manifest.webmanifest">
 <script src="/avatar.js"></script>
+<script src="/game.js"></script>
+<script src="/minigiochi.js"></script>
 <style>:root{padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -23,7 +25,10 @@
 @font-face{font-family:"Nunito";src:url("/fonts/nunito-400.woff2") format("woff2");font-weight:400;font-display:swap}
 @font-face{font-family:"Nunito";src:url("/fonts/nunito-600.woff2") format("woff2");font-weight:600;font-display:swap}
 @font-face{font-family:"Nunito";src:url("/fonts/nunito-800.woff2") format("woff2");font-weight:800;font-display:swap}
+@font-face{font-family:"Nunito";src:url("/fonts/nunito-800.woff2") format("woff2");font-weight:900;font-display:swap}
 @font-face{font-family:"Caveat";src:url("/fonts/caveat-600.woff2") format("woff2");font-weight:600;font-display:swap}
+</style>
+<style>
 /* Layout: phone game UI — one column, bottom tab bar, the home is a top-down family table with everyone's characters seated around it */
 :root{
   --bg:#FDF2EC; --card:#FFFFFF; --ink:#3A1A1F; --muted:#8C6B6F; --line:#F0DDD5; --rim:#F3E3DE;
@@ -263,10 +268,207 @@ textarea{min-height:96px;resize:vertical;display:block}
 .or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
 .center{text-align:center}
 
+/* casa: mini world */
+.casa-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.wallet{display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:var(--ink);border-radius:999px;padding:7px 14px;font:400 1.15rem/1 var(--f-display);box-shadow:0 8px 16px -10px var(--gold-deep)}
+.jobs-left{display:flex;align-items:center;gap:6px;font-weight:800;font-size:.86rem;color:var(--muted)}
+.jobs-left i{width:14px;height:14px;border-radius:50%;background:var(--gold);display:inline-block;box-shadow:inset 0 -2px 0 var(--gold-deep)}
+.jobs-left i.off{background:var(--rim);box-shadow:none}
+.world{position:relative;width:100%;aspect-ratio:1/1.18;border-radius:30px;overflow:hidden;
+  background:linear-gradient(#9BD8FF 0 30%,#C9EDFF 30% 71%,#8CD47E 71%);box-shadow:0 1px 0 var(--line),0 20px 36px -28px rgba(58,26,31,.55);user-select:none;-webkit-user-select:none}
+.world .sun{position:absolute;right:7%;top:3%;width:13%;aspect-ratio:1;border-radius:50%;background:#FFD54A;box-shadow:0 0 0 8px rgba(255,213,74,.35)}
+.world .cloud{position:absolute;height:5%;border-radius:999px;background:#fff;opacity:.9}
+.roof{position:absolute;left:4%;right:4%;top:4%;height:16%;clip-path:polygon(50% 0,100% 100%,0 100%);
+  background:repeating-linear-gradient(0deg,#E5412F 0 9px,#C9362A 9px 11px)}
+.chimney{position:absolute;left:70%;top:6%;width:6%;height:9%;background:#B4532F;border-radius:3px 3px 0 0}
+.house{position:absolute;left:7%;right:7%;top:19.5%;height:51.5%;background:#C98B5A;border-radius:6px;padding:5px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:5px}
+.room{position:relative;border:none;border-radius:6px;cursor:pointer;padding:0;overflow:hidden;font:inherit;color:var(--ink);text-align:left}
+.room::after{content:"";position:absolute;left:0;right:0;bottom:0;height:22%;background:var(--floor)}
+.room .rl{position:absolute;left:6px;top:6px;z-index:2;background:rgba(255,255,255,.94);border-radius:999px;padding:2px 8px;font:800 .68rem/1.4 var(--f-body);white-space:nowrap}
+.room .deco{position:absolute;right:6%;bottom:14%;z-index:1;font-size:clamp(1.5rem,7.5vw,2.3rem);line-height:1;filter:drop-shadow(0 4px 2px rgba(58,26,31,.18))}
+.room .coin{position:absolute;right:6px;top:6px;z-index:2;font-size:.95rem;animation:bob 1.8s ease-in-out infinite}
+.room.here{box-shadow:inset 0 0 0 3px var(--gold)}
+.r-cameretta{background:radial-gradient(circle,#FFC7D6 2px,transparent 2.5px) 0 0/16px 16px,#FFE0E8;--floor:#E8B28A}
+.r-bagno{background:linear-gradient(90deg,rgba(255,255,255,.55) 1px,transparent 1px) 0 0/14px 14px,linear-gradient(rgba(255,255,255,.55) 1px,transparent 1px) 0 0/14px 14px,#BFE3F5;--floor:#9CC9E0}
+.r-cucina{background:linear-gradient(#FFF6DA 0 78%,transparent 78%),#fff;--floor:repeating-conic-gradient(#E5412F 0 25%,#fff 0 50%) 0 0/14px 14px}
+.r-garage{background:repeating-linear-gradient(0deg,#D7D9DE 0 12px,#C9CCD3 12px 14px);--floor:#8E939C}
+.yard{position:absolute;left:4%;right:4%;top:74%;bottom:3%;display:grid;grid-template-columns:1fr 1fr;gap:4%}
+.spot{position:relative;border:none;border-radius:18px;cursor:pointer;font:inherit;color:var(--ink);overflow:hidden;padding:0}
+.spot .rl{position:absolute;left:8px;top:6px;z-index:2;background:rgba(255,255,255,.94);border-radius:999px;padding:2px 8px;font:800 .68rem/1.4 var(--f-body)}
+.spot .deco{position:absolute;right:8%;bottom:10%;font-size:clamp(1.4rem,7vw,2.1rem);line-height:1}
+.spot .coin{position:absolute;right:8px;top:6px;font-size:.95rem;animation:bob 1.8s ease-in-out infinite}
+.s-giardino{background:radial-gradient(circle at 30% 70%,#6FBF5E 0 18%,transparent 19%),radial-gradient(circle at 75% 80%,#6FBF5E 0 15%,transparent 16%),#7FCB6E}
+.s-market{background:#FFF;box-shadow:inset 0 0 0 4px #fff}
+.s-market::before{content:"";position:absolute;left:0;right:0;top:0;height:30%;background:repeating-linear-gradient(90deg,#2E9D5B 0 14px,#fff 14px 28px);border-bottom:3px solid #23804A}
+.s-market .rl{top:34%;background:var(--mint);color:#fff}
+.s-market .deco{right:auto;left:10%}
+.spot.here{box-shadow:inset 0 0 0 3px var(--gold)}
+.walker{position:absolute;z-index:5;transform:translate(-50%,-100%);transition:left .9s ease-in-out,top .9s ease-in-out;pointer-events:none;display:flex;flex-direction:column;align-items:center}
+.walker .avw{width:100%;filter:drop-shadow(0 5px 3px rgba(58,26,31,.25))}
+.walker.walking .avw{animation:step .26s ease-in-out infinite}
+@keyframes step{50%{transform:translateY(-7%) rotate(3deg)}}
+.walker .tag{margin-top:-6%;background:var(--gold);color:var(--ink);font:800 .62rem/1.3 var(--f-body);border-radius:999px;padding:1px 7px;white-space:nowrap}
+.walker.npc .tag{background:rgba(255,255,255,.94)}
+.walker.npc .avw{animation:bob 3s ease-in-out infinite}
+.jobcard .jt{display:flex;align-items:center;gap:12px}
+.jobcard .je{font-size:2.6rem;line-height:1}
+.jobcard h2{margin:0;font:400 1.3rem/1.1 var(--f-display)}
+.jobcard p{margin:2px 0 0;color:var(--muted);font-weight:600;font-size:.92rem}
+.shop-list{display:flex;flex-direction:column;gap:8px}
+.sitem{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;background:var(--bg);border-radius:16px;padding:8px 8px 8px 14px;min-height:56px}
+.sitem .sn{font-weight:800;min-width:0;overflow-wrap:anywhere;line-height:1.2}
+.sitem .sn small{display:block;font-weight:700;color:var(--muted);font-size:.78rem}
+.sitem.got{background:var(--mint-soft)}
+.sitem.got .sn{text-decoration:line-through;text-decoration-color:rgba(46,157,91,.6)}
+.sitem .buyer{display:flex;align-items:center;gap:6px;font-weight:800;font-size:.78rem;color:var(--mint)}
+.sitem .buyer div{width:34px}
+.sitem .acts{display:flex;align-items:center;gap:4px}
+.sitem .x{border:none;background:none;color:var(--muted);font-weight:800;cursor:pointer;padding:6px;font-size:1rem}
+.btn.buy{min-height:42px;padding:8px 14px;font-size:.9rem;background:var(--gold);color:var(--ink)}
+.btn.buy[disabled]{background:var(--rim);color:var(--muted);opacity:1}
+.prog{height:12px;border-radius:99px;background:var(--bg);overflow:hidden}
+.prog span{display:block;height:100%;background:linear-gradient(90deg,var(--mint),#5CC584);border-radius:99px}
+.warn{background:var(--red-soft);color:var(--red-deep);border-radius:16px;padding:10px 14px;font-weight:800;font-size:.88rem}
+.senza{background:var(--red-soft);color:var(--red-deep);border-radius:14px;padding:8px 12px;font-weight:800;font-size:.88rem}
+/* mini game */
+.game{position:fixed;inset:0;z-index:70;display:flex;flex-direction:column;background:var(--gbg,#FFF6DA);animation:edin .25s ease}
+.g-top{max-width:560px;width:100%;margin:0 auto;padding:calc(12px + env(safe-area-inset-top,0px)) 16px 10px;display:flex;flex-direction:column;gap:8px}
+.g-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.g-row h2{margin:0;font:400 1.25rem/1.1 var(--f-display)}
+.g-score{background:#fff;border-radius:999px;padding:6px 14px;font:400 1.2rem/1 var(--f-display);box-shadow:0 6px 14px -10px rgba(58,26,31,.6)}
+.g-time{height:12px;border-radius:99px;background:rgba(255,255,255,.8);overflow:hidden}
+.g-time span{display:block;height:100%;width:100%;background:var(--red);border-radius:99px;transform-origin:left}
+.g-hint{font-weight:800;font-size:.86rem;color:var(--ink);opacity:.75}
+.play{flex:1;position:relative;max-width:560px;width:100%;margin:0 auto;touch-action:manipulation;overflow:hidden}
+.tgt{position:absolute;transform:translate(-50%,-50%);width:76px;height:76px;border-radius:50%;border:none;background:radial-gradient(circle at 35% 30%,#fff,#FFF1CF);box-shadow:0 10px 18px -10px rgba(58,26,31,.6),inset 0 -4px 0 rgba(0,0,0,.06);font-size:2.5rem;line-height:1;cursor:pointer;animation:tin .18s ease-out;padding:0}
+.tgt.bad{background:radial-gradient(circle at 35% 30%,#fff,#FFD6DE)}
+.tgt.out{animation:tout .25s ease-in forwards}
+@keyframes tin{from{transform:translate(-50%,-50%) scale(.2)}to{transform:translate(-50%,-50%) scale(1)}}
+@keyframes tout{to{transform:translate(-50%,-50%) scale(0);opacity:0}}
+.fx{position:absolute;transform:translate(-50%,-50%);font:400 1.5rem/1 var(--f-display);pointer-events:none;animation:fx .7s ease-out forwards;color:var(--gold-deep);text-shadow:0 2px 0 #fff}
+.fx.minus{color:var(--red)}
+@keyframes fx{to{transform:translate(-50%,-160%);opacity:0}}
+.g-big{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px}
+.g-big b{font:400 4.5rem/1 var(--f-display);color:var(--red)}
+.g-big h3{margin:0;font:400 1.8rem/1.1 var(--f-display)}
+.g-big p{margin:0;font-weight:700;color:var(--muted);max-width:30ch}
+.g-big .coins{font:400 3rem/1 var(--f-display);color:var(--gold-deep)}
+.play.shake{animation:shk .3s}
+@keyframes shk{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+
+/* città */
+.city-card{position:relative;border-radius:30px;overflow:hidden;aspect-ratio:16/11;background:#8ACF7D;box-shadow:0 1px 0 var(--line),0 20px 36px -26px rgba(58,26,31,.6)}
+.city-prev{position:absolute;inset:0;width:100%;height:100%;display:block}
+.city-over{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:10px;padding:16px;background:linear-gradient(transparent 40%,rgba(58,26,31,.45))}
+.city-me{width:96px;animation:bob 2.4s ease-in-out infinite;filter:drop-shadow(0 8px 8px rgba(0,0,0,.25))}
+.city-play{font-size:1.08rem;min-height:56px;padding:14px 26px}
+.city-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.city-stats div{background:var(--card);border-radius:18px;padding:10px 8px;text-align:center;box-shadow:0 1px 0 var(--line);display:flex;flex-direction:column;gap:2px;min-width:0}
+.city-stats b{font:400 1.35rem/1 var(--f-display);color:var(--red)}
+.city-stats span{font-size:.72rem;font-weight:800;color:var(--muted);line-height:1.2}
+.how{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;font-weight:600;font-size:.92rem}
+.city{position:fixed;inset:0;z-index:65;background:#6FBF63;touch-action:none;user-select:none;-webkit-user-select:none;overflow:hidden}
+.city.fade{animation:cfade .45s ease}
+@keyframes cfade{0%{filter:brightness(.2)}100%{filter:none}}
+.city-cv{position:absolute;inset:0;display:block}
+.city-hud{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:6px;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 8px;pointer-events:none}
+.city-hud > *{pointer-events:auto}
+.ch-sp{flex:1}
+.ch-btn{width:42px;height:42px;border-radius:14px;border:none;background:rgba(255,255,255,.95);font:800 1.05rem var(--f-body);color:var(--ink);cursor:pointer;box-shadow:0 6px 14px -8px rgba(0,0,0,.5);display:grid;place-items:center;flex:none}
+.ch-place,.ch-wallet,.ch-jobs{background:rgba(255,255,255,.95);border-radius:999px;padding:8px 12px;font:800 .86rem/1 var(--f-body);box-shadow:0 6px 14px -8px rgba(0,0,0,.5);white-space:nowrap}
+.ch-wallet{background:var(--gold);font:400 1.05rem/1 var(--f-display);padding:8px 12px}
+.ch-msg{position:absolute;left:50%;top:calc(64px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:999px;padding:9px 16px;font-weight:800;font-size:.88rem;max-width:calc(100% - 32px);text-align:center;box-shadow:0 10px 20px -10px rgba(0,0,0,.6);pointer-events:none}
+.ch-pad{position:absolute;left:max(18px,env(safe-area-inset-left,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px));width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.35);box-shadow:inset 0 0 0 3px rgba(255,255,255,.6);touch-action:none}
+.ch-pad span{position:absolute;width:50px;height:50px;border-radius:16px;background:rgba(255,255,255,.95);display:grid;place-items:center;font-size:1.05rem;color:var(--ink);box-shadow:0 6px 12px -6px rgba(0,0,0,.5);pointer-events:none}
+.ch-pad .u{left:50px;top:4px}.ch-pad .d{left:50px;bottom:4px}.ch-pad .l{left:4px;top:50px}.ch-pad .r{right:4px;top:50px}
+.ch-pad i{position:absolute;left:62px;top:62px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.7)}
+.ch-pad[data-dir="u"] .u,.ch-pad[data-dir="d"] .d,.ch-pad[data-dir="l"] .l,.ch-pad[data-dir="r"] .r{background:var(--gold);transform:scale(.94)}
+.ch-a{position:absolute;right:max(22px,env(safe-area-inset-right,0px));bottom:calc(46px + env(safe-area-inset-bottom,0px));width:84px;height:84px;border-radius:50%;border:none;background:rgba(255,255,255,.55);color:rgba(58,26,31,.4);font:400 2rem/1 var(--f-display);box-shadow:inset 0 -5px 0 rgba(0,0,0,.08);cursor:pointer}
+.ch-a.on{background:var(--red);color:#fff;box-shadow:0 10px 20px -8px var(--red),inset 0 -5px 0 rgba(0,0,0,.15);animation:apulse 1.2s ease-in-out infinite}
+@keyframes apulse{50%{transform:scale(1.06)}}
+.ch-alabel{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(140px + env(safe-area-inset-bottom,0px));background:#fff;border-radius:999px;padding:8px 14px;font-weight:800;font-size:.85rem;box-shadow:0 8px 16px -10px rgba(0,0,0,.6);max-width:60%;text-align:center}
+.ch-modal{position:absolute;inset:0;background:rgba(30,15,18,.45);display:flex;align-items:flex-end;justify-content:center;padding:12px 10px calc(10px + env(safe-area-inset-bottom,0px));animation:edin .2s ease}
+.ch-sheet{width:100%;max-width:540px;max-height:calc(100% - 20px);overflow-y:auto;background:var(--bg);border-radius:28px;padding:16px 14px 18px;display:flex;flex-direction:column;gap:12px;box-shadow:0 -10px 40px -10px rgba(0,0,0,.5)}
+.ch-sh-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ch-sh-title{display:flex;align-items:center;gap:10px;min-width:0}
+.ch-sh-title span{font-size:2.2rem;line-height:1}
+.ch-sh-title b{display:block;font:400 1.3rem/1.1 var(--f-display)}
+.ch-sh-title small{display:block;font-weight:700;color:var(--muted);font-size:.86rem}
+.ch-sh-p{margin:0;color:var(--muted);font-weight:600;font-size:.92rem}
+.ch-mapcv{display:block;margin:0 auto;border-radius:16px;box-shadow:0 0 0 3px #fff}
+.shopcard{box-shadow:none}
+
+/* coinvolgimento */
+.ban{display:flex;gap:12px;align-items:center;background:var(--ink);color:#fff;border-radius:22px;padding:14px 16px;box-shadow:0 14px 26px -18px rgba(0,0,0,.7)}
+.ban-ico{font-size:2.2rem;line-height:1}
+.ban b{display:block;font:400 1.1rem/1.15 var(--f-display)}
+.ban p{margin:2px 0 0;font-size:.88rem;font-weight:600;opacity:.85}
+.rule{margin:0;font-size:.8rem;font-weight:700;color:var(--muted);text-align:center;line-height:1.35}
+.pen{position:fixed;inset:0;z-index:95;background:rgba(30,10,14,.72);display:grid;place-items:center;padding:20px;animation:edin .25s ease}
+.pen-card{background:var(--card);border-radius:30px;padding:26px 22px;max-width:360px;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center;box-shadow:0 30px 60px -20px rgba(0,0,0,.6)}
+.pen-ico{font-size:3.6rem;line-height:1;animation:pop .5s ease}
+.pen-card h2{margin:0;font:400 1.7rem/1.05 var(--f-display);color:var(--red)}
+.pen-card p{margin:0;font-weight:600;color:var(--muted)}
+.pen-coins{display:flex;align-items:center;gap:12px;font:400 1.6rem/1 var(--f-display)}
+.pen-coins s{color:var(--muted)}
+.pen-coins b{font-weight:400;color:var(--red)}
+.pen-card small{font-weight:800;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.1em}
+.card-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tag{background:var(--gold-soft);border-radius:999px;padding:4px 10px;font-weight:800;font-size:.78rem;white-space:nowrap}
+.mis{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;background:var(--bg);border-radius:18px;padding:10px}
+.mis-ico{width:34px;height:34px;border-radius:50%;background:#fff;display:grid;place-items:center;font:400 1rem var(--f-display);color:var(--muted)}
+.mis.done .mis-ico{background:var(--gold);color:var(--ink)}
+.mis.got .mis-ico{background:var(--mint);color:#fff}
+.mis-main{min-width:0;display:flex;flex-direction:column;gap:4px}
+.mis-main b{font-weight:800;font-size:.92rem;line-height:1.2}
+.mis-main small{font-weight:700;color:var(--muted);font-size:.74rem}
+.mis-bar{height:8px;border-radius:99px;background:#fff;overflow:hidden}
+.mis-bar span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#FFCF5C);border-radius:99px}
+.mis.got .mis-bar span{background:var(--mint)}
+.mis-btn{min-height:40px;padding:8px 12px;font-size:.84rem}
+.mis-ok{font-weight:800;color:var(--mint);font-size:.86rem;white-space:nowrap}
+.streakbar,.eventb{display:flex;gap:12px;align-items:center;background:var(--card);border-radius:20px;padding:12px 14px;box-shadow:0 1px 0 var(--line)}
+.streakbar .fire{font-size:2rem;line-height:1}
+.streakbar b,.eventb b{display:block;font:400 1.05rem/1.15 var(--f-display)}
+.streakbar small,.eventb small{display:block;font-weight:700;color:var(--muted);font-size:.82rem;line-height:1.3}
+.eventb{background:linear-gradient(120deg,#3B2252,#6A3C8F);color:#fff}
+.eventb small{color:rgba(255,255,255,.82)}
+.eventb > span{font-size:2rem;line-height:1}
+.secret{flex-direction:row;align-items:center;background:linear-gradient(140deg,#F2E8FF,var(--card) 70%)}
+.secret .big-emoji{font-size:2.6rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.pchip{display:inline-flex;align-items:center;gap:6px;border:2px solid transparent;background:var(--bg);border-radius:999px;padding:3px 12px 3px 3px;font:800 .86rem var(--f-body);cursor:pointer;color:var(--ink)}
+.pchip div{width:32px}
+.pchip[aria-checked="true"]{border-color:var(--red);background:var(--red-soft)}
+.pchip[disabled]{opacity:.45}
+.glog{display:flex;flex-direction:column;gap:2px;color:var(--muted);font-weight:700}
+.rrow.me{background:var(--gold-soft);border-radius:14px;padding-inline:6px}
+.sub{margin:6px 2px 8px;font:800 .76rem var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.witem{position:relative;border:2px solid transparent;background:var(--bg);border-radius:20px;padding:8px 8px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;font:inherit;color:var(--ink);cursor:pointer;min-width:0}
+.witem.shop{cursor:default}
+.witem.on{border-color:var(--mint);background:var(--mint-soft)}
+.witem b{font-weight:800;font-size:.82rem;line-height:1.2}
+.witem small{font-weight:700;color:var(--muted);font-size:.72rem}
+.wprev{width:84px}
+.wbtn{min-height:38px;padding:7px 12px;font-size:.82rem;width:100%}
+.wev{position:absolute;top:6px;left:6px;background:#6A3C8F;color:#fff;border-radius:999px;padding:1px 8px;font-weight:800;font-size:.66rem}
+.wtag{background:var(--gold-soft);border-radius:999px;padding:3px 8px}
+.wgift{font-size:.8rem;padding:2px 0}
+.grow{display:flex;flex-direction:column;gap:8px}
+.gitem{background:var(--bg);border-radius:16px;padding:10px 12px;display:flex;flex-direction:column;gap:5px}
+.gitem b{font-weight:800}
+.gitem small{font-weight:700;color:var(--muted);font-size:.78rem}
+.gitem.ok{background:var(--mint-soft)}
+.gitem.ok small{color:var(--mint)}
+.how-card summary{font:400 1.1rem var(--f-display);cursor:pointer;list-style:none}
+.how-card summary::-webkit-details-marker{display:none}
+.senza.ok{background:#F2E8FF;color:#5B3A8C}
+
 /* tab bar */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));background:rgba(255,255,255,.95);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 -1px 0 var(--line)}
-.tabbar .inner{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
-.tab{border:none;background:none;border-radius:16px;padding:7px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font:800 .7rem var(--f-body);color:var(--muted);cursor:pointer}
+.tabbar .inner{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.tab{border:none;background:none;border-radius:16px;padding:7px 1px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font:800 .66rem var(--f-body);min-width:0;color:var(--muted);cursor:pointer}
 .tab svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .tab[aria-current="page"]{color:var(--red);background:var(--red-soft)}
 
@@ -318,6 +520,386 @@ textarea{min-height:96px;resize:vertical;display:block}
 .loader{display:flex;flex-direction:column;align-items:center;gap:14px;padding:60px 0;color:var(--muted);font-weight:700}
 .loader .mini{width:70px;height:70px;border-radius:50%;background:radial-gradient(circle,#fff 0 55%,var(--rim) 56% 59%,#fff 60%);box-shadow:0 10px 20px -12px rgba(58,26,31,.5);animation:spin 1.6s ease-in-out infinite}
 @keyframes spin{50%{transform:scale(.9)}}
+/* ===== minigiochi: cornice comune ===== */
+.g-acts{display:flex;gap:8px;align-items:center}
+.g-mute{width:40px;height:40px;border-radius:14px;border:none;background:#fff;font-size:1.1rem;cursor:pointer;box-shadow:0 6px 14px -10px rgba(58,26,31,.6)}
+.g-score.bump{animation:pop .3s ease}
+.play{user-select:none;-webkit-user-select:none;touch-action:none}
+.g-intro{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:18px 22px;overflow-y:auto}
+.g-intro .gi-ico{font-size:4rem;line-height:1;animation:bob 2.4s ease-in-out infinite}
+.g-intro h3{margin:0;font:400 1.75rem/1.05 var(--f-display)}
+.g-lv{display:inline-flex;gap:4px;align-items:center;background:#fff;border-radius:999px;padding:5px 12px;font-weight:800;font-size:.85rem}
+.g-lv small{font-weight:700;color:var(--muted)}
+.g-how{margin:0;font-weight:700;color:var(--ink);opacity:.85;max-width:34ch;line-height:1.35}
+.g-recs{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:340px}
+.g-recs > div{background:rgba(255,255,255,.88);border-radius:18px;padding:9px 6px;font-weight:800;font-size:.78rem;display:flex;flex-direction:column;align-items:center;gap:2px}
+.g-recs b{font:400 1.5rem/1 var(--f-display);color:var(--red)}
+.g-recs small{color:var(--muted);font-weight:700}
+.g-chal{margin:0;background:var(--gold);color:var(--ink);border-radius:14px;padding:7px 12px;font-weight:800;font-size:.88rem}
+.g-pay{margin:0;font-weight:800;color:var(--muted);font-size:.86rem;max-width:34ch}
+.g-intro .btn{min-width:200px}
+.g-end .g-final{font:400 5rem/1 var(--f-display);color:var(--red)}
+.g-end h3{font-size:1.5rem}
+.g-up{margin:0;background:var(--mint-soft);color:var(--mint);border-radius:14px;padding:7px 12px;font-weight:800}
+.g-say{position:absolute;left:50%;top:8%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:999px;padding:8px 16px;font-weight:800;font-size:.95rem;white-space:nowrap;z-index:20;animation:gsay 1.05s ease forwards;pointer-events:none;max-width:92%;overflow:hidden;text-overflow:ellipsis}
+@keyframes gsay{0%{opacity:0;transform:translate(-50%,8px) scale(.9)}14%{opacity:1;transform:translate(-50%,0) scale(1)}80%{opacity:1}100%{opacity:0}}
+.fx{z-index:21}
+
+/* 1 pizzeria */
+.pz{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 12px 12px}
+.pz-ticket{background:#fff;border-radius:6px 6px 16px 16px;padding:8px 16px 10px;box-shadow:0 10px 18px -14px rgba(58,26,31,.7);text-align:center;border-top:6px dashed #F0DDD5;min-width:220px}
+.pz-ticket small{display:block;font-weight:800;color:var(--muted);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase}
+.pz-ticket b{display:block;font:400 1.35rem/1.1 var(--f-display)}
+.pz-seq{display:flex;justify-content:center;align-items:center;gap:4px;margin-top:4px;font-size:1.6rem;line-height:1}
+.pz-seq i{font-style:normal;color:var(--muted);font-size:1rem}
+.pz-seq span{border-radius:12px;padding:3px 4px;opacity:.45}
+.pz-seq span.nx{opacity:1;background:var(--gold-soft);box-shadow:0 0 0 2px var(--gold);animation:pop .6s ease infinite alternate}
+.pz-seq span.ok{opacity:1;filter:grayscale(.2)}
+.pz-stage{flex:1;width:100%;display:grid;place-items:center;min-height:0}
+.pz-dough{position:relative;width:min(64vw,250px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#F7DFAF 0 62%,#E8BE7A 64% 100%);box-shadow:0 14px 24px -14px rgba(58,26,31,.7),inset 0 -6px 0 rgba(0,0,0,.06);transition:transform .45s ease,opacity .45s ease}
+.pz-dough.sauce::before{content:"";position:absolute;inset:11%;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8513A,#C7321F);animation:pop .3s ease}
+.pz-dough.baking{animation:wig 1.6s ease-in-out infinite}
+.pz-dough.out{transform:translateX(120%) rotate(40deg);opacity:0}
+.pz-t,.pz-moz{position:absolute;transform:translate(-50%,-50%) rotate(var(--rot,0deg));animation:pop .3s ease}
+.pz-t{font-size:clamp(1.1rem,6vw,1.6rem);line-height:1}
+.pz-moz{width:13%;aspect-ratio:1.2;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff,#F4EEDF);box-shadow:0 2px 0 rgba(0,0,0,.08)}
+.pz-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:420px}
+.pz-b{border:none;background:#fff;border-radius:16px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:0;cursor:pointer;box-shadow:0 6px 0 #F0DDD5;font:inherit;color:var(--ink)}
+.pz-b span{font-size:1.8rem;line-height:1.1}
+.pz-b small{font-weight:800;font-size:.7rem;color:var(--muted)}
+.pz-b:active{transform:translateY(3px);box-shadow:0 3px 0 #F0DDD5}
+.pz-b.no{animation:shk .3s;background:var(--red-soft)}
+.pz-oven{width:100%;max-width:420px;display:flex;flex-direction:column;gap:8px;background:#3A1A1F;border-radius:22px;padding:12px;color:#fff}
+.pz-ov-h{font-weight:800;text-align:center}
+.pz-bar{position:relative;height:30px;border-radius:12px;overflow:hidden;background:#EADCC4}
+.pz-bar i{position:absolute;top:0;bottom:0}
+.pz-needle{position:absolute;top:-4px;bottom:-4px;width:6px;margin-left:-3px;background:#fff;border-radius:3px;box-shadow:0 0 0 2px #3A1A1F;left:0}
+.pz-lbl{display:flex;justify-content:space-between;font-size:.72rem;font-weight:800;opacity:.8}
+.pz-go{font-size:1.15rem;min-height:56px}
+
+/* 2 lavanderia */
+.lv{position:absolute;inset:0;display:flex;flex-direction:column;padding:10px 12px 14px;gap:10px}
+.lv-area{flex:1;position:relative;display:grid;place-items:center;min-height:0;background:radial-gradient(circle at 50% 45%,rgba(255,255,255,.8),transparent 65%)}
+.lv-item{width:min(52vw,210px);aspect-ratio:1;cursor:grab;filter:drop-shadow(0 12px 12px rgba(58,26,31,.25));touch-action:none}
+.lv-item svg{width:100%;height:100%;display:block}
+.lv-item.in{animation:tin .2s ease-out}
+.lv-item.fly{transition:transform .2s ease-in,opacity .2s}
+.lv-item.fly.l{transform:translate(-90%,70%) scale(.3)!important;opacity:0}
+.lv-item.fly.r{transform:translate(90%,70%) scale(.3)!important;opacity:0}
+.lv-item.fly.d{transform:translateY(60%) scale(.4)!important;opacity:0}
+@keyframes tin{from{transform:scale(.2)}to{transform:scale(1)}}
+.lv-ring{position:absolute;left:15%;right:15%;top:4px;height:10px;border-radius:99px;background:rgba(255,255,255,.8);overflow:hidden}
+.lv-ring span{display:block;height:100%;background:var(--gold);border-radius:99px;width:100%}
+.lv-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lv-bk{border:none;border-radius:22px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:0;cursor:pointer;font:inherit;color:var(--ink);box-shadow:0 7px 0 rgba(58,26,31,.15)}
+.lv-bk.l{background:#fff}
+.lv-bk.r{background:linear-gradient(135deg,#FFD6DE,#FFE9B8,#D6F1E0,#DCE8FF)}
+.lv-bk .lv-b{font-size:2.2rem;line-height:1}
+.lv-bk b{font:400 1.15rem var(--f-display)}
+.lv-bk small{font-weight:800;color:var(--muted);font-size:.74rem}
+.lv-bk.hit{animation:pop .35s ease}
+
+/* 3 serra */
+.sr{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;align-items:end;padding:16px 12px 22px;background:linear-gradient(transparent 70%,rgba(110,170,90,.25))}
+.sr-pot{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;touch-action:none;height:100%;justify-content:flex-end;border-radius:22px;padding:6px 0}
+.sr-pot.on{background:rgba(255,255,255,.45)}
+.sr-pot small{font-weight:800;font-size:.68rem;color:var(--muted);text-align:center}
+.sr-tube{position:relative;width:46px;flex:1;max-height:260px;border-radius:16px;background:rgba(255,255,255,.75);box-shadow:inset 0 0 0 3px #fff,0 6px 12px -8px rgba(0,0,0,.4);overflow:hidden}
+.sr-band{position:absolute;left:0;right:0;background:rgba(46,157,91,.28);border-top:3px solid #2E9D5B;border-bottom:3px solid #2E9D5B}
+.sr-water{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(#7FD0F2,#3E9BE0);opacity:.9}
+.sr-water.ok{background:linear-gradient(#8BE3A6,#2E9D5B)}
+.sr-pot.on .sr-water::before{content:"";position:absolute;left:0;right:0;top:-4px;height:8px;background:inherit;border-radius:50%}
+.sr-plant{font-size:2.6rem;line-height:1;margin-bottom:-10px;z-index:1}
+.sr-plant.grow{animation:pop .5s ease}
+.sr-vase{width:70px;height:46px;background:linear-gradient(#D9773F,#B4532F);clip-path:polygon(0 0,100% 0,84% 100%,16% 100%);border-radius:4px}
+.sr-pot.wet{animation:shk .3s}
+
+/* 4 gelateria */
+.gl{position:absolute;inset:0;overflow:hidden;cursor:pointer;background:linear-gradient(#E4F7F7,#C9EEF0)}
+.gl-world{position:absolute;inset:0;transition:transform .35s ease}
+.gl-cone{position:absolute;bottom:20px;width:74px;height:90px;margin-left:-37px;background:repeating-linear-gradient(45deg,#E2A65A 0 8px,#C98B3E 8px 10px),#E2A65A;clip-path:polygon(0 0,100% 0,50% 100%)}
+.gl-scoop{position:absolute;width:74px;height:64px;margin-left:-37px;border-radius:50% 50% 44% 44%;box-shadow:inset 0 -6px 0 rgba(0,0,0,.08),0 4px 0 rgba(0,0,0,.05)}
+.gl-mov{top:70px}
+.gl-scoop.drop{transition:transform .6s ease-in,opacity .6s;opacity:0}
+.gl-scoop.drop.r{transform:translate(60px,220px) rotate(90deg)}
+.gl-scoop.drop.l{transform:translate(-60px,220px) rotate(-90deg)}
+.gl-st{animation:sq .25s ease}
+@keyframes sq{0%{transform:scaleY(.8) scaleX(1.15)}100%{transform:none}}
+.gl-hearts{position:absolute;left:12px;top:10px;font-size:1.2rem;letter-spacing:2px}
+.gl-h{position:absolute;right:12px;top:12px;background:#fff;border-radius:999px;padding:4px 12px;font-weight:800;font-size:.85rem}
+
+/* 5 porto */
+.pt{position:absolute;inset:0;overflow:hidden;cursor:pointer}
+.pt-sky{position:absolute;left:0;right:0;top:0;height:34%;background:linear-gradient(#9BD8FF,#DDF1FF)}
+.pt-sea{position:absolute;left:0;right:0;top:34%;bottom:0;background:linear-gradient(#4FB3E8,#1F6FB3)}
+.pt-sea::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(170deg,transparent 0 26px,rgba(255,255,255,.15) 26px 30px)}
+.pt-dock{position:absolute;left:0;top:22%;width:34%;height:12%;background:#A8743E;border-radius:0 8px 8px 0;font-size:2.4rem;display:flex;align-items:flex-start;justify-content:flex-end;padding-right:12px;line-height:0}
+.pt-line{position:absolute;left:31%;top:12%;width:30%;height:44%;border-top:2px solid rgba(58,26,31,.6);border-right:2px solid rgba(58,26,31,.6);border-radius:0 80px 0 0}
+.pt-bob{position:absolute;left:61%;top:52%;width:30px;height:30px;margin:-15px;border-radius:50%;background:linear-gradient(#E5412F 50%,#fff 50%);box-shadow:0 0 0 2px #3A1A1F;transition:top .15s}
+.pt-bob.float{animation:bob 1.4s ease-in-out infinite}
+.pt-bob.dip{top:56%;animation:shk .25s infinite}
+.pt-ex{position:absolute;left:61%;top:36%;transform:translateX(-50%);font-size:3rem;animation:pop .3s ease infinite alternate}
+.pt-fin{position:absolute;top:58%;left:-20%;font-size:3rem;opacity:0}
+.pt-fin.go{animation:fin 1.5s linear forwards}
+@keyframes fin{0%{left:-20%;opacity:1}100%{left:110%;opacity:1}}
+.pt-st{position:absolute;left:50%;top:72%;transform:translateX(-50%);background:rgba(255,255,255,.92);border-radius:999px;padding:8px 16px;font-weight:800;white-space:nowrap}
+.pt[data-s="bite"] .pt-st{background:var(--red);color:#fff}
+.pt-bucket{position:absolute;left:10px;right:10px;bottom:12px;display:flex;align-items:center;gap:2px;background:rgba(255,255,255,.3);border-radius:16px;padding:4px 10px;font-size:1.5rem;min-height:44px}
+.pt-fish{animation:pop .3s ease}
+
+/* 6 biblioteca */
+.bb{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:16px 12px 18px;gap:12px}
+.bb-st{background:#fff;border-radius:999px;padding:8px 16px;font-weight:800}
+.bb-shelf{display:flex;gap:6px;align-items:flex-end;justify-content:center;background:#8A5A35;border-radius:10px;padding:14px 12px 0;min-height:150px;box-shadow:inset 0 -12px 0 #6E4527,0 14px 24px -16px rgba(0,0,0,.6);flex-wrap:nowrap;max-width:100%}
+.bb-slot{width:32px;height:118px;border-radius:5px 5px 2px 2px;background:rgba(255,255,255,.15);display:grid;place-items:center;font:400 1.2rem var(--f-display);color:#fff;margin-bottom:12px}
+.bb-slot.show{background:var(--c);box-shadow:inset 0 10px 0 rgba(255,255,255,.25),inset 0 -14px 0 rgba(0,0,0,.12);animation:pop .3s ease}
+.bb-slot.hid{background:#B07A4E}
+.bb-slot.bad{outline:4px solid #fff}
+.bb-pal{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.bb-book{width:58px;height:96px;border:none;border-radius:8px 8px 4px 4px;background:var(--c);cursor:pointer;box-shadow:inset 0 14px 0 rgba(255,255,255,.25),inset 0 -18px 0 rgba(0,0,0,.12),0 6px 0 rgba(0,0,0,.15);position:relative}
+.bb-book i{position:absolute;left:12px;right:12px;top:40%;height:6px;border-radius:3px;background:rgba(255,255,255,.6)}
+.bb-book[disabled]{opacity:.55}
+.bb-book.hit{animation:pop .25s ease}
+
+/* 7 officina */
+.of{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;cursor:pointer;padding:12px}
+.of-svg{width:min(84vw,330px);height:auto;filter:drop-shadow(0 16px 18px rgba(0,0,0,.25))}
+.of-cnt{background:#fff;border-radius:999px;padding:8px 16px;font-weight:800}
+.of-tap{font-weight:800;color:var(--muted);font-size:.86rem}
+
+/* 8 cucina */
+.ck{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden;background:repeating-linear-gradient(90deg,rgba(255,255,255,.4) 0 1px,transparent 1px 40px),repeating-linear-gradient(0deg,rgba(255,255,255,.4) 0 1px,transparent 1px 40px)}
+.ck-plate{position:relative;border-radius:50%;background:radial-gradient(circle,#fff 0 56%,#EFE9E2 57% 60%,#fff 61% 100%);box-shadow:0 18px 30px -18px rgba(58,26,31,.7),inset 0 0 0 3px #EAE2D8;transition:transform .35s ease,opacity .35s}
+.ck-plate.in{animation:tin .3s ease-out}
+.ck-plate.out{transform:translateX(130%) rotate(60deg);opacity:0}
+.ck-dirt{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;touch-action:none;cursor:pointer}
+.ck-sp{position:absolute;font-size:2.6rem;pointer-events:none;transform:translate(-50%,-50%);opacity:0;z-index:3}
+.ck-sp.on{opacity:1;animation:wig .3s infinite}
+.ck-pile{min-height:30px;font-size:1.3rem;font-weight:800}
+
+/* 9 cameretta */
+.cm{position:absolute;inset:0;overflow:hidden}
+.cm-floor{position:absolute;left:0;right:0;top:0;bottom:30%;background:repeating-linear-gradient(90deg,#E6B482 0 46px,#DDA874 46px 92px)}
+.cm-boxes{position:absolute;left:10px;right:10px;bottom:12px;height:calc(30% - 22px);display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cm-box{border:none;border-radius:18px 18px 22px 22px;background:linear-gradient(#C98B5A,#A8703F);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font:inherit;box-shadow:inset 0 10px 0 rgba(255,255,255,.18),0 6px 0 rgba(0,0,0,.18)}
+.cm-box span{font-size:2rem;line-height:1}
+.cm-box b{font:400 1rem var(--f-display)}
+.cm-box.over{outline:4px solid var(--gold);transform:scale(1.05)}
+.cm-box.hit{animation:pop .3s ease}
+.cm-it{position:absolute;font-size:2.7rem;line-height:1;transform:translate(-50%,-50%) rotate(var(--rot,0deg));cursor:grab;touch-action:none;filter:drop-shadow(0 6px 4px rgba(58,26,31,.3));transition:left .2s,top .2s,transform .2s,opacity .2s;z-index:2}
+.cm-it.drag{transition:none;transform:translate(-50%,-50%) scale(1.25);z-index:5}
+.cm-it.sel{transform:translate(-50%,-50%) scale(1.25);filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 8px var(--gold))}
+.cm-it.gone{opacity:0;transform:translate(-50%,40%) scale(.2)}
+
+/* 10 luna park */
+.lp{position:absolute;inset:0;overflow:hidden;cursor:crosshair;background:linear-gradient(#3B2252,#6A3C8F)}
+.lp-lane{position:absolute;left:0;right:0;height:20%;background:repeating-linear-gradient(90deg,#E5412F 0 30px,#fff 30px 60px);opacity:.18;border-bottom:6px solid rgba(255,255,255,.4)}
+.lp-t{position:absolute;font-size:2.8rem;line-height:1;transform:translate(-50%,-50%);cursor:crosshair;padding:8px;filter:drop-shadow(0 4px 2px rgba(0,0,0,.3))}
+.lp-t.flip{transform:translate(-50%,-50%) scaleX(-1)}
+.lp-t.down{transition:transform .35s ease-in,opacity .35s;transform:translate(-50%,40%) rotate(80deg);opacity:0}
+.lp-ammo{position:absolute;left:12px;right:12px;bottom:12px;background:rgba(255,255,255,.95);border-radius:999px;padding:8px 14px;font-weight:800;text-align:center;letter-spacing:3px;color:var(--red)}
+.lp-ammo i{font-style:normal;color:var(--rim)}
+.lp-ammo b{letter-spacing:0;color:var(--ink)}
+.lp-boom{position:absolute;font-size:1.6rem;transform:translate(-50%,-50%);pointer-events:none;animation:tout .4s ease-out forwards}
+
+/* ===== nuove parti dell'app ===== */
+.tab{font-size:.74rem}
+.demo-links{display:flex;flex-wrap:wrap;gap:4px 14px;width:100%}
+.back{align-self:flex-start;border:none;background:var(--card);border-radius:999px;padding:8px 14px;font:800 .9rem var(--f-body);color:var(--ink);cursor:pointer;box-shadow:0 1px 0 var(--line)}
+.seg3{grid-template-columns:repeat(3,1fr)}
+.seg3 button{padding:10px 4px}
+.chev{margin-left:auto;color:var(--muted);font-size:.8rem}
+.chefline{align-items:center}
+
+/* pronostico */
+.pr{background:linear-gradient(160deg,#F2E8FF,var(--card) 60%)}
+.pr-box{display:flex;flex-direction:column;align-items:center;gap:8px;background:var(--bg);border-radius:20px;padding:12px 14px}
+.pr-val{font:400 3rem/1 var(--f-display);color:#6A3C8F}
+.pr-range{width:100%;accent-color:#6A3C8F;height:34px}
+.pr-scale{display:flex;justify-content:space-between;width:100%;font-weight:800;font-size:.76rem;color:var(--muted)}
+.pr-who{display:flex;flex-wrap:wrap;gap:6px}
+.pr-chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border-radius:999px;padding:3px 10px 3px 3px;font-weight:800;font-size:.82rem;box-shadow:0 1px 0 var(--line)}
+.pr-chip div{width:28px}
+.pr-chip i{font-style:normal;background:#EADFFF;color:#5B3A8C;border-radius:999px;padding:0 7px}
+
+/* voto a categorie */
+.crows{display:flex;flex-direction:column;gap:10px}
+.crow{display:grid;grid-template-columns:7.4rem 1fr;align-items:center;gap:8px}
+.clab{font-weight:800;font-size:.95rem;line-height:1.1}
+.clab small{display:block;font-size:.68rem;color:var(--muted);font-weight:700}
+.cstars{display:flex;gap:4px}
+.star.sm{max-width:44px;border-radius:12px}
+.vote-head{display:flex;gap:12px;align-items:center}
+.vh-art{position:relative;flex:none}
+.vote-wrap{display:flex;flex-direction:column;gap:8px}
+.vh-txt{min-width:0;display:flex;flex-direction:column;gap:2px}
+.vh-txt strong{font:400 1.3rem/1.1 var(--f-display);overflow-wrap:anywhere}
+.vh-chef{display:flex;align-items:center;gap:6px;color:var(--muted);font-weight:700;font-size:.9rem}
+.vh-av{width:30px}
+.vh-cam{position:absolute;right:-6px;bottom:-6px;width:32px;height:32px;border-radius:50%;border:none;background:var(--ink);color:#fff;font-size:.95rem;cursor:pointer;box-shadow:0 0 0 3px #fff}
+.cbars .bar{grid-template-columns:6.2rem 1fr 2.2rem}
+.reveal-cta{display:flex;align-items:center;gap:12px;border:none;width:100%;text-align:left;cursor:pointer;font:inherit;color:#fff;background:linear-gradient(120deg,#3B2252,#6A3C8F);border-radius:20px;padding:14px;box-shadow:0 14px 26px -18px #3B2252}
+.reveal-cta .rc-ico{font-size:2.2rem;line-height:1}
+.reveal-cta b{display:block;font:400 1.15rem/1.15 var(--f-display)}
+.reveal-cta small{display:block;font-weight:600;opacity:.85;font-size:.82rem;line-height:1.3}
+.reveal-cta .rc-go{margin-left:auto;width:40px;height:40px;flex:none;border-radius:50%;background:var(--gold);color:var(--ink);display:grid;place-items:center;font-weight:900}
+
+/* illustrazione / foto del piatto */
+.dish-art{width:100%;aspect-ratio:4/3;border-radius:20px;overflow:hidden;display:grid;place-items:center;background:radial-gradient(circle at 50% 58%,#fff 0 30%,hsl(calc(var(--h,20) * 1deg),70%,92%) 31% 34%,hsl(calc(var(--h,20) * 1deg),75%,86%) 35%)}
+.dish-art span{font-size:clamp(2.4rem,14vw,4.4rem);line-height:1;filter:drop-shadow(0 8px 6px rgba(58,26,31,.2))}
+.dish-art.photo img{width:100%;height:100%;object-fit:cover;display:block}
+.dish-art.sm{width:84px;aspect-ratio:1;border-radius:18px}
+.dish-art.sm span{font-size:2.4rem}
+
+/* album */
+.album{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.acard{background:var(--card);border-radius:22px;overflow:hidden;box-shadow:0 1px 0 var(--line),0 14px 26px -24px rgba(58,26,31,.5);min-width:0}
+.acard.open{grid-column:1/-1}
+.a-top{position:relative;display:block;width:100%;border:none;background:none;padding:0;cursor:pointer;text-align:left;font:inherit;color:var(--ink)}
+.a-top .dish-art{border-radius:0;aspect-ratio:1}
+.acard.open .a-top .dish-art{aspect-ratio:16/9}
+.a-date{position:absolute;left:8px;top:8px;background:#fff;border-radius:12px;text-align:center;padding:4px 8px 3px;color:var(--red-deep);line-height:1}
+.a-date b{display:block;font:400 1.15rem/1 var(--f-display)}
+.a-date span{font-weight:800;font-size:.6rem;text-transform:uppercase;letter-spacing:.08em}
+.a-score{position:absolute;right:8px;top:8px;background:var(--gold);border-radius:999px;padding:3px 9px;font:400 .95rem/1.3 var(--f-display)}
+.a-cap{display:flex;align-items:center;gap:8px;padding:8px 10px 10px}
+.a-cap .a-av{width:34px;flex:none}
+.a-cap span{min-width:0;display:flex;flex-direction:column}
+.a-cap strong{font:400 .98rem/1.15 var(--f-display);overflow-wrap:anywhere}
+.a-cap small{font-weight:700;color:var(--muted);font-size:.76rem}
+.best-row{display:flex;gap:12px;align-items:center}
+
+/* ricettario */
+.rb-cta{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px 12px;background:linear-gradient(140deg,var(--gold-soft),var(--card) 70%)}
+.rb-cta b{display:block;font:400 1.1rem var(--f-display)}
+.rb-cta small{display:block;color:var(--muted);font-weight:700;font-size:.82rem;line-height:1.3}
+.rb-cta .btn{grid-column:1/-1}
+.rb-cta .big-emoji{font-size:2.4rem}
+.rlist2{display:flex;flex-direction:column;gap:12px}
+.rc-top{display:flex;gap:12px;align-items:center}
+.rc-name{display:block;font:400 1.25rem/1.1 var(--f-display)}
+.rc-sc{font:400 1rem var(--f-display);color:var(--red)}
+.rc-body{display:grid;grid-template-columns:1fr;gap:6px}
+.rc-body h4{margin:6px 0 4px;font:800 .78rem var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.rc-body ul,.rc-body ol{margin:0;padding-left:20px;font-weight:600;line-height:1.45}
+.rcard .link{align-self:flex-start}
+
+/* spesa vera */
+.sitem.claimed{background:var(--gold-soft)}
+.sitem .cl-av{width:32px}
+.btn.buy.got{background:var(--mint);color:#fff}
+
+/* sfide */
+.ch-list{display:flex;flex-direction:column;gap:8px}
+.ch-row{display:grid;grid-template-columns:40px 1fr auto;align-items:center;gap:8px;background:var(--bg);border-radius:18px;padding:8px 8px 8px 10px}
+.ch-row.locked{opacity:.6}
+.ch-ico{font-size:1.9rem;line-height:1;text-align:center}
+.ch-main{min-width:0;display:flex;flex-direction:column}
+.ch-main b{font-weight:800;font-size:.92rem;line-height:1.15}
+.ch-main small{font-weight:700;color:var(--muted);font-size:.74rem}
+.ch-rl{display:flex;align-items:center;gap:5px;font-weight:800;font-size:.76rem;color:var(--red-deep);margin-top:2px}
+.ch-rl .ch-av{width:22px;flex:none}
+.ch-rec .ch-av{width:28px;flex:none}
+.ch-rec span{display:flex;flex-direction:column;line-height:1.05;align-items:center}
+.ch-rec b{font:400 1.05rem var(--f-display);color:var(--red)}
+.ch-rec small{font-weight:700;color:var(--muted);font-size:.64rem;white-space:nowrap;max-width:62px;overflow:hidden;text-overflow:ellipsis}
+.ch-go{min-height:40px;padding:8px 14px;font-size:.88rem}
+.ch-lock{font-weight:800;color:var(--muted);font-size:.74rem;white-space:nowrap}
+.ch-recs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ch-recs span{background:#fff;border-radius:16px;padding:8px;display:flex;flex-direction:column;align-items:center;font-weight:800;font-size:.78rem}
+.ch-recs b{font:400 1.4rem/1.1 var(--f-display);color:var(--red)}
+.ch-recs small{color:var(--muted);font-weight:700}
+
+/* rivelazione */
+.rv{position:fixed;inset:0;z-index:96;display:flex;flex-direction:column;color:#fff;background:radial-gradient(ellipse at 50% 30%,#6A3C8F,#2A1538 70%);animation:edin .3s ease}
+.rv::before{content:"";position:absolute;inset:-30%;background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.06) 0 8deg,transparent 8deg 16deg);animation:spinr 40s linear infinite;pointer-events:none}
+.rv > *{position:relative}
+.rv-top{display:flex;justify-content:space-between;align-items:center;padding:calc(12px + env(safe-area-inset-top,0px)) 16px 6px;max-width:560px;width:100%;margin:0 auto}
+.rv-brand{font:400 1.1rem var(--f-display);color:var(--gold)}
+.rv-stage{flex:1;display:flex;align-items:center;justify-content:center;padding:10px 20px;overflow-y:auto;max-width:560px;width:100%;margin:0 auto}
+.rv-in{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;width:100%;animation:edin .35s ease}
+.rv-kick{margin:0;font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:.78rem;color:var(--gold)}
+.rv-dish{margin:0;font:400 2rem/1.08 var(--f-display);text-wrap:balance}
+.rv-hint{margin:0;font-weight:600;opacity:.85;max-width:34ch}
+.rv-art{max-width:300px;box-shadow:0 20px 40px -20px rgba(0,0,0,.6)}
+.rv-chef{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border-radius:999px;padding:4px 14px 4px 4px;font-weight:700}
+.rv-chef .rv-mini{width:40px}
+.rv-note{color:var(--ink);border-radius:6px 6px 22px 6px;padding:18px 20px 22px;transform:rotate(var(--r));max-width:340px;width:100%;box-shadow:0 24px 40px -20px rgba(0,0,0,.7);animation:flip .5s ease}
+@keyframes flip{from{transform:rotateY(80deg) rotate(var(--r))}to{transform:rotate(var(--r))}}
+.rv-note p{margin:6px 0 0;font:600 2.1rem/1.1 var(--f-hand);overflow-wrap:anywhere}
+.rv-ns{display:flex;align-items:center;justify-content:center;gap:8px}
+.rv-ns b{font:400 1.2rem var(--f-display);color:var(--red)}
+.rv-catline{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.rv-catline span{background:rgba(255,255,255,.14);border-radius:999px;padding:4px 10px;font-weight:800;font-size:.85rem}
+.rv-cats{display:flex;flex-direction:column;gap:14px;width:100%;max-width:380px}
+.rv-cat{display:grid;grid-template-columns:7.5rem 1fr 2.6rem;align-items:center;gap:10px;font-weight:800;text-align:left}
+.rv-cat .track{height:16px;border-radius:99px;background:rgba(255,255,255,.15);overflow:hidden;display:block}
+.rv-cat .fill{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#FFE08A);border-radius:99px;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.rv-cat b{font:400 1.3rem var(--f-display);color:var(--gold)}
+.rv-av{width:min(46vw,190px);animation:bob 2.6s ease-in-out infinite}
+.rv-av.crowned svg g[transform^="translate(100"]{animation:crownfall 1s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes crownfall{from{transform:translate(100px,-160px) rotate(-30deg)}}
+.rv-score{font:400 6.5rem/1 var(--f-display);color:var(--gold);text-shadow:0 6px 0 rgba(0,0,0,.25);font-variant-numeric:tabular-nums}
+.rv-score.blink{opacity:.75}
+.rv-score.land{animation:pop .6s ease}
+.rv-stars .mini-stars svg{width:34px;height:34px}
+.rv-word{margin:0;font:600 2.4rem/1 var(--f-hand);color:#FFD6DE}
+.rv-preds{display:flex;flex-direction:column;gap:8px;width:100%;max-width:360px}
+.rv-pred{display:grid;grid-template-columns:40px 1fr auto auto;gap:10px;align-items:center;background:rgba(255,255,255,.1);border-radius:16px;padding:6px 12px 6px 6px;font-weight:800;text-align:left}
+.rv-pred.win{background:var(--gold);color:var(--ink)}
+.rv-pred .rv-pav{width:40px}
+.rv-pred b{font:400 1.2rem var(--f-display)}
+.rv-pred small{font-weight:800;opacity:.75}
+.rv-end{display:flex;flex-direction:column;gap:10px;width:100%;max-width:340px}
+.rv-bot{display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 16px calc(18px + env(safe-area-inset-bottom,0px));max-width:560px;width:100%;margin:0 auto}
+.rv-next{min-width:240px;font-size:1.1rem;min-height:56px}
+.rv-next[disabled]{opacity:.5}
+.rv-dots{display:flex;gap:6px}
+.rv-dots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.3)}
+.rv-dots i.on{background:var(--gold)}
+
+/* tour e card */
+.tour{position:fixed;inset:0;z-index:97;background:rgba(30,10,14,.6);display:flex;align-items:flex-end;justify-content:center;padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px));animation:edin .25s ease}
+.tour-card{background:var(--card);border-radius:30px;padding:24px 22px 16px;max-width:420px;width:100%;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);max-height:calc(100vh - 24px);overflow-y:auto}
+.tour-ico{font-size:3.4rem;line-height:1;animation:pop .5s ease}
+.tour-card h2{margin:0;font:400 1.6rem/1.08 var(--f-display)}
+.tour-card p{margin:0;color:var(--muted);font-weight:600;line-height:1.4}
+.tour-dots{display:flex;gap:6px;margin:4px 0}
+.tour-dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.tour-dots i.on{background:var(--red);width:22px;border-radius:99px}
+.sc-img{width:100%;max-width:300px;border-radius:18px;box-shadow:0 14px 30px -16px rgba(0,0,0,.5)}
+
+/* stampa */
+#print-root{display:none}
+@media print{
+  body{background:#fff!important}
+  body > *:not(#print-root){display:none!important}
+  #print-root{display:block;color:#3A1A1F;font-family:var(--f-body)}
+  @page{size:A4;margin:12mm}
+  .pr-page{page-break-after:always;break-after:page;min-height:260mm;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6mm}
+  .pr-page:last-child{page-break-after:auto;break-after:auto}
+  .pr-page h1{font:400 26pt/1.1 var(--f-display);margin:0}
+  .pr-page h2{font:400 22pt/1.1 var(--f-display);margin:0;color:#E5412F}
+  .pr-page h3{font:400 16pt/1.2 var(--f-display);margin:0}
+  .pr-small{font-size:9pt;color:#8C6B6F}
+  .pr-crown svg{display:block}
+  .pr-cert .pr-frame{border:3mm double #E99C00;border-radius:6mm;padding:14mm 12mm;width:100%;min-height:240mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5mm}
+  .pr-crown-ico{font-size:40pt}
+  .pr-k{letter-spacing:.3em;text-transform:uppercase;font-weight:800;color:#E99C00;margin:0}
+  .pr-cert h2{font-size:34pt}
+  .pr-score{font:400 18pt var(--f-display);color:#E5412F}
+  .pr-sign{display:flex;justify-content:space-between;width:80%;margin-top:14mm}
+  .pr-sign span{border-top:.4mm solid #3A1A1F;padding-top:2mm;width:40%;font-size:9pt}
+  .pr-cover{justify-content:center}
+  .pr-cover h1{font-size:44pt}
+  .pr-recipe{align-items:stretch;text-align:left}
+  .pr-recipe .pr-art{width:100%;max-height:90mm;aspect-ratio:16/9;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pr-meta{color:#8C6B6F;font-weight:800;margin:0}
+  .pr-cols{display:grid;grid-template-columns:1fr 1.6fr;gap:8mm;font-size:11pt;line-height:1.5}
+  .pr-quote{font:600 18pt var(--f-hand);color:#B92E20;text-align:center}
+  .pr-crown,.pr-crown *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -334,8 +916,8 @@ textarea{min-height:96px;resize:vertical;display:block}
     <section class="view" id="v-who" hidden></section>
     <section class="view" id="v-cena" aria-label="Cena" hidden></section>
     <section class="view" id="v-chef" aria-label="Chef" hidden></section>
+    <section class="view" id="v-gioca" aria-label="Gioca" hidden></section>
     <section class="view" id="v-corona" aria-label="Corona" hidden></section>
-    <section class="view" id="v-storico" aria-label="Storico" hidden></section>
     <section class="view" id="v-famiglia" aria-label="Famiglia" hidden></section>
   </main>
 </div>
@@ -343,14 +925,19 @@ textarea{min-height:96px;resize:vertical;display:block}
 <nav class="tabbar" id="tabbar" aria-label="Sezioni" hidden>
   <div class="inner">
     <button class="tab" type="button" data-tab="cena"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.6"/></svg>Cena</button>
-    <button class="tab" type="button" data-tab="chef"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 17.5h9V21h-9zM7.5 17.5V13.2A4 4 0 0 1 8.3 5.4a4.6 4.6 0 0 1 7.4 0 4 4 0 0 1 .8 7.8v4.3"/></svg>Chef</button>
+    <button class="tab" type="button" data-tab="gioca"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8.5h10a4.5 4.5 0 0 1 4.5 4.5v1.2a3 3 0 0 1-5.3 1.9L14.8 14.5H9.2l-1.4 1.6a3 3 0 0 1-5.3-1.9V13A4.5 4.5 0 0 1 7 8.5zM7.5 11v3.4M5.8 12.7h3.4M15.6 12h.01M17.8 13.8h.01"/></svg>Gioca</button>
     <button class="tab" type="button" data-tab="corona"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18 5 7l5 5 2-7 2 7 5-5 2 11z"/></svg>Corona</button>
-    <button class="tab" type="button" data-tab="storico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Storico</button>
     <button class="tab" type="button" data-tab="famiglia"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20a6.5 6.5 0 0 1 13 0M15.5 4.6a3.5 3.5 0 0 1 0 6.3M17.5 14.2A6.5 6.5 0 0 1 21.5 20"/></svg>Famiglia</button>
   </div>
 </nav>
 
 <div id="editor-root"></div>
+<div id="city-root"></div>
+<div id="pen-root"></div>
+<div id="game-root"></div>
+<div id="reveal-root"></div>
+<div id="tour-root"></div>
+<div id="print-root"></div>
 <div class="toast" id="toast" role="status" hidden></div>
 <canvas id="confetti" hidden></canvas>
 
@@ -365,8 +952,81 @@ const NOTE_COLORS = ["#FFF4B8","#DDF4E5","#E2ECFF","#FFE0E6"];
 const DAYS = ["domenica","lunedì","martedì","mercoledì","giovedì","venerdì","sabato"];
 const DAYS_PL = ["la domenica","il lunedì","il martedì","il mercoledì","il giovedì","il venerdì","il sabato"];
 const STAR_D = "M12 2.8l2.75 5.86 6.4.78-4.72 4.4 1.22 6.33L12 17.08l-5.65 3.09 1.22-6.33-4.72-4.4 6.4-.78z";
-const VIEWS = ["cena","chef","corona","storico","famiglia"];
+const TABS = ["cena","gioca","corona","famiglia"];
+const VIEWS = TABS.concat(["chef"]);
+const TAB_OF = { chef:"cena" };
+const CATS_V = [{ k:"g", label:"Gusto", icon:"😋", w:2 }, { k:"a", label:"Aspetto", icon:"🎨", w:1 }, { k:"f", label:"Fantasia", icon:"💡", w:1 }];
 const LOCK = '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 10V8a6 6 0 1 1 12 0v2h1v12H5V10h1Zm2 0h8V8a4 4 0 1 0-8 0v2Z" fill="currentColor"/></svg>';
+
+/* ===== REGOLE CONDIVISE: questo blocco è identico nell'app e nel server ===== */
+const R_JOBS_BASE = ["pizzeria", "lavanderia", "officina", "biblioteca", "serra", "cucina", "cameretta"];
+const R_JOB_LABEL = { pizzeria: "Lavora in pizzeria", lavanderia: "Lavora in lavanderia", officina: "Lavora in officina", biblioteca: "Lavora in biblioteca", serra: "Lavora nella serra", cucina: "Lava i piatti a casa", cameretta: "Metti in ordine la cameretta" };
+const R_SECRETS = ["Zafferano", "Tartufo", "Cioccolato fondente", "Pistacchio", "Peperoncino", "Cannella", "Limone", "Menta", "Miele", "Rosmarino", "Cocco", "Lime"];
+const R_WEAR = {
+  cowboy: { slot: "hat", name: "Cappello da cowboy", price: 40 },
+  pirata: { slot: "hat", name: "Cappello da pirata", price: 50 },
+  elica: { slot: "hat", name: "Cappellino con l'elica", price: 35 },
+  gatto: { slot: "hat", name: "Orecchie da gatto", price: 30 },
+  coniglio: { slot: "hat", name: "Orecchie da coniglio", price: 30 },
+  fiori: { slot: "hat", name: "Corona di fiori", price: 45 },
+  mago: { slot: "hat", name: "Cappello da mago", price: 60 },
+  vichingo: { slot: "hat", name: "Elmo vichingo", price: 70 },
+  zucca: { slot: "hat", name: "Cappello a zucca", price: 35, event: "halloween" },
+  babbo: { slot: "hat", name: "Cappello di Babbo Natale", price: 35, event: "natale" },
+  paglia: { slot: "hat", name: "Cappello di paglia", price: 35, event: "estate" },
+  tiara: { slot: "hat", name: "Tiara delle stelle", price: 0, reward: true },
+  stelle: { slot: "face", name: "Occhiali a stella", price: 30 },
+  baffi: { slot: "face", name: "Baffoni finti", price: 20 },
+  clown: { slot: "face", name: "Naso da clown", price: 15 },
+  maschera: { slot: "face", name: "Maschera da supereroe", price: 40 },
+  cane: { slot: "pet", name: "Cagnolino", price: 80 },
+  micio: { slot: "pet", name: "Gattino", price: 80 },
+  coniglietto: { slot: "pet", name: "Coniglietto", price: 70 },
+  pappagallo: { slot: "pet", name: "Pappagallo", price: 90 },
+  tartaruga: { slot: "pet", name: "Tartaruga", price: 60 }
+};
+const R_STREAK = { 3: 10, 7: 25, 14: 50 };
+const R_UNLOCKS = [{ k: "gelateria", need: 2 }, { k: "lunapark", need: 4 }, { k: "porto", need: 6 }];
+function rHash(str) { let h = 2166136261; for (const ch of String(str)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h >>> 0; }
+function rRng(seed) { let s = seed >>> 0 || 1; return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; }; }
+function rEvent(day) { const md = String(day).slice(5); if (md >= "10-15" && md <= "11-02") return "halloween"; if (md >= "12-01" || md <= "01-06") return "natale"; if (md >= "06-15" && md <= "09-15") return "estate"; return null; }
+function rMissions(day, mid, nMembers) {
+  const r = rRng(rHash(day + "|" + mid));
+  const coins = [3, 5, 8][Math.floor(r() * 3)];
+  const job = R_JOBS_BASE[Math.floor(r() * R_JOBS_BASE.length)];
+  const others = ["w2", "e20", "w3"].concat(nMembers > 1 ? ["g1"] : []);
+  return ["c" + coins, "j_" + job, others[Math.floor(r() * others.length)]];
+}
+function rMissionText(k) {
+  if (k === "c8") return "Trova tutte le 8 monete di oggi";
+  if (/^c\d$/.test(k)) return "Trova " + k.slice(1) + " monete in città";
+  if (k.indexOf("j_") === 0) return R_JOB_LABEL[k.slice(2)] || "Fai un lavoretto";
+  return { w2: "Fai 2 lavoretti", w3: "Fai 3 lavoretti", e20: "Guadagna 20 monete oggi", g1: "Fai un regalo a un parente" }[k] || "";
+}
+function rMissionProgress(k, st) {
+  if (/^c\d$/.test(k)) { const n = Number(k.slice(1)); return [Math.min(st.picks, n), n]; }
+  if (k.indexOf("j_") === 0) return [st.jobs.indexOf(k.slice(2)) >= 0 ? 1 : 0, 1];
+  if (k === "w2") return [Math.min(st.n, 2), 2];
+  if (k === "w3") return [Math.min(st.n, 3), 3];
+  if (k === "e20") return [Math.min(st.earned, 20), 20];
+  if (k === "g1") return [Math.min(st.gifts, 1), 1];
+  return [0, 1];
+}
+function rVoteTime(time) {
+  /* telefoni giù per 90 minuti: poi si vota tutti insieme a tavola e parte la rivelazione */
+  const p = String(time || "20:00").split(":").map(Number), t = p[0] * 60 + (p[1] || 0);
+  const v = Math.min(t + 90, 23 * 60 + 59);
+  return String(Math.floor(v / 60)).padStart(2, "0") + ":" + String(v % 60).padStart(2, "0");
+}
+function rDayState(s, mid, today) {
+  const pk = s.picks && s.picks[mid] && s.picks[mid].day === today ? s.picks[mid].ids : [];
+  const w = s.work && s.work[mid] && s.work[mid].day === today ? s.work[mid] : { n: 0, jobs: [] };
+  const dl = s.dl && s.dl[mid] && s.dl[mid].day === today ? s.dl[mid] : { earned: 0, gifts: 0, claimed: [] };
+  return { picks: pk.length, jobs: w.jobs || [], n: w.n || 0, earned: dl.earned || 0, gifts: dl.gifts || 0, claimed: dl.claimed || [] };
+}
+function rDinnersDone(s, today) { return Object.keys(s.dinners || {}).filter((id) => id <= today && s.dinners[id] && s.dinners[id].dish).length; }
+function rAddDays(day, n) { const d = new Date(day + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+/* ===== FINE REGOLE CONDIVISE ===== */
 
 /* ---------- helpers ---------- */
 function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
@@ -434,7 +1094,7 @@ function countdown(target){
 }
 
 /* ---------- data ---------- */
-const EMPTY = () => ({ name:"", members:[], day:3, time:"20:00", dinners:{}, votes:[] });
+const EMPTY = () => ({ name:"", members:[], day:3, time:"20:00", dinners:{}, votes:[], coins:{}, work:{}, picks:{}, wear:{}, dl:{}, wk:{}, st:{}, gifts:[], secret:{}, pen:{}, rec:{}, lv:{}, best:{} });
 const Store = {
   mode:"none", ready:false, fid:null, data:EMPTY(), subs:[], timer:0,
   emit(){ this.subs.forEach(f => f()); },
@@ -467,7 +1127,7 @@ const Store = {
   },
   setState(s){
     const votes = s.votes || {};
-    this.data = { name:s.name || "", members:(s.members || []).map(m => ({ id:m.id, name:m.name, av:AV.clean(m.av) })), day:Number.isInteger(s.day) ? s.day : 3, time:s.time || "20:00", dinners:s.dinners || {}, votes:Object.keys(votes).map(k => Object.assign({ id:k }, votes[k])) };
+    this.data = { name:s.name || "", members:(s.members || []).map(m => ({ id:m.id, name:m.name, av:AV.clean(m.av) })), day:Number.isInteger(s.day) ? s.day : 3, time:s.time || "20:00", dinners:s.dinners || {}, votes:Object.keys(votes).map(k => Object.assign({ id:k }, votes[k])), coins:s.coins || {}, work:s.work || {}, picks:s.picks || {}, wear:s.wear || {}, dl:s.dl || {}, wk:s.wk || {}, st:s.st || {}, gifts:s.gifts || [], secret:s.secret || {}, pen:s.pen || {}, rec:s.rec || {}, lv:s.lv || {}, best:s.best || {} };
   },
   poll(){
     clearInterval(this.timer);
@@ -496,7 +1156,7 @@ const Store = {
     if(op.op === "settings"){ if(op.day != null) d.day = op.day; if(op.time) d.time = op.time; if(op.name) d.name = op.name; }
     if(op.op === "member"){ const i = d.members.findIndex(m => m.id === op.member.id); if(i >= 0) d.members[i] = op.member; else d.members.push(op.member); }
     if(op.op === "removeMember") d.members = d.members.filter(m => m.id !== op.id);
-    if(op.op === "dinner"){ const prev = d.dinners[op.date] || {}; d.dinners[op.date] = { chefId:op.chefId, chefName:op.chefName, dish:op.dish, note:op.note, rsvp:prev.rsvp || {}, wheel:prev.wheel || [], spin:(prev.spin && prev.dish === op.dish) ? prev.spin : null }; }
+    if(op.op === "dinner"){ const prev = d.dinners[op.date] || {}; if(prev.dish && prev.dish !== op.dish) refundShop(prev); d.dinners[op.date] = { chefId:op.chefId, chefName:op.chefName, dish:op.dish, note:op.note, rsvp:prev.rsvp || {}, wheel:prev.wheel || [], spin:(prev.spin && prev.dish === op.dish) ? prev.spin : null, shop:prev.shop || [] }; }
     if(op.op === "chefOnly"){ const x = d.dinners[op.date] || (d.dinners[op.date] = { rsvp:{}, wheel:[] }); x.chefId = op.chefId; x.chefName = op.chefName; x.note = op.note; }
     if(op.op === "wheelAdd"){
       const x = d.dinners[op.date] || (d.dinners[op.date] = { rsvp:{}, wheel:[] }); x.wheel = x.wheel || [];
@@ -514,23 +1174,28 @@ const Store = {
       if(!x || !x.wheel || x.wheel.length < 2) throw new Error("servono almeno 2 piatti sulla ruota");
       if(x.spin) throw new Error("la ruota ha già girato");
       const i = Math.floor(Math.random() * x.wheel.length);
-      x.spin = { id:x.wheel[i].id, at:new Date().toISOString(), jitter:Math.random() - .5, by:op.mid }; x.dish = x.wheel[i].dish;
+      x.spin = { id:x.wheel[i].id, at:new Date().toISOString(), jitter:Math.random() - .5, by:op.mid }; if(x.dish && x.dish !== x.wheel[i].dish) refundShop(x); x.dish = x.wheel[i].dish;
     }
-    if(op.op === "wheelReset"){ const x = d.dinners[op.date]; if(x){ const w = (x.wheel || []).find(e => x.spin && e.id === x.spin.id); if(w && x.dish === w.dish) x.dish = ""; x.spin = null; } }
+    if(op.op === "wheelReset"){ const x = d.dinners[op.date]; if(x){ const w = (x.wheel || []).find(e => x.spin && e.id === x.spin.id); if(w && x.dish === w.dish){ x.dish = ""; refundShop(x); } x.spin = null; } }
     if(op.op === "rsvp"){ const x = d.dinners[op.date] || (d.dinners[op.date] = { rsvp:{} }); x.rsvp = x.rsvp || {}; if(op.v === 1 || op.v === 0) x.rsvp[op.mid] = op.v; else delete x.rsvp[op.mid]; }
-    if(op.op === "vote"){ const id = op.dinner + "_" + op.device, row = { id, dinner:op.dinner, stars:op.stars, comment:op.comment }, i = d.votes.findIndex(v => v.id === id); if(i >= 0) d.votes[i] = row; else d.votes.push(row); }
+    if(GAME_OPS[op.op]) GAME_OPS[op.op](op, d);
+    if(op.op === "vote"){ const id = op.dinner + "_" + op.device, row = { id, dinner:op.dinner, stars:op.stars, comment:op.comment, cat:op.cat || null }, i = d.votes.findIndex(v => v.id === id); if(i >= 0) d.votes[i] = row; else d.votes.push(row); }
+    if(op.op === "pred"){ const x = d.dinners[op.date] || (d.dinners[op.date] = { rsvp:{}, wheel:[] }); if(new Date() >= at(op.date, d.time)) throw new Error("il pronostico si chiude quando inizia la cena"); x.pred = x.pred || {}; x.pred[op.mid] = Math.round(Math.max(1, Math.min(5, Number(op.v) || 0)) * 10) / 10; }
+    if(op.op === "predAward"){ const x = d.dinners[op.date]; if(x && !x.predWin){ const w = predWinner(op.date); if(w){ x.predWin = { mid:w.mid, v:w.v, avg:w.avg }; earnL(d, w.mid, 10); } } }
+    if(op.op === "photo"){ const x = d.dinners[op.date] || (d.dinners[op.date] = { rsvp:{} }); x.photo = op.data || null; }
+    if(op.op === "recipe"){ const x = d.dinners[op.date]; if(x) x.recipe = { ing:String(op.ing || "").slice(0, 800), steps:String(op.steps || "").slice(0, 2000) }; }
     this.persist(); this.emit();
   },
   async create(name, code){ const body = await this.post({ op:"create", name, code }); await this.open(body.id); },
   leave(){ lsDel("dc_family"); clearInterval(this.timer); this.fid = null; this.mode = "none"; this.data = EMPTY(); try{ history.replaceState(null, "", location.pathname); }catch(e){} this.emit(); },
   startDemo(){
     this.mode = "demo";
-    let d = null; try{ d = JSON.parse(lsGet("dc_demo_it") || "null"); }catch(e){}
+    let d = null; try{ d = JSON.parse(lsGet("dc_demo_v2") || "null"); }catch(e){}
     this.data = d && d.dinners && d.members ? d : seedDemo();
     if(!lsGet("dc_me_demo")) lsSet("dc_me_demo", "m3");
     this.ready = true; this.persist(); this.emit();
   },
-  persist(){ if(this.mode === "demo") lsSet("dc_demo_it", JSON.stringify(this.data)); },
+  persist(){ if(this.mode === "demo") lsSet("dc_demo_v2", JSON.stringify(this.data)); },
   resetDemo(){ this.data = seedDemo(); lsSet("dc_me_demo","m3"); this.persist(); this.emit(); }
 };
 function seedDemo(){
@@ -543,18 +1208,31 @@ function seedDemo(){
     { id:"m5", name:"Nonna Rita", av:AV.clean(P[4].av) }, { id:"m6", name:"Nonno Gino", av:AV.clean(P[5].av) }
   ];
   const dinners = {}, votes = [];
+  /* voti a categorie: [gusto, aspetto, fantasia, commento] */
   const add = (id, chefId, dish, note, vs, rsvp) => {
     dinners[id] = { chefId, chefName: members.find(m => m.id === chefId).name, dish, note, rsvp: rsvp || { m1:1, m2:1, m3:1, m4:1, m5:1, m6:1 } };
-    vs.forEach((x,i) => votes.push({ id:id+"_demo"+i, dinner:id, stars:x[0], comment:x[1] }));
+    vs.forEach((x,i) => { const cat = { g:x[0], a:x[1], f:x[2] }; votes.push({ id:id+"_demo"+i, dinner:id, stars:overallOf(cat), comment:x[3], cat }); });
   };
-  add(w(4),"m5","Gnocchi al pomodoro","Fatti a mano, uno per uno",[[5,"Sanno di casa"],[5,"La nonna non sbaglia mai"],[4,"Ne volevo il doppio"]]);
-  add(w(3),"m2","Pollo arrosto e patate","",[[4,"Patate croccanti perfette"],[3,"Il pollo un po' asciutto"],[4,"Bravo papà!"]]);
-  add(w(2),"m3","Tacos arcobaleno","Ogni condimento di un colore diverso",[[5,"Divertentissimi da comporre"],[4,"Cipolle rosa top"],[5,"Sofia è un genio"]]);
-  add(w(1),"m6","Risotto ai funghi","Come lo faceva mia madre",[[5,"Cremoso al punto giusto"],[4,"Funghi raccolti da lui!"],[4,"Bis obbligatorio"]]);
-  add(s.vot,"m4","Pancake per cena","Gocce di cioccolato obbligatorie",[[5,"La serata più bella"],[4,"Cucina distrutta, pancia felice"]]);
-  dinners[s.up] = { chefId:"m1", chefName:"Mamma", dish:"", note:"Stavolta decide la ruota!", rsvp:{ m1:1, m2:1, m3:1, m5:1, m6:0 },
+  add(w(4),"m5","Gnocchi al pomodoro","Fatti a mano, uno per uno",[[5,4,4,"Sanno di casa"],[5,5,4,"La nonna non sbaglia mai"],[4,4,4,"Ne volevo il doppio"]]);
+  add(w(3),"m2","Pollo arrosto e patate","",[[4,3,3,"Patate croccanti perfette"],[3,3,3,"Il pollo un po' asciutto"],[4,4,3,"Bravo papà!"]]);
+  add(w(2),"m3","Tacos arcobaleno","Ogni condimento di un colore diverso",[[4,5,5,"Divertentissimi da comporre"],[4,5,4,"Cipolle rosa top"],[3,4,4,"Un filo troppo piccanti"]]);
+  add(w(1),"m6","Risotto ai funghi","Come lo faceva mia madre",[[5,4,4,"Cremoso al punto giusto"],[4,3,3,"Funghi raccolti da lui!"],[4,4,3,"Bis obbligatorio"]]);
+  add(s.vot,"m4","Pancake per cena","Gocce di cioccolato obbligatorie",[[5,5,4,"La serata più bella"],[4,3,5,"Cucina distrutta, pancia felice"],[3,4,4,"Senza cioccolato non è la stessa cosa"],[5,4,5,"Leo chef stellato!"]]);
+  dinners[w(4)].recipe = { ing:"1 kg di patate farinose\n300 g di farina 00\n1 uovo\nUn pizzico di sale\nPassata di pomodoro e basilico", steps:"Lessa le patate con la buccia e schiacciale ancora calde.\nImpasta con farina, uovo e sale senza lavorare troppo.\nFai dei rotolini, taglia i gnocchi e passali sui rebbi della forchetta.\nCuocili in acqua salata: quando vengono a galla sono pronti.\nCondisci con il sugo caldo e basilico fresco." };
+  dinners[w(2)].recipe = { ing:"8 tortillas\n400 g di carne macinata\n1 avocado\nPomodorini, cipolla rossa, mais\nFormaggio grattugiato, lime", steps:"Rosola la carne con sale, paprika e cumino.\nMetti la cipolla rossa in aceto e lime 20 minuti: diventa rosa.\nTaglia tutto a cubetti, ogni condimento in una ciotola di un colore diverso.\nScalda le tortillas e ognuno compone il suo taco arcobaleno." };
+  dinners[s.vot].shop = [ { id:"ia", name:"Farina", by:"m5", done:true }, { id:"ib", name:"Uova", by:"m1", done:true }, { id:"ic", name:"Latte", by:"m3", done:true }, { id:"id", name:"Gocce di cioccolato", by:null } ];
+  dinners[s.vot].pred = { m1:4.0, m2:3.6, m4:5.0, m5:4.5, m6:4.2 };
+  dinners[s.up] = { chefId:"m1", chefName:"Mamma", dish:"", note:"Stavolta decide la ruota!", rsvp:{ m1:1, m2:1, m3:1, m5:1, m6:0 }, pred:{ m2:4.2, m5:4.6 },
     wheel:[ { id:"wa", dish:"Lasagna della domenica", by:"m5" }, { id:"wb", dish:"Pizza fatta in casa", by:"m4" }, { id:"wc", dish:"Sushi fatto in casa", by:"m3" }, { id:"wd", dish:"Polpette al sugo", by:"m6" }, { id:"we", dish:"Carbonara", by:"m2" } ] };
-  return { name:"Famiglia Bellucci", members, day:3, time:"20:00", dinners, votes };
+  const t0 = idOf(new Date()), wk = {}; wk[s.up] = { m1:34, m2:12, m3:20, m4:46, m5:28, m6:8 }; wk[s.vot] = { m1:30, m2:22, m3:41, m4:58, m5:36, m6:14 };
+  const pen = {}; pen[s.vot] = ["m4"];
+  const ago = d => new Date(Date.now() - d * DAYMS).toISOString();
+  const rec = { pizzeria:{ mid:"m6", score:22, at:ago(3) }, lavanderia:{ mid:"m1", score:24, at:ago(5) }, serra:{ mid:"m5", score:18, at:ago(2) }, officina:{ mid:"m2", score:19, at:ago(6) },
+    biblioteca:{ mid:"m4", score:15, at:ago(1) }, cucina:{ mid:"m1", score:14, at:ago(4) }, cameretta:{ mid:"m4", score:21, at:ago(2) }, gelateria:{ mid:"m3", score:12, at:ago(1) }, lunapark:{ mid:"m4", score:16, at:ago(3) } };
+  return { name:"Famiglia Bellucci", members, day:3, time:"20:00", dinners, votes, coins:{ m1:40, m2:15, m3:60, m4:20, m5:55, m6:10 }, work:{}, picks:{},
+    wear:{ m4:{ own:["pirata","cane"], on:{ hat:"pirata", pet:"cane" } }, m5:{ own:["fiori"], on:{ hat:"fiori" } }, m3:{ own:["gatto"], on:{} } },
+    dl:{}, wk, st:{ m3:{ last:rAddDays(t0, -1), n:6, best:6 } }, gifts:[{ from:"m5", to:"m3", coins:10, at:new Date(Date.now() - 36e5).toISOString() }], secret:{}, pen,
+    rec, best:{ m3:{ pizzeria:17, lavanderia:19, gelateria:12, cameretta:15 } }, lv:{ m3:{ pizzeria:4, lavanderia:3, gelateria:2, cameretta:1 } } };
 }
 
 function members(){ return fam().members || []; }
@@ -568,10 +1246,26 @@ const avgOf = vs => vs.length ? vs.reduce((a,v) => a + v.stars, 0) / vs.length :
 const fmtAvg = n => n.toLocaleString("it-IT",{minimumFractionDigits:1,maximumFractionDigits:1});
 const myVote = d => fam().votes.find(v => v.id === d + "_" + DEV) || null;
 function inviteUrl(){ return Store.fid ? location.origin + "/app/?f=" + Store.fid : ""; }
-function crownHolder(){
+/* voto complessivo: il gusto conta doppio */
+function overallOf(cat){ const t = CATS_V.reduce((a,c) => a + c.w * (Number(cat[c.k]) || 0), 0), w = CATS_V.reduce((a,c) => a + c.w, 0); return Math.round(t / w * 10) / 10; }
+function catAvg(vs, k){ const xs = vs.filter(v => v.cat && v.cat[k]); return xs.length ? xs.reduce((a,v) => a + v.cat[k], 0) / xs.length : 0; }
+function predWinner(date){
+  const c = fam().dinners[date], vs = votesOf(date); if(!c || !c.pred || !vs.length) return null;
+  const avg = avgOf(vs); let best = null;
+  Object.keys(c.pred).forEach(mid => { const d = Math.abs(c.pred[mid] - avg); if(member(mid) && (!best || d < best.d)) best = { mid, v:c.pred[mid], d, avg }; });
+  return best;
+}
+const DISH_EMOJI = [[/pizz/,"🍕"],[/sushi/,"🍣"],[/taco/,"🌮"],[/pancake/,"🥞"],[/risott/,"🍚"],[/pollo/,"🍗"],[/burger|hamburger/,"🍔"],[/polpett/,"🧆"],[/gnocch/,"🥟"],[/tiramis|torta|dolce/,"🍰"],[/zupp|minestr/,"🍲"],[/insalat/,"🥗"],[/pesce|salmone|orata|branzino/,"🐟"],[/lasagn|carbonar|spaghett|pasta|amatrician|penne|ragù|ragu/,"🍝"],[/curry/,"🍛"],[/uov|frittat/,"🍳"]];
+function dishEmoji(n){ n = String(n || "").toLowerCase(); const r = DISH_EMOJI.find(x => x[0].test(n)); return r ? r[1] : "🍽️"; }
+function dishArt(c, cls){
+  if(c && c.photo) return h("div",{class:"dish-art photo " + (cls || "")}, h("img",{src:c.photo,alt:"Foto di " + (c.dish || "un piatto")}));
+  const hue = rHash(c && c.dish) % 360;
+  return h("div",{class:"dish-art " + (cls || ""),style:"--h:" + hue},h("span",null, dishEmoji(c && c.dish)));
+}
+function crownHolder(exclude){
   const s = slots(), month = s.vot.slice(0,7); let best = null;
   Object.keys(fam().dinners).forEach(id => {
-    if(id > s.vot || id.slice(0,7) !== month) return;
+    if(id > s.vot || id.slice(0,7) !== month || id === exclude) return;
     const c = fam().dinners[id], vs = votesOf(id);
     if(!c || !c.dish || !c.chefId || !vs.length) return;
     const a = avgOf(vs);
@@ -584,19 +1278,25 @@ function streak(){
   while(true){ const c = fam().dinners[idOf(d)]; if(c && c.dish){ n++; d = addDays(d, -7); } else break; }
   return n;
 }
-function avOf(m, opts){ const ch = crownHolder(); return AV.render(m.av, Object.assign({ crown: !!(ch && m.id && ch.chefId === m.id) }, opts || {})); }
+function avOf(m, opts){ const ch = crownHolder(); return AV.render(m.av, Object.assign({ crown: !!(ch && m.id && ch.chefId === m.id), wear: m.id ? wearOf(m.id) : {} }, opts || {})); }
 function mAv(m, cls, opts){ return h("div",{class:cls, html:avOf(m, opts)}); }
 
 /* ---------- ui state ---------- */
+const LEGACY = { casa:"gioca", storico:"corona" };
 const ui = {
-  tab: VIEWS.indexOf(location.hash.slice(1)) >= 0 ? location.hash.slice(1) : "cena",
+  tab: (function(){ const h0 = location.hash.slice(1), t = LEGACY[h0] || h0; return VIEWS.indexOf(t) >= 0 ? t : "cena"; })(),
+  vc:{ g:0, a:0, f:0 }, gsec:"citta", csec:"classifica", showShop:false, pred:null, recipeEdit:null, tour:null,
   stars:0, voteC:"", editing:false, pop:0, chefFor:"up", chef:null,
   time:null, day:null, confirmDel:null, confirmLeave:false, openHist:null, err:{},
-  w:{ name:"", code:"", join:"" }, busy:false, editor:null, spinning:false, wheelIn:"", confirmSpin:null, confirmReset:null
+  w:{ name:"", code:"", join:"" }, busy:false, editor:null, spinning:false, wheelIn:"", confirmSpin:null, confirmReset:null,
+  shopIn:"", game:null
 };
-function go(tab, chefFor){
-  ui.tab = tab;
+function go(tab, chefFor, sec){
+  ui.tab = LEGACY[tab] || tab;
   if(chefFor){ ui.chefFor = chefFor; ui.chef = null; }
+  if(sec && ui.tab === "corona") ui.csec = sec;
+  if(sec && ui.tab === "gioca") ui.gsec = sec;
+  if(tab === "storico") ui.csec = "album";
   try{ history.replaceState(null, "", location.pathname + location.search + "#" + tab); }catch(e){}
   render(); window.scrollTo(0, 0);
 }
@@ -659,14 +1359,20 @@ function viewWho(){
 /* ---------- home ---------- */
 function demoBanner(){
   if(Store.mode !== "demo") return null;
-  return h("div",{class:"demo"}, h("span",null, h("b",null,"Famiglia demo. "), "Qui niente viene salvato online."), h("button",{class:"link",type:"button",onclick:() => { Store.leave(); go("cena"); }},"Crea la tua"));
+  return h("div",{class:"demo","data-nopen":""}, h("span",null, h("b",null,"Famiglia demo. "), "Sei Sofia: qui niente viene salvato online."),
+    h("div",{class:"demo-links"},
+      h("button",{class:"link",type:"button",onclick:() => openReveal(slots().vot, { demo:true })},"🎬 Guarda la rivelazione"),
+      h("button",{class:"link",type:"button",onclick:() => { ui.simDinner = !ui.simDinner; toast(ui.simDinner ? "📵 Simulazione: è l'ora della cena. Ora tocca un pulsante…" : "Simulazione finita"); render(); }}, ui.simDinner ? "Ferma la simulazione" : "📵 Regola della cena"),
+      h("button",{class:"link",type:"button",onclick:() => startTour(true)},"❓ Tour"),
+      h("button",{class:"link",type:"button",onclick:() => { Store.resetDemo(); toast("Demo ricominciata"); }},"Ricomincia"),
+      h("button",{class:"link",type:"button",onclick:() => { Store.leave(); go("cena"); }},"Crea la tua famiglia")));
 }
 function tableScene(s){
   const id = s.up, c = fam().dinners[id] || {}, has = !!c.dish, ms = members(), me = meId();
   const rsvp = c.rsvp || {};
   const wrap = h("div",{class:"table-wrap"});
   wrap.append(h("div",{class:"tabletop"}));
-  const plate = has ? h("div",{class:"dishplate"}, c.spin ? h("span",{style:"font-size:.9rem"},"🎡") : null, h("b",null,c.dish), h("span",null,"chef " + chefOf(c).name))
+  const plate = has ? h("div",{class:"dishplate"}, h("span",{style:"font-size:1.5rem;line-height:1"}, dishEmoji(c.dish)), h("b",null,c.dish), h("span",null,"chef " + chefOf(c).name))
               : c.chefId ? h("div",{class:"dishplate"}, h("div",{class:"q",style:"font-size:1.6rem"},"🎡"), h("span",null,"Lo decide la ruota"), h("span",null,"chef " + chefOf(c).name))
                     : h("div",{class:"dishplate"}, h("div",{class:"q"},"?"), h("span",null,"Chi cucina?"));
   wrap.append(plate);
@@ -675,15 +1381,15 @@ function tableScene(s){
     const a = -Math.PI/2 + (i / n) * Math.PI * 2;
     const x = 50 + Math.cos(a) * 39, y = 50 + Math.sin(a) * 37;
     const st = rsvp[m.id] === 1 ? "yes" : rsvp[m.id] === 0 ? "no" : "unk";
-    const seat = h("div",{class:"seat " + st + (has && c.chefId === m.id ? " chef" : "") + (me === m.id ? " me" : ""),style:"left:"+x+"%;top:"+y+"%;--sz:"+sz+"%"},
+    const seat = h("div",{class:"seat " + st + (c.chefId === m.id ? " chef" : "") + (me === m.id ? " me" : ""),style:"left:"+x+"%;top:"+y+"%;--sz:"+sz+"%"},
       h("div",{class:"avw",html:avOf(m)}, h("span",{class:"st","aria-hidden":"true"}, st === "yes" ? "✓" : st === "no" ? "✕" : "?")),
-      h("span",{class:"nm"}, (has && c.chefId === m.id ? "👨‍🍳 " : "") + m.name));
+      h("span",{class:"nm"}, (c.chefId === m.id ? "👨‍🍳 " : "") + m.name));
     seat.setAttribute("aria-label", m.name + ": " + (st === "yes" ? "ci sarà" : st === "no" ? "non ci sarà" : "non ha ancora risposto"));
     wrap.append(seat);
   });
   const yes = ms.filter(m => rsvp[m.id] === 1).length, no = ms.filter(m => rsvp[m.id] === 0).length, unk = n - yes - no;
   const mine = me ? rsvp[me] : undefined;
-  const scene = h("section",{class:"scene"},
+  return h("section",{class:"scene"},
     h("div",{class:"scene-head"},
       h("div",null, h("h2",null, s.upToday ? "Stasera si cena insieme" : "La prossima cena"), h("p",null, cap(fmtLong(id)) + " · " + (fam().time || "20:00"))),
       h("span",{class:"chip"}, countdown(s.upAt))),
@@ -692,11 +1398,18 @@ function tableScene(s){
     me ? h("div",{class:"rsvp"},
       h("button",{class:"btn " + (mine === 1 ? "on-yes" : "ghost"),type:"button","aria-pressed":String(mine === 1),onclick:() => setRsvp(id, me, mine === 1 ? null : 1)}, "🙌 Ci sono!"),
       h("button",{class:"btn " + (mine === 0 ? "on-no" : "ghost"),type:"button","aria-pressed":String(mine === 0),onclick:() => setRsvp(id, me, mine === 0 ? null : 0)}, "Stavolta salto")) : null,
-    has || c.chefId ? null : h("button",{class:"btn red block",type:"button",onclick:() => go("chef","up")},"Scegli lo chef"),
+    h("button",{class:"btn " + (has || c.chefId ? "ghost" : "red") + " block",type:"button",onclick:() => go("chef","up")}, has || c.chefId ? "👨‍🍳 Chef, piatto e ruota" : "Scegli lo chef"),
     wheelTeaser(id, c),
-    has && c.note ? h("p",{class:"quote"}, "“" + c.note + "”") : null
+    shopTeaser(id, c),
+    ui.showShop && c.dish && me ? shopCard(member(me), false) : null,
+    has && c.note ? h("p",{class:"quote"}, "“" + c.note + "”") : null,
+    ruleNote()
   );
-  return scene;
+}
+function secretLine(date){
+  const sc = secretOf(date), by = sc && member(sc.by);
+  return h("button",{class:"chefline",type:"button",style:"border:none;cursor:pointer;width:100%;text-align:left;font:inherit",onclick:() => go("gioca")},
+    h("span",{style:"font-size:1.8rem"}, sc ? "🎁" : "🔎"), h("div",null, h("b",null, sc ? "Ingrediente segreto: " + sc.name : "Ingrediente segreto della settimana"), h("small",null, sc ? "Trovato da " + (by ? by.name : "qualcuno") + ": lo chef deve usarlo!" : "È nascosto in città: chi lo trova?")));
 }
 async function setRsvp(date, mid, v){
   try{
@@ -705,6 +1418,32 @@ async function setRsvp(date, mid, v){
     else if(v === 0) toast("Ci mancherai! La prossima volta?");
   }catch(err){ toast("Non salvato: " + err.message); }
 }
+
+/* ---------- pronostico (5 secondi, perfetto anche per chi non gioca) ---------- */
+function predictCard(s){
+  const id = s.up, c = fam().dinners[id] || {}, me = meId();
+  if(!c.chefId || !me || new Date() >= at(id, fam().time)) return null;
+  const chef = chefOf(c), pred = c.pred || {}, mine = pred[me], who = Object.keys(pred).map(member).filter(Boolean);
+  if(ui.pred == null || ui.predFor !== id){ ui.pred = mine != null ? mine : 4; ui.predFor = id; }
+  const editing = mine == null || ui.predEdit;
+  const val = h("b",{class:"pr-val"}, fmtAvg(ui.pred));
+  const range = h("input",{type:"range",min:"1",max:"5",step:"0.1",class:"pr-range","aria-label":"Il tuo pronostico",oninput:e => { ui.pred = Number(e.target.value); val.textContent = fmtAvg(ui.pred); }});
+  range.value = String(ui.pred);
+  return h("section",{class:"card pr"},
+    h("div",{class:"card-row"}, h("h2",{class:"card-title"},"🔮 Il pronostico"), h("span",{class:"tag"},"+10 🪙 al più vicino")),
+    h("p",{class:"hint"}, "Che voto prenderà ", h("b",null, chef.id === me ? "il tuo piatto" : chef.name), "? Ci vogliono 5 secondi. Si scopre tutto alla rivelazione."),
+    editing ? h("div",{class:"pr-box"}, val, range, h("div",{class:"pr-scale"}, h("span",null,"1 ★"), h("span",null,"3 ★"), h("span",null,"5 ★")),
+        h("button",{class:"btn red block",type:"button",onclick:savePred}, mine != null ? "Aggiorna il pronostico" : "Salva il pronostico"))
+      : h("div",{class:"mine"}, h("span",null,"Il tuo pronostico: ", h("b",null, fmtAvg(mine) + " ★")), h("button",{class:"link",type:"button",onclick:() => { ui.predEdit = true; render(); }},"Cambia")),
+    who.length ? h("div",{class:"pr-who"}, who.map(m => h("span",{class:"pr-chip"}, mAv(m,""), m.id === me ? "Tu" : m.name, h("i",null, m.id === me ? fmtAvg(mine) : "?")))) : null);
+}
+async function savePred(){
+  const me = meId(), id = slots().up;
+  try{ await Store.send({ op:"pred", date:id, mid:me, v:ui.pred }); ui.predEdit = false; toast("🔮 Pronostico salvato: " + fmtAvg(ui.pred) + " ★"); render(); }
+  catch(err){ toast(err.message); }
+}
+
+/* ---------- voto a categorie ---------- */
 function voteSection(s){
   const id = s.vot, c = fam().dinners[id];
   if(!(c && c.dish)){
@@ -714,55 +1453,78 @@ function voteSection(s){
       h("div",{class:"card"}, h("p",{class:"hint"}, "Per " + fmtLong(id) + " non è stato segnato nessun piatto."),
         h("button",{class:"btn soft",type:"button",onclick:() => go("chef","vot")}, "Segna chef e piatto")));
   }
+  if(voteLocked(s)) return h("section",{class:"section"}, h("h2",{class:"section-title"},"Il voto di stasera"),
+    h("div",{class:"card empty"}, h("div",{class:"big-emoji"},"🌙"), h("p",null, "Il voto apre alle " + dinnerState().vt + ". Adesso godetevi la cena, senza telefono! Poi votate tutti insieme e parte la rivelazione.")));
   const chef = chefOf(c), mine = myVote(id), vs = votesOf(id);
-  const head = h("div",{class:"dishline"}, mAv(chef,"mini"), h("div",null, h("strong",null, c.dish), h("span",{class:"hint"}, "chef " + chef.name)));
+  const pens = ((fam().pen || {})[id] || []).map(x => member(x)).filter(Boolean).map(m => m.name);
+  const sec = secretOf(id);
+  const head = h("div",{class:"vote-wrap"},
+    h("div",{class:"vote-head"},
+      h("div",{class:"vh-art"}, dishArt(c, "sm"), h("button",{class:"vh-cam",type:"button","aria-label":c.photo ? "Cambia la foto" : "Aggiungi la foto del piatto",onclick:() => pickPhoto(id)}, "📸")),
+      h("div",{class:"vh-txt"}, h("strong",null, c.dish), h("span",{class:"vh-chef"}, mAv(chef,"vh-av"), "chef " + chef.name),
+        !c.photo ? h("button",{class:"link",type:"button",style:"padding:2px 0;text-align:left",onclick:() => pickPhoto(id)},"📸 Aggiungi la foto") : null)),
+    sec ? h("div",{class:"senza ok"}, "🎁 Ingrediente segreto: " + sec.name) : null,
+    pens.length ? h("div",{class:"senza"}, "📵 Telefono a tavola: " + pens.join(", ") + " (monete dimezzate)") : null);
   const title = s.votToday ? "Com'era la cena di stasera?" : "Com'era la cena di " + fmtLong(id) + "?";
   let body;
-  if(mine && !ui.editing) body = [head, h("div",{class:"mine"}, h("span",null,"Il tuo voto", miniStars(mine.stars)), h("button",{class:"link",type:"button",onclick:startEdit},"Cambia")), results(id, vs)];
+  if(mine && !ui.editing) body = [head, h("div",{class:"mine"}, h("span",null,"Il tuo voto", miniStars(mine.stars), h("b",null, " " + fmtAvg(mine.stars))), h("button",{class:"link",type:"button",onclick:startEdit},"Cambia")),
+    revealCta(id, vs), results(id, vs)];
   else body = [head, voteForm(id, vs, mine)];
   return h("section",{class:"section"}, h("h2",{class:"section-title"}, title), h("div",{class:"card"}, body));
 }
+function revealCta(id, vs){
+  const c = fam().dinners[id] || {}, seats = Object.values(c.rsvp || {}).filter(v => v === 1).length || members().length;
+  return h("button",{class:"reveal-cta",type:"button",onclick:() => openReveal(id)},
+    h("span",{class:"rc-ico"},"🎬"), h("span",null, h("b",null,"Rivelazione a tavola"), h("small",null, "Telefono al centro del tavolo: i voti escono uno alla volta, poi la corona. " + vs.length + " voti su " + seats + ".")), h("span",{class:"rc-go"},"▶"));
+}
 function voteForm(id, vs, mine){
-  const stars = h("div",{class:"stars",role:"radiogroup","aria-label":"Voto da 1 a 5 stelle"});
-  for(let i=1;i<=5;i++){
-    const b = h("button",{type:"button",class:"star"+(i<=ui.stars?" on":"")+(ui.pop===i?" pop":""),role:"radio","aria-checked":String(ui.stars===i),"aria-label":i+(i===1?" stella":" stelle")+": "+WORDS[i],
-      onclick:() => { ui.stars = i; ui.pop = i; ui.err.vote = ""; render(); ui.pop = 0; }});
-    b.append(starSvg(null)); stars.append(b);
-  }
+  const rows = CATS_V.map(c => {
+    const stars = h("div",{class:"cstars",role:"radiogroup","aria-label":c.label + ": da 1 a 5 stelle"});
+    for(let i=1;i<=5;i++){
+      const b = h("button",{type:"button",class:"star sm"+(i<=ui.vc[c.k]?" on":"")+(ui.pop===c.k+i?" pop":""),role:"radio","aria-checked":String(ui.vc[c.k]===i),"aria-label":c.label + " " + i + (i===1?" stella":" stelle"),
+        onclick:() => { ui.vc[c.k] = i; ui.pop = c.k + i; ui.err.vote = ""; render(); ui.pop = 0; }});
+      b.append(starSvg(null)); stars.append(b);
+    }
+    return h("div",{class:"crow"}, h("span",{class:"clab"}, c.icon + " " + c.label, c.w > 1 ? h("small",null,"conta doppio") : null), stars);
+  });
+  const all = CATS_V.every(c => ui.vc[c.k]), ov = all ? overallOf(ui.vc) : 0;
   const ta = h("textarea",{id:"vote-c",maxlength:"400",placeholder:"Es. Sugo pazzesco, pasta un filo scotta",oninput:e => { ui.voteC = e.target.value; }});
   ta.value = ui.voteC;
   const others = vs.filter(v => !mine || v.id !== mine.id).length;
   return h("form",{class:"vote",onsubmit:submitVote(id),novalidate:true},
-    stars, h("div",{class:"star-word","aria-live":"polite"}, ui.stars ? WORDS[ui.stars] : "Tocca le stelle"),
+    h("div",{class:"crows"}, rows),
+    h("div",{class:"star-word","aria-live":"polite"}, all ? fmtAvg(ov) + " ★ · " + WORDS[Math.max(1, Math.round(ov))] : "Dai le stelle a tutte e tre"),
     h("div",{class:"field"}, h("label",{for:"vote-c"},"Perché questo voto?"), ta),
     h("div",{class:"lock",html:LOCK + "<span>Voto anonimo: nessuno saprà chi l'ha scritto.</span>"}),
     h("div",{class:"err",role:"alert"}, ui.err.vote || ""),
     h("div",{class:"row"}, h("button",{class:"btn red block",type:"submit"}, mine ? "Aggiorna il voto" : "Invia il voto"),
       ui.editing ? h("button",{class:"btn ghost",type:"button",onclick:() => { ui.editing = false; ui.err.vote = ""; render(); }},"Annulla") : null),
-    !mine && others > 0 ? h("div",{class:"teaser"}, (others === 1 ? "1 persona ha" : others + " persone hanno") + " già votato. I risultati si svelano dopo il tuo voto.") : null);
+    !mine && others > 0 ? h("div",{class:"teaser"}, (others === 1 ? "1 persona ha" : others + " persone hanno") + " già votato. I risultati si svelano dopo il tuo voto, con la rivelazione.") : null);
 }
 function submitVote(id){
   return async function(e){
     e.preventDefault();
-    if(!ui.stars){ ui.err.vote = "Scegli da 1 a 5 stelle."; render(); return; }
+    if(!CATS_V.every(c => ui.vc[c.k])){ ui.err.vote = "Dai da 1 a 5 stelle a gusto, aspetto e fantasia."; render(); return; }
     const c = ui.voteC.trim();
     if(c.length < 2){ ui.err.vote = "Scrivi due parole sul perché."; render(); return; }
     try{
-      const was = !!myVote(id);
-      await Store.send({ op:"vote", dinner:id, device:DEV, stars:ui.stars, comment:c });
-      ui.stars = 0; ui.voteC = ""; ui.editing = false; ui.err.vote = "";
-      render(); confetti(); toast(was ? "Voto aggiornato" : "Voto inviato, grazie!");
+      const was = !!myVote(id), cat = Object.assign({}, ui.vc);
+      await Store.send({ op:"vote", dinner:id, device:DEV, stars:overallOf(cat), comment:c, cat });
+      ui.vc = { g:0, a:0, f:0 }; ui.voteC = ""; ui.editing = false; ui.err.vote = "";
+      render(); confetti(); toast(was ? "Voto aggiornato" : "Voto inviato! Ora la rivelazione 🎬");
     }catch(err){ ui.err.vote = "Voto non inviato: " + err.message + ". Riprova."; render(); }
   };
 }
-function startEdit(){ const m = myVote(slots().vot); ui.editing = true; ui.stars = m ? m.stars : 0; ui.voteC = m ? (m.comment || "") : ""; ui.err.vote = ""; render(); }
+function startEdit(){ const m = myVote(slots().vot); ui.editing = true; ui.vc = m && m.cat ? Object.assign({}, m.cat) : { g:m ? Math.round(m.stars) : 0, a:m ? Math.round(m.stars) : 0, f:m ? Math.round(m.stars) : 0 }; ui.voteC = m ? (m.comment || "") : ""; ui.err.vote = ""; render(); }
 function results(id, vs){
   if(!vs.length) return h("p",{class:"hint"},"Ancora nessun voto.");
-  const a = avgOf(vs);
-  const dist = [5,4,3,2,1].map(n => { const k = vs.filter(v => v.stars === n).length; return h("div",{class:"bar"}, h("span",null, n + " ★"), h("span",{class:"track"}, h("span",{class:"fill",style:"width:"+(k/vs.length*100)+"%"})), h("span",null, String(k))); });
+  const a = avgOf(vs), c = fam().dinners[id] || {}, pw = c.predWin ? member(c.predWin.mid) : null;
+  const cats = CATS_V.map(k => { const v = catAvg(vs, k.k); return v ? h("div",{class:"bar"}, h("span",null, k.icon + " " + k.label), h("span",{class:"track"}, h("span",{class:"fill",style:"width:"+(v/5*100)+"%"})), h("span",null, fmtAvg(v))) : null; }).filter(Boolean);
   return h("div",{class:"results"},
     h("div",{class:"verdict"}, h("span",{class:"score"}, fmtAvg(a)), h("div",null, miniStars(a), h("p",{class:"hint"}, vs.length === 1 ? "1 voto" : vs.length + " voti"))),
-    h("div",{class:"bars"}, dist), notes(vs));
+    cats.length ? h("div",{class:"bars cbars"}, cats) : null,
+    pw ? h("div",{class:"suggest"}, "🔮 Pronostico vinto da ", h("b",null, pw.name), " (" + fmtAvg(c.predWin.v) + " su " + fmtAvg(c.predWin.avg) + "): +10 🪙") : null,
+    notes(vs));
 }
 function notes(vs){
   const list = vs.filter(v => v.comment).slice().sort((x,y) => (y.stars - x.stars) || (x.comment < y.comment ? -1 : 1));
@@ -774,8 +1536,26 @@ function viewCena(){
   const hello = h("div",{class:"hello"},
     h("div",null, h("h1",null, me ? "Ciao, " + me.name + "!" : "Ciao!"), h("p",null, fam().name || "")),
     st >= 2 ? h("span",{class:"streak",style:"margin-left:auto"}, "🔥 " + st + " settimane insieme") : null);
-  const scene = tableScene(s), vote = voteSection(s);
-  return [demoBanner(), hello].concat(s.votToday ? [vote, scene] : [scene, vote]);
+  const scene = tableScene(s), vote = voteSection(s), pred = predictCard(s);
+  return [demoBanner(), hello].concat(s.votToday ? [vote, scene, pred] : [scene, pred, vote]);
+}
+
+/* ---------- foto del piatto (ridotta sul telefono prima di salvarla) ---------- */
+function pickPhoto(date){
+  const inp = h("input",{type:"file",accept:"image/*",style:"display:none"});
+  inp.addEventListener("change", async () => {
+    const f = inp.files && inp.files[0]; inp.remove(); if(!f) return;
+    try{
+      const url = URL.createObjectURL(f), img = new Image();
+      await new Promise((ok, ko) => { img.onload = ok; img.onerror = ko; img.src = url; });
+      const k = Math.min(1, 900 / Math.max(img.width, img.height)), cv = document.createElement("canvas");
+      cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
+      cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height); URL.revokeObjectURL(url);
+      await Store.send({ op:"photo", date, data:cv.toDataURL("image/jpeg", .78) });
+      confetti(); toast("📸 Foto aggiunta all'album di famiglia");
+    }catch(e){ toast("Non sono riuscito a leggere la foto"); }
+  });
+  document.body.append(inp); inp.click();
 }
 
 /* ---------- chef ---------- */
@@ -787,6 +1567,7 @@ function suggest(forId){
   ms.forEach(m => { const l = last[m.id] || ""; if(!best || l < best.l) best = { m, l }; });
   return { name: best.m.name, why: best.l ? ": l'ultima volta ha cucinato il " + fmtDM(best.l) + "." : ": non ha ancora mai cucinato." };
 }
+function backBtn(){ return h("button",{class:"back",type:"button",onclick:() => go("cena")},"← Torna alla cena"); }
 function chefMode(c){ if(!c) return "chef"; if(c.spin || (c.wheel && c.wheel.length) || (c.chefId && !c.dish)) return "wheel"; return "chef"; }
 function viewChef(){
   const s = slots(), forId = ui.chefFor === "vot" ? s.vot : s.up, isUp = forId === s.up;
@@ -796,7 +1577,7 @@ function viewChef(){
   const segBtn = (k, label, sub) => h("button",{type:"button","aria-pressed":String(ui.chefFor===k),onclick:() => { ui.chefFor = k; ui.chef = null; ui.err.chef = ""; render(); }}, label, h("small",null, sub));
   const seg = h("div",{class:"seg",role:"group","aria-label":"Quale cena"}, segBtn("up", s.upToday ? "Stasera" : "Prossima", fmtDM(s.up)), segBtn("vot", s.votToday ? "Stasera" : "La scorsa", fmtDM(s.vot)));
   const title = h("h2",{class:"page-title"}, "Chi cucina " + (forId === s.today ? "stasera" : fmtLong(forId)) + "?");
-  if(!ms.length) return [demoBanner(), seg, title, h("div",{class:"card empty"}, h("div",{class:"big-emoji"},"👨‍🍳"), h("p",null,"Prima crea i personaggi della famiglia, poi qui scegli lo chef della settimana."), h("button",{class:"btn red",type:"button",onclick:() => go("famiglia")},"Vai alla famiglia"))];
+  if(!ms.length) return [backBtn(), seg, title, h("div",{class:"card empty"}, h("div",{class:"big-emoji"},"👨‍🍳"), h("p",null,"Prima crea i personaggi della famiglia, poi qui scegli lo chef della settimana."), h("button",{class:"btn red",type:"button",onclick:() => go("famiglia")},"Vai alla famiglia"))];
   const sug = suggest(forId);
   const grid = h("div",{class:"members",role:"radiogroup","aria-label":"Scegli lo chef"},
     ms.map(m => h("button",{type:"button",class:"member",role:"radio","aria-checked":String(d.chefId===m.id),onclick:() => { d.chefId = m.id; ui.err.chef = ""; render(); }}, mAv(m,"mav"), h("span",null, m.name))));
@@ -817,7 +1598,7 @@ function viewChef(){
       h("div",{class:"field"}, h("label",{for:"chef-note"},"Una nota per la famiglia (facoltativa)"), note),
       h("div",{class:"err",role:"alert"}, ui.err.chef || ""),
       h("button",{class:"btn red block",type:"submit"}, exists ? "Aggiorna" : "Salva"));
-  const out = [demoBanner(), seg, title, form];
+  const out = [backBtn(), seg, title, form];
   if(isUp){
     if(d.mode === "wheel" || (cur.wheel && cur.wheel.length) || cur.spin) out.push(wheelSection(forId));
     else out.push(h("button",{class:"card",type:"button",style:"border:none;cursor:pointer;text-align:left;font:inherit;flex-direction:row;align-items:center",onclick:() => { d.mode = "wheel"; render(); }},
@@ -938,42 +1719,95 @@ function bestDish(){
   Object.keys(fam().dinners).forEach(id => { if(id > s.vot) return; const c = fam().dinners[id], vs = votesOf(id); if(!c || !c.dish || !vs.length) return; const a = avgOf(vs); if(!best || a > best.a || (a === best.a && vs.length > best.n)) best = { id, c, a, n:vs.length }; });
   return best;
 }
+function doneDinners(){ const s = slots(); return Object.keys(fam().dinners).filter(id => id <= s.vot && fam().dinners[id] && fam().dinners[id].dish).sort().reverse(); }
+function phoneFree(){
+  const ids = doneDinners(), pen = fam().pen || {};
+  const ok = ids.filter(id => !(pen[id] && pen[id].length)).length;
+  let run = 0; for(const id of ids){ if(pen[id] && pen[id].length) break; run++; }
+  return { ok, n:ids.length, run };
+}
 function viewCorona(){
+  const segB = (k, label) => h("button",{type:"button","aria-pressed":String(ui.csec === k),onclick:() => { ui.csec = k; render(); }}, label);
+  const seg = h("div",{class:"seg seg3",role:"group","aria-label":"Sezione"}, segB("classifica","👑 Corona"), segB("album","📖 Album"), segB("ricettario","📒 Ricette"));
+  const body = ui.csec === "album" ? coronaAlbum() : ui.csec === "ricettario" ? coronaRicettario() : coronaClassifica();
+  return [demoBanner(), seg].concat(body);
+}
+function coronaClassifica(){
   const st = chefStats(), ch = crownHolder(), holder = ch && member(ch.chefId);
   const month = new Date().toLocaleDateString("it-IT",{month:"long"});
   const top = holder
-    ? h("div",{class:"crowncard"}, h("div",{class:"rays"}), mAv(holder,"bigav"), h("p",{class:"kick",style:"font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:.75rem;color:var(--gold-deep)"},"Porta la corona di " + month), h("h2",null, holder.name), h("p",null, "con " + ch.dish + " · " + fmtAvg(ch.a) + " ★"), h("p",{style:"font-size:.86rem"},"Batti il suo punteggio per rubargliela!"))
-    : h("div",{class:"crowncard"}, h("div",{class:"rays"}), h("div",{class:"big-emoji"},"👑"), h("h2",null,"La corona è libera"), h("p",null,"Il primo chef che riceve i voti questo mese la conquista."));
-  if(!st.length) return [demoBanner(), top];
+    ? h("div",{class:"crowncard"}, h("div",{class:"rays"}), mAv(holder,"bigav"), h("p",{class:"kick",style:"font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:.75rem;color:var(--gold-deep)"},"Porta la corona di " + month), h("h2",null, holder.name), h("p",null, "con " + ch.dish + " · " + fmtAvg(ch.a) + " ★"), h("p",{style:"font-size:.86rem"},"Batti il suo punteggio per rubargliela!"),
+        h("div",{class:"row",style:"justify-content:center;margin-top:6px"},
+          h("button",{class:"btn red",type:"button",onclick:() => shareCard(ch.id)},"📤 Condividi"),
+          h("button",{class:"btn ghost",type:"button",onclick:() => printKit("crown", ch.id)},"🖨️ Corona da stampare")))
+    : h("div",{class:"crowncard"}, h("div",{class:"rays"}), h("div",{class:"big-emoji"},"👑"), h("h2",null,"La corona è libera"), h("p",null,"Il primo chef che riceve i voti questo mese la conquista."),
+        h("button",{class:"btn ghost",type:"button",onclick:() => printKit("crown", null)},"🖨️ Stampa la corona vera"));
+  const pf = phoneFree();
+  const phone = pf.n ? h("div",{class:"streakbar"}, h("span",{class:"fire"},"📵"), h("div",null, h("b",null, pf.ok + " cene su " + pf.n + " senza telefoni"), h("small",null, pf.run >= 2 ? "Serie in corso: " + pf.run + " cene di fila. Continuate così!" : "L'ultima cena qualcuno ha toccato il telefono. Si riparte da zero: ce la fate?"))) : null;
+  if(!st.length) return [top, phone];
   const order = [1,0,2].filter(i => st[i]);
   const podium = h("div",{class:"podium",style:"grid-template-columns:repeat("+order.length+",1fr)"},
     order.map(i => { const e = st[i]; return h("div",{class:"step p"+(i+1)}, mAv(e.m,"pav"), h("span",{class:"name"}, e.m.name), h("span",{class:"val"}, fmtAvg(e.a) + " ★"), h("div",{class:"pblock"}, String(i+1))); }));
   const list = h("div",{class:"rlist"}, st.map((e,i) => h("div",{class:"rrow"}, h("span",{class:"pos"}, String(i+1)), mAv(e.m,""), h("span",{class:"rname"}, e.m.name, h("small",null, (e.dinners === 1 ? "1 cena" : e.dinners + " cene") + " · " + (e.n === 1 ? "1 voto" : e.n + " voti"))), h("span",{class:"rval"}, fmtAvg(e.a) + " ★"))));
   const b = bestDish();
-  return [demoBanner(), top,
+  return [top, phone,
     h("h2",{class:"section-title"},"Classifica di sempre"),
     h("div",{class:"card"}, podium),
-    b ? h("div",{class:"card best"}, h("p",{class:"hint",style:"font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:.75rem"},"Il piatto più amato"), h("div",{class:"best-dish"}, b.c.dish), h("p",{class:"hint"}, "di " + chefOf(b.c).name + " · " + fmtLong(b.id)), h("div",{class:"verdict"}, h("span",{class:"score sm"}, fmtAvg(b.a)), miniStars(b.a))) : null,
+    b ? h("div",{class:"card best"}, h("div",{class:"best-row"}, dishArt(b.c, "sm"), h("div",null, h("p",{class:"hint",style:"font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:.75rem"},"Il piatto più amato"), h("div",{class:"best-dish"}, b.c.dish), h("p",{class:"hint"}, "di " + chefOf(b.c).name + " · " + fmtLong(b.id)))), h("div",{class:"verdict"}, h("span",{class:"score sm"}, fmtAvg(b.a)), miniStars(b.a))) : null,
     h("div",{class:"card"}, h("h3",{class:"card-title"},"Tutti gli chef"), list)];
 }
 
-/* ---------- history ---------- */
-function viewStorico(){
-  const s = slots();
-  const ids = Object.keys(fam().dinners).filter(id => id <= s.vot && fam().dinners[id] && fam().dinners[id].dish).sort().reverse();
-  const head = h("h2",{class:"page-title"},"Le nostre cene");
-  if(!ids.length) return [demoBanner(), head, h("div",{class:"card empty"}, h("div",{class:"big-emoji"},"📖"), h("p",null,"Qui si raccolgono tutte le cene, con voti e commenti. Il vostro album di famiglia."))];
-  return [demoBanner(), head, h("div",{class:"hist"}, ids.map(id => {
-    const c = fam().dinners[id], vs = votesOf(id), ch = chefOf(c), open = ui.openHist === id, canSee = !!myVote(id) || id !== s.vot;
-    const pres = c.rsvp ? Object.values(c.rsvp).filter(v => v === 1).length : 0;
-    return h("div",{class:"hitem"},
-      h("button",{class:"hrow",type:"button","aria-expanded":String(open),onclick:() => { ui.openHist = open ? null : id; render(); }},
-        h("span",{class:"date"}, h("b",null, String(fromId(id).getDate())), h("span",null, monShort(id))),
-        mAv(ch,""),
-        h("span",{class:"hmain"}, h("strong",null, c.dish), h("span",{class:"hint"}, ch.name + (pres ? " · " + pres + " a tavola" : ""))),
-        h("span",{class:"hval"}, vs.length && canSee ? [h("b",null, fmtAvg(avgOf(vs))), h("small",{class:"gold"},"★")] : h("small",null, vs.length ? "vota per vedere" : "nessun voto"))),
-      open ? h("div",{class:"hbody"}, canSee ? (vs.length ? results(id, vs) : h("p",{class:"hint"},"Nessuno ha votato questa cena.")) : h("p",{class:"hint"},"Vota questa cena per vedere il verdetto.")) : null);
+/* ---------- album di famiglia ---------- */
+function coronaAlbum(){
+  const s = slots(), ids = doneDinners();
+  const head = h("h2",{class:"page-title"},"L'album delle cene");
+  if(!ids.length) return [head, h("div",{class:"card empty"}, h("div",{class:"big-emoji"},"📖"), h("p",null,"Qui si raccolgono tutte le cene, con foto, voti e commenti. Il vostro album di famiglia."))];
+  return [head, h("p",{class:"hint",style:"margin-top:-8px"},"Aggiungi la foto di ogni piatto: tra un anno sarà il ricordo più bello."), h("div",{class:"album"}, ids.map(id => {
+    const c = fam().dinners[id], vs = votesOf(id), ch = chefOf(c), open = ui.openHist === id, canSee = !!myVote(id) || id !== s.vot || Store.mode === "demo";
+    return h("div",{class:"acard" + (open ? " open" : "")},
+      h("button",{class:"a-top",type:"button","aria-expanded":String(open),onclick:() => { ui.openHist = open ? null : id; render(); }},
+        dishArt(c, "a-img"),
+        h("span",{class:"a-date"}, h("b",null, String(fromId(id).getDate())), h("span",null, monShort(id))),
+        vs.length && canSee ? h("span",{class:"a-score"}, fmtAvg(avgOf(vs)) + " ★") : null,
+        h("span",{class:"a-cap"}, mAv(ch,"a-av"), h("span",null, h("strong",null, c.dish), h("small",null, "chef " + ch.name)))),
+      open ? h("div",{class:"hbody"},
+        h("div",{class:"row"},
+          h("button",{class:"btn soft",type:"button",onclick:() => pickPhoto(id)}, c.photo ? "📸 Cambia foto" : "📸 Aggiungi foto"),
+          vs.length && canSee ? h("button",{class:"btn soft",type:"button",onclick:() => openReveal(id, { demo:Store.mode === "demo" })},"🎬 Rivedi la rivelazione") : null,
+          vs.length && canSee ? h("button",{class:"btn ghost",type:"button",onclick:() => shareCard(id)},"📤 Card") : null),
+        canSee ? (vs.length ? results(id, vs) : h("p",{class:"hint"},"Nessuno ha votato questa cena.")) : h("p",{class:"hint"},"Vota questa cena per vedere il verdetto.")) : null);
   }))];
+}
+
+/* ---------- ricettario di famiglia ---------- */
+function recipeDinners(){ return doneDinners().filter(id => { const c = fam().dinners[id], vs = votesOf(id); return (vs.length && avgOf(vs) >= 4) || (c.recipe && c.recipe.ing); }); }
+function coronaRicettario(){
+  const ids = recipeDinners();
+  const head = h("div",null, h("h2",{class:"page-title"},"Il ricettario di famiglia"), h("p",{class:"hint"},"I piatti da 4 stelle in su entrano qui. Lo chef scrive la ricetta, così resta per sempre."));
+  if(!ids.length) return [head, h("div",{class:"card empty"}, h("div",{class:"big-emoji"},"📒"), h("p",null,"Ancora nessun piatto da 4 stelle. Il primo che ci arriva apre il ricettario!"))];
+  const withR = ids.filter(id => (fam().dinners[id].recipe || {}).ing).length;
+  return [head,
+    h("div",{class:"card rb-cta"}, h("span",{class:"big-emoji"},"🖨️"), h("div",null, h("b",null, "Stampa il ricettario"), h("small",null, withR + " ricette su " + ids.length + " scritte. Copertina, foto e voti: pronto da rilegare o regalare ai nonni.")), h("button",{class:"btn red",type:"button",onclick:() => printKit("book")},"Stampa")),
+    h("div",{class:"rlist2"}, ids.map(recipeCard))];
+}
+function recipeCard(id){
+  const c = fam().dinners[id], vs = votesOf(id), ch = chefOf(c), r = c.recipe || {}, ed = ui.recipeEdit === id;
+  if(ed){
+    const sug = recipeFor(c.dish);
+    const ing = h("textarea",{id:"rc-ing",rows:"5",placeholder:"Un ingrediente per riga"}); ing.value = r.ing || (sug ? sug.join("\n") : "");
+    const stp = h("textarea",{id:"rc-steps",rows:"6",placeholder:"Un passaggio per riga"}); stp.value = r.steps || "";
+    return h("div",{class:"card rcard"}, h("h3",{class:"card-title"}, "✏️ " + c.dish),
+      h("div",{class:"field"}, h("label",{for:"rc-ing"},"Ingredienti"), ing),
+      h("div",{class:"field"}, h("label",{for:"rc-steps"},"Come si fa"), stp),
+      h("div",{class:"row"}, h("button",{class:"btn red block",type:"button",onclick:async () => { try{ await Store.send({ op:"recipe", date:id, ing:ing.value.trim(), steps:stp.value.trim() }); ui.recipeEdit = null; toast("📒 Ricetta salvata"); render(); }catch(e){ toast(e.message); } }},"Salva la ricetta"),
+        h("button",{class:"btn ghost",type:"button",onclick:() => { ui.recipeEdit = null; render(); }},"Annulla")));
+  }
+  const lines = t => String(t || "").split("\n").map(x => x.trim()).filter(Boolean);
+  return h("div",{class:"card rcard"},
+    h("div",{class:"rc-top"}, dishArt(c, "sm"), h("div",null, h("strong",{class:"rc-name"}, c.dish), h("small",{class:"hint"}, "di " + ch.name + " · " + fmtDM(id)), vs.length ? h("div",null, miniStars(avgOf(vs)), h("b",{class:"rc-sc"}, " " + fmtAvg(avgOf(vs)))) : null)),
+    r.ing ? h("div",{class:"rc-body"}, h("div",null, h("h4",null,"Ingredienti"), h("ul",null, lines(r.ing).map(x => h("li",null,x)))), r.steps ? h("div",null, h("h4",null,"Come si fa"), h("ol",null, lines(r.steps).map(x => h("li",null,x)))) : null)
+      : h("p",{class:"hint"}, "Manca la ricetta. " + (ch.name ? ch.name + ", scrivila tu!" : "")),
+    h("button",{class:"link",type:"button",onclick:() => { ui.recipeEdit = id; render(); }}, r.ing ? "Modifica la ricetta" : "✏️ Scrivi la ricetta"));
 }
 
 /* ---------- family ---------- */
@@ -984,9 +1818,15 @@ function downloadIcs(){
   const utc = n.getUTCFullYear()+pad(n.getUTCMonth()+1)+pad(n.getUTCDate())+"T"+pad(n.getUTCHours())+pad(n.getUTCMinutes())+"00Z";
   const txt = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Dinner Crown//IT","CALSCALE:GREGORIAN","BEGIN:VEVENT","UID:cena-"+(Store.fid || "demo")+"-"+DEV+"@dinnercrown","DTSTAMP:"+utc,"DTSTART:"+stamp(start),"DTEND:"+stamp(end),
     "RRULE:FREQ=WEEKLY;BYDAY="+BYDAY[fam().day],"SUMMARY:👑 Cena di famiglia","DESCRIPTION:Lo chef cucina\\, tutti votano."+(url ? " "+url : ""), url ? "URL:"+url : null,
-    "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:Stasera cena di famiglia!","TRIGGER:-PT2H","END:VALARM","BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:È ora di votare il piatto","TRIGGER:PT2H","END:VALARM","END:VEVENT","END:VCALENDAR"].filter(Boolean).join("\r\n");
+    "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:Stasera cena di famiglia!","TRIGGER:-PT2H","END:VALARM","BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:⭐ È ora del voto! Apri Dinner Crown e vota il piatto","TRIGGER:PT" + voteDelayMin() + "M","END:VALARM","END:VEVENT","END:VCALENDAR"].filter(Boolean).join("\r\n");
   try{ const u = URL.createObjectURL(new Blob([txt],{type:"text/calendar"})); const a = h("a",{href:u,download:"cena-di-famiglia.ics"}); document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 5000); toast("Apri il file per aggiungerlo al calendario"); }
   catch(e){ toast("Usa il pulsante Google Calendar"); }
+}
+function voteDelayMin(){ const t = (fam().time || "20:00").split(":").map(Number), v = rVoteTime(fam().time).split(":").map(Number); return Math.max(30, (v[0] * 60 + v[1]) - (t[0] * 60 + t[1])); }
+function gcalVoteUrl(){
+  const s = slots(), start = at(s.up, rVoteTime(fam().time)), end = new Date(start.getTime() + 15*6e4), url = inviteUrl();
+  const q = new URLSearchParams({ action:"TEMPLATE", text:"⭐ Dinner Crown: è ora del voto!", dates:stamp(start)+"/"+stamp(end), ctz:(Intl.DateTimeFormat().resolvedOptions().timeZone) || "Europe/Rome", recur:"RRULE:FREQ=WEEKLY;BYDAY="+BYDAY[fam().day], details:"Apri l'app e vota il piatto dello chef." + (url ? "\n" + url : "") });
+  return "https://calendar.google.com/calendar/render?" + q.toString();
 }
 function gcalUrl(){
   const s = slots(), start = at(s.up, fam().time), end = new Date(start.getTime() + 2*36e5), url = inviteUrl();
@@ -1030,9 +1870,10 @@ function viewFamiglia(){
       h("button",{class:"btn red block",type:"button",onclick:shareInvite},"Condividi il link di invito")),
     h("form",{class:"card",onsubmit:saveWhen}, h("h3",{class:"card-title"},"Quando si cena insieme"), h("div",{class:"two"}, day, time), h("button",{class:"btn soft block",type:"submit"},"Salva")),
     h("div",{class:"card"}, h("h3",{class:"card-title"},"Promemoria sul telefono"),
-      h("p",{class:"hint"},"Aggiungilo una volta: il telefono ti avvisa 2 ore prima della cena e poi quando è ora di votare."),
-      h("button",{class:"btn gold block",type:"button",onclick:downloadIcs},"Aggiungi al calendario"),
-      h("a",{class:"btn ghost block",href:gcalUrl(),target:"_blank",rel:"noopener"},"Usa Google Calendar")),
+      h("p",{class:"hint"},"Aggiungilo una volta: il telefono ti avvisa 2 ore prima della cena e alle " + rVoteTime(fam().time) + " con il messaggio «È ora del voto!»."),
+      h("button",{class:"btn gold block",type:"button",onclick:downloadIcs},"Aggiungi al calendario (cena + voto)"),
+      h("a",{class:"btn ghost block",href:gcalUrl(),target:"_blank",rel:"noopener"},"Google Calendar: la cena"),
+      h("a",{class:"btn ghost block",href:gcalVoteUrl(),target:"_blank",rel:"noopener"},"Google Calendar: ⭐ è ora del voto")),
     h("div",{class:"card"}, h("h3",{class:"card-title"},"Consiglio"), h("p",{class:"hint"},"Su iPhone: Condividi → Aggiungi alla schermata Home, e Dinner Crown si apre come un'app.")),
     Store.mode === "demo"
       ? h("div",{class:"card"}, h("h3",{class:"card-title"},"Famiglia demo"), h("button",{class:"btn ghost block",type:"button",onclick:() => { Store.resetDemo(); toast("Demo ripristinata"); }},"Ripristina la demo"), h("button",{class:"btn red block",type:"button",onclick:() => { Store.leave(); go("cena"); }},"Crea la tua famiglia"))
@@ -1133,6 +1974,800 @@ function renderEditor(){
   const cur = ed.querySelector('.cat[aria-pressed="true"]'); if(cur && !sameCat) cur.scrollIntoView({ inline:"center", block:"nearest" });
 }
 
+/* ---------- la città: monete, lavori, spesa ---------- */
+const JOBS_PER_DAY = 4, MAX_REWARD = 10, MAX_ITEMS = 10, COINS_PER_DAY = 8, COIN_VALUE = 2, HELP_COINS = 3;
+const JOBS = {
+  pizzeria:{ name:"Pizzeria", job:"Pizza su ordinazione", title:"Pizzaiolo", icon:"🍕", bg:"#FFE3C2" },
+  lavanderia:{ name:"Lavanderia", job:"Bianchi o colorati", title:"Lavandaio", icon:"🧺", bg:"#E2F1FF" },
+  serra:{ name:"Serra", job:"Annaffia giusto", title:"Giardiniere", icon:"🌱", bg:"#DDF6E4" },
+  officina:{ name:"Officina", job:"Stringi i bulloni", title:"Meccanico", icon:"🔧", bg:"#E6E8EC" },
+  biblioteca:{ name:"Biblioteca", job:"Memoria dei libri", title:"Bibliotecario", icon:"📚", bg:"#F2E8FF" },
+  cucina:{ name:"Cucina", job:"Strofina i piatti", title:"Lavapiatti", icon:"🍽️", bg:"#FFF6DA" },
+  cameretta:{ name:"Cameretta", job:"Metti in ordine", title:"Riordinatore", icon:"🧸", bg:"#FFE0E8" },
+  gelateria:{ name:"Gelateria", job:"Torre di gelato", title:"Gelataio", icon:"🍦", bg:"#E4F7F7" },
+  lunapark:{ name:"Luna Park", job:"Tiro a segno", title:"Tiratore", icon:"🎯", bg:"#F6E8FF" },
+  porto:{ name:"Porto", job:"Pesca al volo", title:"Pescatore", icon:"🎣", bg:"#DDEEFF" }
+};
+function playsOf(mid, job){ return (((fam().lv || {})[mid]) || {})[job] || 0; }
+function lvOf(mid, job){ return Math.min(5, 1 + Math.floor(playsOf(mid, job) / 3)); }
+function capOf(lv){ return 8 + 2 * lv; }
+function recOf(job){ return (fam().rec || {})[job] || null; }
+function bestOf(mid, job){ return (((fam().best || {})[mid]) || {})[job] || 0; }
+const RECIPES = [
+  [/lasagn/, ["Sfoglie per lasagna","Ragù di carne","Besciamella","Parmigiano","Mozzarella"]],
+  [/carbonar/, ["Spaghetti","Guanciale","Uova","Pecorino","Pepe nero"]],
+  [/pizza/, ["Farina","Lievito","Passata di pomodoro","Mozzarella","Basilico"]],
+  [/sushi/, ["Riso per sushi","Salmone","Alga nori","Avocado","Salsa di soia"]],
+  [/polpett/, ["Carne macinata","Pane raffermo","Uova","Parmigiano","Passata di pomodoro"]],
+  [/taco/, ["Tortillas","Carne macinata","Avocado","Pomodorini","Formaggio"]],
+  [/risott/, ["Riso Carnaroli","Funghi","Brodo","Burro","Parmigiano"]],
+  [/pancake/, ["Farina","Uova","Latte","Burro","Gocce di cioccolato"]],
+  [/gnocch/, ["Patate","Farina","Uova","Passata di pomodoro","Basilico"]],
+  [/pollo/, ["Pollo","Patate","Rosmarino","Aglio","Olio d'oliva"]],
+  [/burger|hamburger/, ["Pane per burger","Carne di manzo","Insalata","Pomodoro","Formaggio"]],
+  [/amatrician/, ["Bucatini","Guanciale","Pomodori pelati","Pecorino","Peperoncino"]],
+  [/parmigian/, ["Melanzane","Passata di pomodoro","Mozzarella","Parmigiano","Basilico"]],
+  [/tiramis/, ["Savoiardi","Mascarpone","Uova","Caffè","Cacao"]]
+];
+function priceOf(name){
+  const n = String(name || "").toLowerCase();
+  let hh = 0;
+  for(const ch of n) hh = (hh * 31 + ch.charCodeAt(0)) >>> 0;
+  const step = hh % 5;
+  if(/(sale|pepe|acqua|zucchero|aglio|basilico|rosmarino|lievito|olio|prezzemolo|cipolla)/.test(n)) return 8 + step * 2;
+  if(/(carne|manzo|salmone|tonno|pesce|gamber|tartufo|guanciale|pecorino|parmigiano|pollo|funghi|ragù|ragu)/.test(n)) return 35 + step * 5;
+  return 15 + step * 5;
+}
+function dlL(d, mid){ d.dl = d.dl || {}; const t = todayId(); if(!d.dl[mid] || d.dl[mid].day !== t) d.dl[mid] = { day:t, earned:0, gifts:0, claimed:[] }; return d.dl[mid]; }
+function earnL(d, mid, a){ if(!a) return; d.coins = d.coins || {}; d.coins[mid] = (d.coins[mid] || 0) + a; dlL(d, mid).earned += a; d.wk = d.wk || {}; const w = weekKey(); d.wk[w] = d.wk[w] || {}; d.wk[w][mid] = (d.wk[w][mid] || 0) + a; }
+function ownL(d, mid, item){ d.wear = d.wear || {}; const w = d.wear[mid] || (d.wear[mid] = { own:[], on:{} }); w.own = w.own || []; w.on = w.on || {}; if(w.own.indexOf(item) < 0) w.own.push(item); return w; }
+function streakL(d, mid){ d.st = d.st || {}; const t = todayId(), st = d.st[mid] || { last:"", n:0, best:0 }; if(st.last === t) return; st.n = st.last === rAddDays(t, -1) ? st.n + 1 : 1; st.last = t; st.best = Math.max(st.best || 0, st.n); d.st[mid] = st; if(R_STREAK[st.n]) earnL(d, mid, R_STREAK[st.n]); if(st.n === 14) ownL(d, mid, "tiara"); }
+function refundShop(d){ d.shop = []; }  /* piatto cambiato: la lista riparte da zero */
+function todayId(){ return idOf(new Date()); }
+function coinsOf(mid){ return (fam().coins || {})[mid] || 0; }
+function workOf(mid){ const w = (fam().work || {})[mid]; return w && w.day === todayId() ? w : { n:0, jobs:[] }; }
+function jobsLeft(mid){ return JOBS_PER_DAY - workOf(mid).n; }
+function pickedToday(mid){ const p = (fam().picks || {})[mid]; return p && p.day === todayId() ? p.ids : []; }
+function shopDinner(){ const s = slots(); return { id:s.up, c:fam().dinners[s.up] || {} }; }
+function recipeFor(dish){ const n = String(dish || "").toLowerCase(); const r = RECIPES.find(x => x[0].test(n)); return r ? r[1] : null; }
+function localItem(d, name){
+  const n = String(name || "").trim().slice(0,30);
+  if(!n) throw new Error("scrivi un ingrediente");
+  d.shop = d.shop || [];
+  if(d.shop.length >= MAX_ITEMS) throw new Error("la lista è piena (10 ingredienti)");
+  if(d.shop.some(it => it.name.toLowerCase() === n.toLowerCase())) throw new Error("c'è già nella lista");
+  d.shop.push({ id:"i" + Math.random().toString(36).slice(2,9), name:n, by:null, done:false });
+}
+function localShop(op, d){ const x = d.dinners[op.date]; if(!x || !x.dish) throw new Error("prima va deciso il piatto"); if(op.date < todayId()) throw new Error("la spesa per questa cena è chiusa"); return x; }
+const GAME_OPS = {
+  work(op, d){
+    d.coins = d.coins || {}; d.work = d.work || {}; d.lv = d.lv || {}; d.best = d.best || {}; d.rec = d.rec || {};
+    const t = todayId(), w = d.work[op.mid] && d.work[op.mid].day === t ? d.work[op.mid] : { day:t, n:0, jobs:[] };
+    w.jobs = w.jobs || [];
+    const lock = R_UNLOCKS.find(u => u.k === op.job);
+    if(lock && rDinnersDone(d, t) < lock.need) throw new Error("questo posto apre dopo " + lock.need + " cene insieme");
+    if(!op.practice){
+      if(w.n >= JOBS_PER_DAY) throw new Error("hai finito i lavoretti di oggi, torna domani");
+      if(w.jobs.includes(op.job)) throw new Error("qui hai già lavorato oggi: prova un altro posto");
+      w.n += 1; w.jobs.push(op.job); d.work[op.mid] = w;
+    }
+    const raw = Math.max(0, Math.min(999, op.raw | 0)), plays = ((d.lv[op.mid] || {})[op.job]) || 0, lv = Math.min(5, 1 + Math.floor(plays / 3));
+    let coins = op.practice ? 0 : Math.max(0, Math.min(8 + 2 * lv, op.score | 0));
+    const rec = d.rec[op.job];
+    if(raw > 0 && (!rec || raw > rec.score)){
+      d.rec[op.job] = { mid:op.mid, score:raw, at:new Date().toISOString(), prev: rec ? { mid:rec.mid, score:rec.score } : null };
+      if(!op.practice && rec && rec.mid !== op.mid) coins += 5;   // record rubato a un parente
+    }
+    d.best[op.mid] = d.best[op.mid] || {}; if(raw > (d.best[op.mid][op.job] || 0)) d.best[op.mid][op.job] = raw;
+    d.lv[op.mid] = d.lv[op.mid] || {}; d.lv[op.mid][op.job] = plays + 1;
+    if(coins) earnL(d, op.mid, coins);
+    if(!op.practice) streakL(d, op.mid);
+  },
+  pick(op, d){
+    d.coins = d.coins || {}; d.picks = d.picks || {};
+    const t = todayId(), p = d.picks[op.mid] && d.picks[op.mid].day === t ? d.picks[op.mid] : { day:t, ids:[] };
+    if(p.ids.includes(op.spot)) throw new Error("questa moneta l'hai già presa");
+    if(p.ids.length >= COINS_PER_DAY) throw new Error("per oggi hai trovato tutte le monete");
+    p.ids.push(op.spot); d.picks[op.mid] = p; earnL(d, op.mid, COIN_VALUE); streakL(d, op.mid);
+  },
+  mission(op, d){
+    const t = todayId(), keys = rMissions(t, op.mid, d.members.length), st = rDayState(d, op.mid, t), pr = rMissionProgress(keys[op.idx], st), dl = dlL(d, op.mid);
+    if(dl.claimed.indexOf(op.idx) >= 0) throw new Error("premio già ritirato");
+    if(pr[0] < pr[1]) throw new Error("missione non ancora completata");
+    dl.claimed.push(op.idx); earnL(d, op.mid, 5); if(dl.claimed.length === 3) earnL(d, op.mid, 10);
+  },
+  gift(op, d){
+    d.coins = d.coins || {};
+    if(op.mid === op.to) throw new Error("non puoi fare un regalo a te stesso");
+    if((d.coins[op.mid] || 0) < op.amount) throw new Error("non hai abbastanza monete");
+    d.coins[op.mid] -= op.amount; d.coins[op.to] = (d.coins[op.to] || 0) + op.amount; dlL(d, op.mid).gifts += 1;
+    d.gifts = [{ from:op.mid, to:op.to, coins:op.amount, at:new Date().toISOString() }].concat(d.gifts || []).slice(0, 30);
+  },
+  buyWear(op, d){
+    const it = R_WEAR[op.item], to = op.to || op.mid; d.coins = d.coins || {};
+    if(!it || it.reward) throw new Error("questo oggetto non è in vendita");
+    if(it.event && rEvent(todayId()) !== it.event) throw new Error("si compra solo durante l'evento");
+    if(ownedOf(to).indexOf(op.item) >= 0) throw new Error(to === op.mid ? "ce l'hai già" : "ce l'ha già");
+    if((d.coins[op.mid] || 0) < it.price) throw new Error("non hai abbastanza monete");
+    d.coins[op.mid] -= it.price; const w = ownL(d, to, op.item);
+    if(to !== op.mid){ dlL(d, op.mid).gifts += 1; d.gifts = [{ from:op.mid, to, item:op.item, at:new Date().toISOString() }].concat(d.gifts || []).slice(0, 30); }
+    else w.on[it.slot] = op.item;
+  },
+  wear(op, d){
+    d.wear = d.wear || {}; const w = d.wear[op.mid] || (d.wear[op.mid] = { own:[], on:{} }); w.on = w.on || {};
+    if(!op.item){ delete w.on[op.slot]; return; }
+    if(!(w.own || []).includes(op.item)) throw new Error("non ce l'hai ancora");
+    w.on[op.slot] = op.item;
+  },
+  secret(op, d){
+    d.secret = d.secret || {};
+    if(d.secret[op.week]) throw new Error("l'ingrediente segreto l'ha già trovato qualcuno");
+    d.secret[op.week] = { by:op.mid, name:R_SECRETS[rHash(op.week) % R_SECRETS.length] }; earnL(d, op.mid, 15);
+  },
+  penalty(op, d){
+    const t = todayId(); d.pen = d.pen || {}; d.pen[t] = d.pen[t] || [];
+    if(d.pen[t].includes(op.mid)) return;
+    d.pen[t].push(op.mid); d.coins = d.coins || {}; d.coins[op.mid] = Math.floor((d.coins[op.mid] || 0) / 2);
+  },
+  shopAdd(op, d){ localItem(localShop(op, d), op.name); },
+  shopFill(op, d){ const x = localShop(op, d); if((x.shop || []).length) throw new Error("la lista c'è già"); (op.names || []).slice(0, MAX_ITEMS).forEach(n => { try{ localItem(x, n); }catch(e){} }); },
+  shopRemove(op, d){ const x = localShop(op, d), it = (x.shop || []).find(i => i.id === op.id); if(it && it.done) throw new Error("questo ingrediente è già stato preso"); x.shop = (x.shop || []).filter(i => i.id !== op.id); },
+  claim(op, d){ const x = localShop(op, d), it = (x.shop || []).find(i => i.id === op.id); if(!it) throw new Error("ingrediente non trovato"); if(it.done) throw new Error("l'hanno già preso"); it.by = it.by === op.mid ? null : op.mid; },
+  buy(op, d){
+    const x = localShop(op, d), it = (x.shop || []).find(i => i.id === op.id);
+    if(!it) throw new Error("ingrediente non trovato");
+    if(it.done) throw new Error("l'ha già preso qualcun altro");
+    it.done = true; it.by = op.mid; earnL(d, op.mid, HELP_COINS);   // aiutare in casa paga
+  }
+};
+
+function shopTeaser(date, c){
+  if(!c.dish) return null;
+  const sh = c.shop || [], got = sh.filter(it => it.done).length, free = sh.filter(it => !it.done && !it.by).length;
+  const sub = !sh.length ? "Scrivete cosa serve: chi lo compra prende +" + HELP_COINS + " 🪙"
+    : got === sh.length ? "Tutto preso! Lo chef ha quello che serve 🎉"
+    : got + " su " + sh.length + " presi" + (free ? " · " + free + " senza nessuno: chi ci pensa?" : "");
+  return h("button",{class:"chefline",type:"button","aria-expanded":String(!!ui.showShop),style:"border:none;cursor:pointer;width:100%;text-align:left;font:inherit",onclick:() => { ui.showShop = !ui.showShop; render(); }},
+    h("span",{style:"font-size:1.8rem"},"🛒"), h("div",null, h("b",null,"La lista della spesa"), h("small",null, sub)), h("span",{class:"chev"}, ui.showShop ? "▲" : "▼"));
+}
+
+/* lista della spesa VERA: ci si divide chi compra cosa. Chi la prende davvero riceve qualche moneta */
+function shopCard(me, inGame){
+  const sd = shopDinner(), c = sd.c, sh = c.shop || [];
+  if(!c.dish) return h("div",{class:"card empty"}, h("div",{class:"big-emoji"},"🛒"), h("p",null,"La spesa si fa quando si sa cosa cucinare. Prima scegliete il piatto della prossima cena (chef o ruota)."),
+    inGame ? null : h("button",{class:"btn red",type:"button",onclick:() => go("chef","up")}, c.chefId ? "Vai alla ruota" : "Scegli chef e piatto"));
+  const chef = chefOf(c), got = sh.filter(it => it.done).length;
+  const items = sh.map(it => {
+    const who = it.by ? member(it.by) : null, mine = it.by === me.id;
+    if(it.done) return h("div",{class:"sitem got"}, h("div",{class:"sn"}, "✓ " + it.name, h("small",null, "preso da " + (who ? (mine ? "te" : who.name) : "qualcuno"))), who ? h("div",{class:"buyer"}, mAv(who,"")) : null);
+    return h("div",{class:"sitem" + (who ? " claimed" : "")}, h("div",{class:"sn"}, it.name, h("small",null, who ? (mine ? "Ci pensi tu" : "Ci pensa " + who.name) : "Nessuno ancora")),
+      h("div",{class:"acts"},
+        who && !mine ? mAv(who,"cl-av") : null,
+        !who ? h("button",{class:"btn buy",type:"button",onclick:() => shopOp({ op:"claim", date:sd.id, id:it.id, mid:me.id }, "👍 Ci pensi tu: " + it.name)}, "Ci penso io") : null,
+        mine ? h("button",{class:"btn buy got",type:"button",onclick:() => buyItem(sd.id, it)}, "✓ Preso") : null,
+        h("button",{class:"x",type:"button","aria-label":"Togli " + it.name,onclick:() => shopOp({ op:"shopRemove", date:sd.id, id:it.id })},"×")));
+  });
+  const inp = h("input",{id:inGame ? "shop-in-g" : "shop-in",type:"text",maxlength:"30",autocomplete:"off",placeholder:"Aggiungi un ingrediente",oninput:e => { ui.shopIn = e.target.value; },
+    onkeydown:e => { if(e.key === "Enter"){ e.preventDefault(); addShop(sd.id); } }}); inp.value = ui.shopIn;
+  const rec = !sh.length ? recipeFor(c.dish) : null;
+  return h("div",{class:"card shopcard"},
+    h("div",{class:"dishline"}, mAv(chef,"mini"), h("div",null, h("small",{class:"hint"},"La spesa per"), h("strong",null, c.dish), h("span",{class:"hint"}, "chef " + chef.name + " · " + cap(fmtLong(sd.id))))),
+    sh.length ? h("div",null, h("div",{class:"prog"}, h("span",{style:"width:" + (got / sh.length * 100) + "%"})), h("p",{class:"hint",style:"margin-top:6px;font-weight:800"}, got + " su " + sh.length + " presi · chi compra qualcosa prende +" + HELP_COINS + " 🪙")) : null,
+    sh.length ? h("div",{class:"shop-list"}, items) : h("p",{class:"hint"}, "La lista è vuota. Lo chef (o chiunque) scrive cosa serve, poi ognuno sceglie cosa comprare."),
+    rec ? h("button",{class:"btn gold block",type:"button",onclick:() => shopOp({ op:"shopFill", date:sd.id, names:rec }, "Lista pronta!")}, "✨ Usa la lista consigliata (" + rec.length + " ingredienti)") : null,
+    sh.length < MAX_ITEMS ? h("div",{class:"addrow"}, inp, h("button",{class:"btn soft",type:"button",onclick:() => addShop(sd.id)},"Aggiungi")) : null,
+    h("div",{class:"err",role:"alert"}, ui.err.shop || ""));
+}
+
+async function shopOp(op, okMsg){
+  try{ await Store.send(op); ui.err.shop = ""; if(okMsg) toast(okMsg); render(); }
+  catch(err){ ui.err.shop = err.message; render(); if(window.DCCity && DCCity.isOpen()) DCCity.refresh(); }
+}
+async function addShop(date){
+  const n = ui.shopIn.trim(); if(!n){ ui.err.shop = "Scrivi un ingrediente."; render(); if(window.DCCity && DCCity.isOpen()) DCCity.refresh(); return; }
+  try{ await Store.send({ op:"shopAdd", date, name:n }); ui.shopIn = ""; ui.err.shop = ""; render(); }
+  catch(err){ ui.err.shop = err.message; render(); if(window.DCCity && DCCity.isOpen()) DCCity.refresh(); }
+}
+async function buyItem(date, it){
+  const me = meId(); if(!me) return;
+  try{ await Store.send({ op:"buy", date, mid:me, id:it.id }); ui.err.shop = ""; confetti(); toast("🛒 " + it.name + " preso! +" + HELP_COINS + " 🪙"); }
+  catch(err){ ui.err.shop = err.message; render(); if(window.DCCity && DCCity.isOpen()) DCCity.refresh(); }
+}
+
+function friendLines(m){
+  const s = slots(), c = fam().dinners[s.up] || {}, chef = c.chefId && member(c.chefId), L = ["Ciao! 👋", "Ci vediamo a cena!"];
+  if(chef) L.push(chef.id === m.id ? "Stavolta cucino io! 👨‍🍳" : "La prossima cena cucina " + chef.name + "!");
+  const mine = Object.keys(JOBS).map(k => [k, recOf(k)]).filter(x => x[1] && x[1].mid === m.id);
+  if(mine.length){ const [k, r] = mine[rHash(m.id) % mine.length]; L.push("Il record in " + JOBS[k].name.toLowerCase() + " è mio: " + r.score + "! 😎", "Prova a battermi in " + JOBS[k].name.toLowerCase() + "!"); }
+  const p = (c.pred || {})[m.id]; if(p) L.push("Ho pronosticato " + fmtAvg(p) + " ★ per la cena 🔮");
+  if(!secretOf(weekKey())) L.push("Ho visto un regalo che brilla… ✨");
+  L.push(["Al porto aspetta il ❗ prima di tirare!", "In biblioteca serve memoria 📚", "In pizzeria: prima il sugo!", "Al supermercato c'è la lista della spesa", "Tocca un edificio e ci vai da solo!"][rHash(m.id + todayId()) % 5]);
+  return L;
+}
+function jobInfo(k){
+  const me = meId(), lv = lvOf(me, k), rec = recOf(k), rm = rec && member(rec.mid);
+  return { lv, cap:capOf(lv), rec, recName: rm ? rm.name : "", best:bestOf(me, k), how:(window.DCGames && DCGames[k] && DCGames[k].how) || "" };
+}
+function playCity(){
+  const me = member(meId()); if(!me || !window.DCCity) return;
+  if(dinnerState().at){ toast("📵 Durante la cena la città è chiusa"); return; }
+  const first = !lsGet("dc_city_seen"); lsSet("dc_city_seen","1");
+  DCCity.open({
+    me:() => member(meId()), members:() => members(), today:() => todayId(), firstTime:() => first,
+    crown:id => { const ch = crownHolder(); return !!(ch && ch.chefId === id); },
+    svg:m => AV.render(m.av, { badge:false, wear:wearOf(m.id), crown: (() => { const ch = crownHolder(); return !!(ch && ch.chefId === m.id); })() }),
+    wear:id => wearOf(id), event:() => rEvent(todayId()), unlocked:k => isUnlocked(k), lockNeed:k => (R_UNLOCKS.find(u => u.k === k) || {}).need, dinners:() => dinnersDone(),
+    secretInfo:() => ({ found:!!secretOf(weekKey()), seed:rHash(weekKey() + "|" + (fam().name || "")) }),
+    findSecret:async () => { await Store.send({ op:"secret", mid:meId(), week:weekKey() }); confetti(); return secretOf(weekKey()).name; },
+    closedNow:() => { const c = dinnerState().at; if(c) toast("📵 È l'ora della cena: la città chiude!"); return c; },
+    boutiqueEl:() => boutiqueCard(member(meId())), missionsEl:() => missionsCard(member(meId()), true),
+    svgRandom:i => { const a = AV.random(); a.acc = 0; return AV.render(a, { badge:false }); },
+    coins:() => coinsOf(meId()), jobsLeft:() => jobsLeft(meId()), jobDone:k => workOf(meId()).jobs.includes(k), jobDef:k => JOBS[k], jobInfo,
+    friendLines,
+    picked:() => pickedToday(meId()),
+    pick:async spot => { await Store.send({ op:"pick", mid:meId(), spot }); },
+    startJob:(k, done, opt) => startJob(k, done, opt),
+    shopEl:() => shopCard(member(meId()), true),
+    onClose:() => render()
+  });
+}
+function viewGioca(){
+  const me = member(meId()); if(!me) return [];
+  const segB = (k, label) => h("button",{type:"button","aria-pressed":String(ui.gsec === k),onclick:() => { ui.gsec = k; render(); }}, label);
+  const seg = h("div",{class:"seg seg3",role:"group","aria-label":"Sezione"}, segB("citta","🏙️ Città"), segB("sfide","🏆 Sfide"), segB("armadio","👗 Armadio"));
+  const head = h("div",{class:"casa-head"}, h("div",null, h("h1",{class:"page-title"}, ui.gsec === "sfide" ? "Sfide di famiglia" : ui.gsec === "armadio" ? "Armadio e regali" : "La città"), h("p",{class:"hint",style:"font-weight:700"}, ui.gsec === "sfide" ? "Batti i record dei parenti. Si gioca anche senza girare la città." : ui.gsec === "armadio" ? "Vesti il personaggio o fai un regalo." : "Monete, lavoretti e segreti da scoprire.")), h("span",{class:"wallet","aria-label":coinsOf(me.id) + " monete"}, "🪙 " + coinsOf(me.id)));
+  let body;
+  if(ui.gsec === "sfide") body = [challengesCard(me), leaderCard()];
+  else if(ui.gsec === "armadio") body = [wardrobeCard(me), h("div",{class:"card"}, h("h2",{class:"card-title"},"👗 Boutique"), boutiqueCard(me)), giftCard(me)];
+  else body = cityHome(me);
+  return [demoBanner(), seg, head].concat(body);
+}
+function cityHome(me){
+  const ds = dinnerState(), ev = rEvent(todayId()), left = jobsLeft(me.id), found = pickedToday(me.id).length, stk = streakOf(me.id);
+  const next = [3, 7, 14].find(n => n > stk);
+  const cv = h("canvas",{class:"city-prev","aria-hidden":"true"});
+  setTimeout(() => { if(window.DCCity && cv.isConnected) DCCity.preview(cv, ev); }, 0);
+  const streak = h("div",{class:"streakbar"}, h("span",{class:"fire"}, "🔥"), h("div",null, h("b",null, stk ? stk + (stk === 1 ? " giorno" : " giorni") + " di fila" : "Inizia la tua serie"), h("small",null, next ? "Gioca anche domani: a " + next + " giorni ricevi +" + R_STREAK[next] + " 🪙" + (next === 14 ? " e la Tiara delle stelle" : "") : "Sei una leggenda: 14+ giorni!")));
+  const evb = ev ? h("div",{class:"eventb"}, h("span",null, EVENTS[ev].icon), h("div",null, h("b",null, EVENTS[ev].name), h("small",null, EVENTS[ev].text))) : null;
+  const hero = h("div",{class:"city-card"}, cv,
+    h("div",{class:"city-over"},
+      h("div",{class:"city-me",html:avOf(me)}),
+      ds.at ? h("div",{class:"btn ghost city-play",role:"status"}, "📵 Chiusa durante la cena")
+            : h("button",{class:"btn gold city-play",type:"button",onclick:playCity}, "▶ Esci di casa e gioca")));
+  const stats = h("div",{class:"city-stats"},
+    h("div",null, h("b",null, String(left)), h("span",null,"lavori pagati rimasti oggi")),
+    h("div",null, h("b",null, found + "/" + COINS_PER_DAY), h("span",null,"monete trovate oggi")),
+    h("div",null, h("b",null, String(dinnersDone())), h("span",null,"cene fatte insieme")));
+  const how = h("details",{class:"card how-card"}, h("summary",null,"❓ Come si gioca"),
+    h("ul",{class:"how"},
+      h("li",null,"👆 Tocca un punto della città e il personaggio ci cammina da solo (o usa le frecce)."),
+      h("li",null,"🪙 Cerca le monete: ogni giorno cambiano posto."),
+      h("li",null,"🎮 Ogni edificio ha un minigioco diverso da 25 secondi. Ogni posto paga una volta al giorno, poi puoi allenarti."),
+      h("li",null,"🏆 Batti il record di un parente e prendi +5 🪙. Giocando sali di livello: più difficile, più monete."),
+      h("li",null,"🛒 Al supermercato trovi la lista della spesa vera: chi compra qualcosa per lo chef prende +" + HELP_COINS + " 🪙."),
+      h("li",null,"📵 Durante la cena l'app è vietata: chi la usa perde metà delle monete.")));
+  return [streak, evb, hero, stats, missionsCard(me), secretCard(), growCard(), how];
+}
+function challengesCard(me){
+  const left = jobsLeft(me.id), ds = dinnerState();
+  const rows = Object.keys(JOBS).map(k => {
+    const j = JOBS[k], open = isUnlocked(k), rec = recOf(k), rm = rec && member(rec.mid), best = bestOf(me.id, k), lv = lvOf(me.id, k), done = workOf(me.id).jobs.includes(k), mineRec = rec && rec.mid === me.id;
+    const need = (R_UNLOCKS.find(u => u.k === k) || {}).need;
+    return h("div",{class:"ch-row" + (open ? "" : " locked")},
+      h("span",{class:"ch-ico"}, j.icon),
+      h("div",{class:"ch-main"}, h("b",null, j.job), h("small",null, j.title + " · liv. " + lv + (best ? " · tuo record " + best : "")),
+        h("span",{class:"ch-rl"}, rec ? [rm ? mAv(rm,"ch-av") : null, "🏆 " + rec.score + " " + (mineRec ? "(tuo!)" : rm ? rm.name : "")] : "🏆 nessun record: fallo tu!")),
+      open ? h("button",{class:"btn " + (!done && left > 0 ? "red" : "ghost") + " ch-go",type:"button",disabled:ds.at,onclick:() => startJob(k, null, { practice: done || left <= 0 })}, !done && left > 0 ? "Gioca" : "Allenati")
+           : h("small",{class:"ch-lock"}, "🔒 " + need + " cene"));
+  });
+  return h("div",{class:"card"},
+    h("div",{class:"card-row"}, h("h2",{class:"card-title"},"🎮 I 10 lavoretti"), h("span",{class:"tag"}, left + " pagati oggi")),
+    h("p",{class:"hint"},"Ognuno è un gioco diverso da 25 secondi. Ruba un record a un parente: +5 🪙. Dopo i lavori pagati puoi allenarti quanto vuoi, e il record vale lo stesso."),
+    h("div",{class:"ch-list"}, rows));
+}
+
+/* ---------- cornice comune dei minigiochi ---------- */
+function startJob(key, onDone, opt){
+  opt = opt || {};
+  const me = meId(), r = JOBS[key], G = window.DCGames && DCGames[key]; if(!me || !r || !G) return;
+  if(dinnerState().at){ toast("📵 È l'ora della cena: si gioca dopo!"); return; }
+  if(!isUnlocked(key)){ toast("🔒 Questo posto apre dopo altre cene insieme"); return; }
+  const done = workOf(me).jobs.includes(key), left = jobsLeft(me);
+  const practice = !!opt.practice || done || left <= 0;
+  const lv = lvOf(me, key), cap = capOf(lv), rec = recOf(key), recM = rec && member(rec.mid), myBest = bestOf(me, key), secs = G.secs || 25;
+  const root = document.getElementById("game-root");
+  let score = 0, over = false, paid = false, ctl = null, raf = 0, tmo = [], loops = [], t0 = 0, lastT = 0, running = false;
+  const scoreEl = h("span",{class:"g-score"}, "0"), bar = h("span"), play = h("div",{class:"play"});
+  const muteB = h("button",{class:"g-mute",type:"button","aria-label":"Audio sì/no",onclick:() => { DCGames.toggleMute(); muteB.textContent = DCGames.muted() ? "🔇" : "🔊"; }}, DCGames.muted() ? "🔇" : "🔊");
+  const quit = h("button",{class:"btn ghost",type:"button",style:"min-height:40px;padding:8px 14px",onclick:() => close()},"Esci");
+  const g = h("div",{class:"game",role:"dialog","aria-modal":"true","aria-label":r.job,style:"--gbg:" + r.bg},
+    h("div",{class:"g-top"}, h("div",{class:"g-row"}, h("h2",null, r.icon + " " + r.job), h("div",{class:"g-acts"}, muteB, quit)),
+      h("div",{class:"g-row"}, h("span",{class:"g-hint"}, r.title + " · liv. " + lv + (practice ? " · allenamento" : " · fino a " + cap + " 🪙")), scoreEl),
+      h("div",{class:"g-time"}, bar)), play);
+  root.replaceChildren(g);
+  document.body.style.overflow = "hidden";
+  function clearAll(){ over = true; running = false; tmo.forEach(clearTimeout); tmo = []; cancelAnimationFrame(raf); if(ctl && ctl.stop) try{ ctl.stop(); }catch(e){} }
+  function close(){ clearAll(); root.replaceChildren(); document.body.style.overflow = window.DCCity && DCCity.isOpen() ? "hidden" : ""; ui.game = null; render(); if(paid && onDone) onDone(); else if(window.DCCity && DCCity.isOpen()) DCCity.refresh(); }
+  function fx(x, y, txt, cls){ const f = h("div",{class:"fx " + (cls || ""),style:"left:" + x + "%;top:" + y + "%"}, txt); play.append(f); setTimeout(() => f.remove(), 700); }
+  const ctx = {
+    play, lv,
+    alive: () => running && !over,
+    now: () => performance.now() / 1000,
+    add(n, x, y){ if(!running || !n) return; score = Math.max(0, score + n); scoreEl.textContent = String(score); scoreEl.classList.remove("bump"); void scoreEl.offsetWidth; scoreEl.classList.add("bump"); fx(x == null ? 50 : x, y == null ? 40 : y, (n > 0 ? "+" : "−") + Math.abs(n), n < 0 ? "minus" : ""); if(n < 0){ play.classList.remove("shake"); void play.offsetWidth; play.classList.add("shake"); } },
+    say(t){ play.querySelectorAll(".g-say").forEach(x => x.remove()); const s = h("div",{class:"g-say"}, t); play.append(s); setTimeout(() => s.remove(), 1050); },
+    loop(fn){ loops.push(fn); },
+    later(fn, ms){ const id = setTimeout(() => { if(running && !over) fn(); }, ms); tmo.push(id); return id; },
+    end(){ if(running) finish(); },
+    sfx(k){ DCGames.sfx(k); }
+  };
+  function intro(){
+    const toNext = 3 - playsOf(me, key) % 3;
+    play.replaceChildren(h("div",{class:"g-intro"},
+      h("div",{class:"gi-ico"}, r.icon),
+      h("h3",null, r.job),
+      h("span",{class:"g-lv"}, "⭐ " + r.title + " liv. " + lv, lv < 5 ? h("small",null, " · ancora " + toNext + (toNext === 1 ? " partita" : " partite") + " al livello " + (lv + 1)) : null),
+      h("p",{class:"g-how"}, G.how),
+      h("div",{class:"g-recs"},
+        h("div",null, "🏆 Record di famiglia", h("b",null, rec ? String(rec.score) : "—"), h("small",null, rec ? (rec.mid === me ? "è tuo!" : recM ? recM.name : "") : "Fallo tu!")),
+        h("div",null, "👤 Il tuo record", h("b",null, myBest ? String(myBest) : "—"), h("small",null, secs + " secondi"))),
+      rec && rec.mid !== me && !practice ? h("p",{class:"g-chal"}, "Batti " + (recM ? recM.name : "il record") + " e prendi +5 🪙 di bonus!") : null,
+      h("p",{class:"g-pay"}, practice ? (left <= 0 ? "Lavori pagati finiti per oggi: questo è un allenamento, ma il record vale!" : "Qui hai già lavorato oggi: allenamento senza monete, ma il record vale!") : "Paga fino a " + cap + " 🪙"),
+      h("button",{class:"btn red",type:"button",onclick:() => { DCGames.unlock(); countdown(3); }}, "▶ Inizia")));
+  }
+  function countdown(n){
+    if(over) return;
+    play.replaceChildren(h("div",{class:"g-big"}, h("b",null, n > 0 ? String(n) : "Via!")));
+    DCGames.sfx(n > 0 ? "tick" : "ok");
+    if(n > 0) setTimeout(() => countdown(n - 1), 620); else setTimeout(begin, 360);
+  }
+  function begin(){
+    if(over) return;
+    play.replaceChildren(); score = 0; scoreEl.textContent = "0"; running = true; loops = []; t0 = performance.now(); lastT = t0;
+    try{ ctl = G.start(ctx) || null; }catch(e){ console.error(e); }
+    const tick = now => {
+      if(!running || over) return;
+      const dt = Math.min(.05, (now - lastT) / 1000); lastT = now;
+      const p = Math.min(1, (now - t0) / (secs * 1000));
+      bar.style.transform = "scaleX(" + (1 - p) + ")";
+      loops.forEach(f => { try{ f(dt, now / 1000); }catch(e){ console.error(e); } });
+      if(p >= 1){ finish(); return; }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+  }
+  async function finish(){
+    if(!running) return;
+    running = false; cancelAnimationFrame(raf); tmo.forEach(clearTimeout); tmo = []; if(ctl && ctl.stop) try{ ctl.stop(); }catch(e){}
+    const raw = score, base = practice ? 0 : Math.min(cap, Math.round(raw * (G.rate || .5)));
+    const newRec = raw > 0 && (!rec || raw > rec.score), steal = newRec && rec && rec.mid !== me && !practice, coins = base + (steal ? 5 : 0);
+    const pb = raw > myBest && !newRec, lvAfter = Math.min(5, 1 + Math.floor((playsOf(me, key) + 1) / 3));
+    const box = h("div",{class:"g-big g-end"},
+      h("h3",null, newRec ? "🏆 Nuovo record di famiglia!" : pb ? "⭐ Il tuo nuovo record!" : "Lavoro finito!"),
+      h("b",{class:"g-final"}, String(raw)), h("p",null,"punti"),
+      practice ? h("p",null,"Allenamento: niente monete") : h("span",{class:"coins"}, "+" + coins + " 🪙"),
+      steal ? h("p",{class:"g-chal"}, "Hai rubato il record a " + (recM ? recM.name : "qualcuno") + ": +5 🪙 di bonus!") : (rec && !newRec ? h("p",null, "Record di famiglia: " + rec.score + (recM && rec.mid !== me ? " di " + recM.name : "") + ". Ti mancano " + (rec.score - raw + 1) + " punti!") : null),
+      lvAfter > lv ? h("p",{class:"g-up"}, "⬆️ Livello " + lvAfter + "! Più difficile, ma paga di più.") : null,
+      h("p",{class:"err",id:"g-err"}, ""));
+    play.replaceChildren(box);
+    quit.disabled = true;
+    if(newRec || coins > 0){ confetti(); DCGames.sfx("big"); }
+    try{
+      await Store.send({ op:"work", mid:me, job:key, score:base, raw, practice });
+      paid = !practice; quit.disabled = false;
+      box.append(h("div",{class:"row",style:"justify-content:center"},
+        h("button",{class:"btn red",type:"button",onclick:() => close()}, practice ? "Fatto" : "Incassa"),
+        h("button",{class:"btn ghost",type:"button",onclick:() => { const cb = paid ? onDone : null; clearAll(); root.replaceChildren(); if(cb) cb(); startJob(key, null, { practice:true }); }}, "↻ Rigioca")));
+    }catch(err){
+      quit.disabled = false;
+      document.getElementById("g-err").textContent = "Punti non salvati: " + err.message;
+      box.append(h("button",{class:"btn ghost",type:"button",onclick:() => close()},"Chiudi"));
+    }
+  }
+  ui.game = key;
+  intro();
+}
+
+/* ---------- cena senza telefono, missioni, classifica, regali, vestiti ---------- */
+const EVENTS = {
+  halloween:{ icon:"🎃", name:"Halloween in città", text:"Zucche, pipistrelli e il cappello a zucca in Boutique. Fino al 2 novembre.", item:"zucca" },
+  natale:{ icon:"🎄", name:"Natale in città", text:"Neve, albero in piazza e il cappello di Babbo Natale in Boutique. Fino al 6 gennaio.", item:"babbo" },
+  estate:{ icon:"☀️", name:"Estate in città", text:"Ombrelloni al porto e il cappello di paglia in Boutique. Fino al 15 settembre.", item:"paglia" }
+};
+const LOCK_NAMES = { gelateria:"🍦 Gelateria", lunapark:"🎡 Luna Park", porto:"⚓ Porto" };
+function wearOf(id){ const w = (fam().wear || {})[id]; return w && w.on ? w.on : {}; }
+function ownedOf(id){ const w = (fam().wear || {})[id]; return w && w.own ? w.own : []; }
+function weekKey(){ return slots().up; }
+function dinnersDone(){ return rDinnersDone(fam(), todayId()); }
+function isUnlocked(k){ const u = R_UNLOCKS.find(x => x.k === k); return !u || dinnersDone() >= u.need; }
+function streakOf(id){ const st = (fam().st || {})[id]; if(!st) return 0; const t = todayId(); return st.last === t || st.last === rAddDays(t, -1) ? st.n : 0; }
+function dinnerState(){
+  const now = new Date(), wd = Number.isInteger(fam().day) ? fam().day : 3, time = fam().time || "20:00", vt = rVoteTime(time), today = todayId();
+  const isDay = now.getDay() === wd, start = at(today, time), vote = at(today, vt);
+  const real = isDay && now >= start && now < vote;
+  return { at: real || ui.simDinner === true, real, vt, time, start, vote, isDay };
+}
+function voteLocked(s){ if(!s.votToday) return false; const ds = dinnerState(); return new Date() < ds.vote; }
+
+/* chi tocca l'app durante la cena perde metà delle monete (una volta per cena) */
+document.addEventListener("click", e => {
+  if(!(Store.ready && (Store.mode === "live" || Store.mode === "demo")) || !meId()) return;
+  const ds = dinnerState(); if(!ds.at) return;
+  const t = e.target && e.target.closest ? e.target.closest("button, a, input, select, textarea, [role=button], canvas, .play") : null;
+  if(!t || t.closest("[data-nopen]")) return;
+  penalize();
+}, true);
+async function penalize(){
+  const me = meId(); if(!me || ui.penBusy) return;
+  const key = "dc_pen_" + (Store.fid || "demo") + "_" + todayId() + (ui.simDinner ? "_sim" : "");
+  if(lsGet(key)) return;
+  ui.penBusy = true;
+  const before = coinsOf(me);
+  try{
+    await Store.send({ op:"penalty", mid:me, sim:!!ui.simDinner });
+    lsSet(key, "1");
+    showPenalty(before, coinsOf(me));
+  }catch(e){}
+  ui.penBusy = false;
+}
+function showPenalty(before, after){
+  const root = document.getElementById("pen-root");
+  const box = h("div",{class:"pen","data-nopen":"",role:"alertdialog","aria-label":"Telefono a tavola",onclick:() => root.replaceChildren()},
+    h("div",{class:"pen-card"},
+      h("div",{class:"pen-ico"},"📵"),
+      h("h2",null,"Telefono a tavola!"),
+      h("p",null,"Durante la cena l'app è vietata. Le tue monete si dimezzano:"),
+      h("div",{class:"pen-coins"}, h("s",null,"🪙 " + before), h("span",null,"→"), h("b",null,"🪙 " + after)),
+      h("p",null,"Metti giù il telefono e goditi la cena. Il voto apre alle " + dinnerState().vt + "."),
+      h("small",null,"Tocca per chiudere")));
+  root.replaceChildren(box);
+}
+function phoneBan(){
+  const ds = dinnerState(); if(!ds.at) return null;
+  return h("div",{class:"ban"}, h("span",{class:"ban-ico"},"📵"),
+    h("div",null, h("b",null,"È l'ora della cena: telefono giù!"),
+      h("p",null,"Se tocchi un pulsante dell'app adesso, le tue monete si dimezzano. Il voto apre alle " + ds.vt + ".")));
+}
+function ruleNote(){
+  const t = fam().time || "20:00";
+  return h("p",{class:"rule"}, "📵 Regola della casa: dalle " + t + " alle " + rVoteTime(t) + " telefoni giù (chi tocca l'app perde metà delle monete). Poi tutti votano e parte la rivelazione 🎬");
+}
+
+/* missioni */
+function missionsCard(me, inGame){
+  const today = todayId(), keys = rMissions(today, me.id, members().length), st = rDayState(fam(), me.id, today);
+  const rows = keys.map((k, i) => {
+    const pr = rMissionProgress(k, st), done = pr[0] >= pr[1], got = st.claimed.indexOf(i) >= 0;
+    return h("div",{class:"mis" + (got ? " got" : done ? " done" : "")},
+      h("span",{class:"mis-ico","aria-hidden":"true"}, got ? "✓" : done ? "!" : String(i + 1)),
+      h("div",{class:"mis-main"}, h("b",null, rMissionText(k)), h("div",{class:"mis-bar"}, h("span",{style:"width:" + Math.round(pr[0] / pr[1] * 100) + "%"})), h("small",null, pr[0] + " / " + pr[1])),
+      got ? h("span",{class:"mis-ok"},"+5 🪙") : h("button",{class:"btn " + (done ? "gold" : "ghost") + " mis-btn",type:"button",disabled:!done,onclick:() => claimMission(i)}, done ? "Ritira +5" : "+5 🪙"));
+  });
+  const n = st.claimed.length;
+  return h("div",{class:"card missions"},
+    inGame ? null : h("div",{class:"card-row"}, h("h2",{class:"card-title"},"📋 Missioni di oggi"), h("span",{class:"tag"}, n + "/3")),
+    rows,
+    h("p",{class:"hint",style:"font-weight:700"}, n === 3 ? "🎉 Tutte completate! Hai preso anche il bonus di 10 monete. Domani ne arrivano di nuove." : "Completale tutte e 3 per un bonus di +10 🪙. Ogni giorno cambiano."));
+}
+async function claimMission(i){
+  const me = meId(); if(!me) return;
+  const before = rDayState(fam(), me, todayId()).claimed.length;
+  try{ await Store.send({ op:"mission", mid:me, idx:i }); confetti(); toast(before === 2 ? "🎉 Missioni completate! +5 e bonus +10" : "Missione completata! +5 🪙"); }
+  catch(err){ toast(err.message); }
+}
+
+/* classifica settimanale */
+function rankOf(week){ const wk = (fam().wk || {})[week] || {}; return members().map(m => ({ m, v:wk[m.id] || 0 })).sort((a, b) => b.v - a.v); }
+function championOf(week){ const r = rankOf(week); return r.length && r[0].v > 0 ? r[0] : null; }
+function leaderCard(){
+  const s = slots(), rank = rankOf(s.up), me = meId(), prev = championOf(s.vot);
+  return h("div",{class:"card"},
+    h("div",{class:"card-row"}, h("h2",{class:"card-title"},"🏆 Classifica della settimana"), h("span",{class:"tag"}, "fino a " + fmtDM(s.up))),
+    h("p",{class:"hint"}, "Monete guadagnate in città questa settimana. Il primo viene festeggiato a cena!"),
+    h("div",{class:"rlist"}, rank.map((e, i) => h("div",{class:"rrow" + (e.m.id === me ? " me" : "")}, h("span",{class:"pos"}, i === 0 && e.v ? "🥇" : i === 1 && e.v ? "🥈" : i === 2 && e.v ? "🥉" : String(i + 1)), mAv(e.m,""), h("span",{class:"rname"}, e.m.name + (e.m.id === me ? " (tu)" : "")), h("span",{class:"rval"}, e.v + " 🪙")))),
+    prev ? h("div",{class:"suggest"}, "Campione della settimana scorsa: ", h("b",null, prev.m.name), " con " + prev.v + " monete 🏆") : null);
+}
+
+/* regali */
+function giftCard(me){
+  const others = members().filter(m => m.id !== me.id);
+  if(!others.length) return null;
+  if(!ui.giftTo || !member(ui.giftTo) || ui.giftTo === me.id) ui.giftTo = others[0].id;
+  const last = (fam().gifts || []).slice(0, 3);
+  return h("div",{class:"card"},
+    h("h2",{class:"card-title"},"🎁 Fai un regalo"),
+    h("p",{class:"hint"},"Regala monete a qualcuno della famiglia: per un vestito nuovo, un premio o solo per dire grazie."),
+    h("div",{class:"chips",role:"radiogroup","aria-label":"A chi"}, others.map(m => h("button",{type:"button",class:"pchip",role:"radio","aria-checked":String(ui.giftTo === m.id),onclick:() => { ui.giftTo = m.id; render(); }}, mAv(m,""), m.name))),
+    h("div",{class:"row"}, [5, 10, 20].map(a => h("button",{class:"btn soft",type:"button",style:"flex:1",disabled:coinsOf(me.id) < a,onclick:() => sendGift(a)}, "Regala " + a + " 🪙"))),
+    last.length ? h("div",{class:"glog"}, last.map(g => { const f = member(g.from), t = member(g.to); return h("small",null, "🎁 " + (f ? f.name : "Qualcuno") + " → " + (t ? t.name : "qualcuno") + ": " + (g.coins ? g.coins + " monete" : (R_WEAR[g.item] || {}).name || "un regalo")); })) : null);
+}
+async function sendGift(a){
+  const me = meId(), to = member(ui.giftTo); if(!me || !to) return;
+  try{ await Store.send({ op:"gift", mid:me, to:to.id, amount:a }); confetti(); toast("🎁 Hai regalato " + a + " monete a " + to.name); }
+  catch(err){ toast(err.message); }
+}
+function checkGifts(){
+  const me = meId(); if(!me) return;
+  const key = "dc_gseen_" + (Store.fid || "demo") + "_" + me, seen = lsGet(key) || "";
+  const fresh = (fam().gifts || []).filter(g => g.to === me && g.at > seen);
+  if(!fresh.length) return;
+  lsSet(key, fresh[0].at);
+  const g = fresh[0], f = member(g.from);
+  setTimeout(() => { toast("🎁 " + (f ? f.name : "Qualcuno") + " ti ha regalato " + (g.coins ? g.coins + " monete!" : ((R_WEAR[g.item] || {}).name || "un regalo") + "!")); confetti(); }, 600);
+}
+function checkStreak(){
+  const me = meId(); if(!me) return;
+  const n = streakOf(me), key = "dc_stk_" + (Store.fid || "demo") + "_" + me, last = Number(lsGet(key) || 0);
+  if(n > last && R_STREAK[n]) setTimeout(() => { toast("🔥 " + n + " giorni di fila! Premio +" + R_STREAK[n] + " 🪙" + (n === 14 ? " e la Tiara delle stelle" : "")); confetti(); }, 900);
+  if(n !== last) lsSet(key, String(n));
+}
+
+/* vestiti */
+function itemPreview(me, id){ const it = R_WEAR[id], w = Object.assign({}, wearOf(me.id)); w[it.slot] = id; return h("div",{class:"wprev",html:AV.render(me.av,{ wear:w })}); }
+function wardrobeCard(me){
+  const own = ownedOf(me.id), on = wearOf(me.id);
+  return h("div",{class:"card"},
+    h("h2",{class:"card-title"},"👗 Il tuo armadio"),
+    own.length ? h("div",{class:"wgrid"}, own.filter(id => R_WEAR[id]).map(id => {
+      const it = R_WEAR[id], worn = on[it.slot] === id;
+      return h("button",{type:"button",class:"witem" + (worn ? " on" : ""),"aria-pressed":String(worn),onclick:() => setWear(it.slot, worn ? null : id)}, itemPreview(me, id), h("b",null, it.name), h("small",null, worn ? "Lo indossi · tocca per togliere" : "Tocca per indossare"));
+    })) : h("p",{class:"hint"},"Ancora vuoto. In città c'è la 👗 Boutique (in piazza): con le monete compri cappelli, occhiali buffi e animaletti."));
+}
+function boutiqueCard(me){
+  const ev = rEvent(todayId()), my = coinsOf(me.id), own = ownedOf(me.id), on = wearOf(me.id), others = members().filter(m => m.id !== me.id);
+  const cats = [["hat","Cappelli"],["face","Faccia"],["pet","Animaletti"]];
+  const sec = cats.map(([slot, label]) => {
+    const ids = Object.keys(R_WEAR).filter(id => R_WEAR[id].slot === slot && (!R_WEAR[id].event || R_WEAR[id].event === ev));
+    return h("div",null, h("h3",{class:"sub"}, label), h("div",{class:"wgrid"}, ids.map(id => {
+      const it = R_WEAR[id], has = own.indexOf(id) >= 0, worn = on[slot] === id;
+      let act;
+      if(it.reward && !has) act = h("small",{class:"wtag"},"Premio: 14 giorni di fila");
+      else if(has) act = h("button",{class:"btn " + (worn ? "ghost" : "red") + " wbtn",type:"button",onclick:() => setWear(slot, worn ? null : id)}, worn ? "Togli" : "Indossa");
+      else act = h("button",{class:"btn gold wbtn",type:"button",disabled:my < it.price,onclick:() => buyWear(id, me.id)}, "Compra " + it.price + " 🪙");
+      return h("div",{class:"witem shop" + (worn ? " on" : "")}, it.event ? h("span",{class:"wev"},"Evento") : null, itemPreview(me, id), h("b",null, it.name), act,
+        !it.reward && others.length && my >= it.price ? h("button",{class:"link wgift",type:"button",onclick:() => { ui.giftItem = ui.giftItem === id ? null : id; render(); if(window.DCCity && DCCity.isOpen()) DCCity.refresh(); }},"🎁 Regala") : null,
+        ui.giftItem === id ? h("div",{class:"chips"}, others.map(m => h("button",{type:"button",class:"pchip",disabled:ownedOf(m.id).indexOf(id) >= 0,onclick:() => buyWear(id, m.id)}, mAv(m,""), m.name))) : null);
+    })));
+  });
+  return h("div",{class:"card shopcard"}, h("p",{class:"hint",style:"font-weight:800"}, "Hai " + my + " 🪙"), ev ? h("div",{class:"suggest"}, EVENTS[ev].icon + " Oggetto speciale dell'evento disponibile solo per poco!") : null, sec);
+}
+async function buyWear(id, to){
+  const me = meId(); if(!me) return;
+  try{
+    await Store.send({ op:"buyWear", mid:me, item:id, to });
+    ui.giftItem = null; confetti();
+    toast(to === me ? "✨ " + R_WEAR[id].name + ": ora lo indossi!" : "🎁 Regalato a " + member(to).name + "!");
+  }catch(err){ toast(err.message); }
+}
+async function setWear(slot, id){
+  const me = meId(); if(!me) return;
+  try{ await Store.send({ op:"wear", mid:me, slot, item:id }); }catch(err){ toast(err.message); }
+}
+
+/* città che cresce + ingrediente segreto */
+function growCard(){
+  const n = dinnersDone();
+  return h("div",{class:"card"},
+    h("h2",{class:"card-title"},"🏗️ La città cresce"),
+    h("p",{class:"hint"}, "Più cene fate insieme, più posti si aprono in città. Cene fatte finora: " + n + "."),
+    h("div",{class:"grow"}, R_UNLOCKS.map(u => { const ok = n >= u.need; return h("div",{class:"gitem" + (ok ? " ok" : "")}, h("b",null, LOCK_NAMES[u.k]), h("div",{class:"mis-bar"}, h("span",{style:"width:" + Math.min(100, Math.round(n / u.need * 100)) + "%"})), h("small",null, ok ? "Aperto! Entra a lavorare" : "Ancora " + (u.need - n) + (u.need - n === 1 ? " cena" : " cene"))); })));
+}
+function secretOf(week){ return (fam().secret || {})[week] || null; }
+function secretCard(){
+  const w = weekKey(), sc = secretOf(w), by = sc && member(sc.by);
+  return h("div",{class:"card secret"},
+    h("span",{class:"big-emoji"}, sc ? "🎁" : "🔎"),
+    h("div",null, h("h2",{class:"card-title"}, sc ? "Ingrediente segreto: " + sc.name : "Ingrediente segreto della settimana"),
+      h("p",{class:"hint"}, sc ? "L'ha trovato " + (by ? by.name : "qualcuno") + ". Lo chef deve usarlo nel piatto della cena!" : "È nascosto in città in un pacco regalo che brilla. Chi lo trova prende 15 🪙 e lo chef dovrà usarlo nel piatto!")));
+}
+
+/* ---------- la rivelazione da tavola: un telefono al centro, i voti escono uno alla volta ---------- */
+function countUp(el, to, ms, dec){
+  const t0 = performance.now();
+  (function f(t){ const p = Math.min(1, (t - t0) / ms), v = to * (1 - Math.pow(1 - p, 3)); el.textContent = dec ? fmtAvg(v) : String(Math.round(v)); if(p < 1) requestAnimationFrame(f); })(t0);
+}
+function openReveal(id, opt){
+  opt = opt || {};
+  const c = fam().dinners[id], vs = votesOf(id);
+  if(!c || !c.dish || !vs.length){ toast("Ancora nessun voto per questa cena"); return; }
+  const chef = chefOf(c), a = avgOf(vs), month = fromId(id).toLocaleDateString("it-IT",{month:"long"});
+  const sameMonth = id.slice(0,7) === slots().vot.slice(0,7), before = sameMonth ? crownHolder(id) : null, beforeM = before && member(before.chefId);
+  const wins = sameMonth && !!chef.id && (!before || a > before.a);
+  const list = vs.filter(v => v.comment).slice().sort((x,y) => x.stars - y.stars).slice(-6);
+  const preds = c.pred ? Object.keys(c.pred).filter(m => member(m)).map(m => ({ m:member(m), v:c.pred[m], d:Math.abs(c.pred[m] - a) })).sort((x,y) => x.d - y.d) : [];
+  const root = document.getElementById("reveal-root");
+  const stage = h("div",{class:"rv-stage"}), nextB = h("button",{class:"btn gold rv-next",type:"button"}, "Avanti ▶"), dots = h("div",{class:"rv-dots"});
+  const muteB = h("button",{class:"g-mute",type:"button","aria-label":"Audio sì/no",onclick:() => { DCGames.toggleMute(); muteB.textContent = DCGames.muted() ? "🔇" : "🔊"; }}, DCGames.muted() ? "🔇" : "🔊");
+  const ov = h("div",{class:"rv","data-nopen":"",role:"dialog","aria-modal":"true","aria-label":"Rivelazione dei voti"},
+    h("div",{class:"rv-top"}, h("span",{class:"rv-brand"},"👑 La rivelazione"), h("div",{class:"g-acts"}, muteB, h("button",{class:"g-mute",type:"button","aria-label":"Chiudi",onclick:close},"✕"))),
+    stage, h("div",{class:"rv-bot"}, dots, nextB));
+  root.replaceChildren(ov); document.body.style.overflow = "hidden";
+  const chefAv = (crown) => h("div",{class:"rv-av",html:AV.render(chef.av, { crown, wear: chef.id ? wearOf(chef.id) : {} })});
+  const steps = [];
+  steps.push(() => { stage.replaceChildren(h("div",{class:"rv-in"},
+    h("p",{class:"rv-kick"}, "La cena di " + fmtLong(id)), dishArt(c, "rv-art"), h("h2",{class:"rv-dish"}, c.dish),
+    h("div",{class:"rv-chef"}, mAv(chef,"rv-mini"), h("span",null, "chef ", h("b",null, chef.name))),
+    h("p",{class:"rv-hint"}, "📱 Mettete il telefono al centro del tavolo. " + vs.length + (vs.length === 1 ? " voto segreto" : " voti segreti") + " stanno per uscire…"))); return "Svela i voti 🥁"; });
+  list.forEach((v, i) => steps.push(() => {
+    DCGames.sfx("pop");
+    stage.replaceChildren(h("div",{class:"rv-in"},
+      h("p",{class:"rv-kick"}, "Voto segreto " + (i + 1) + " di " + list.length),
+      h("div",{class:"rv-note",style:"background:" + NOTE_COLORS[i % 4] + ";--r:" + (i % 2 ? 2 : -2) + "deg"}, h("div",{class:"rv-ns"}, miniStars(v.stars), h("b",null, fmtAvg(v.stars))), h("p",null, "“" + v.comment + "”")),
+      v.cat ? h("div",{class:"rv-catline"}, CATS_V.map(k => h("span",null, k.icon + " " + v.cat[k.k]))) : null,
+      h("p",{class:"rv-hint"}, "Anonimo: nessuno sa chi l'ha scritto 🤫")));
+    return i === list.length - 1 ? "I punteggi ▶" : "Prossimo voto ▶";
+  }));
+  steps.push(() => {
+    const rows = CATS_V.map(k => { const v = catAvg(vs, k.k); const fill = h("span",{class:"fill",style:"width:0%"}), num = h("b",null,"0"); return { k, v, fill, num, el:h("div",{class:"rv-cat"}, h("span",null, k.icon + " " + k.label), h("span",{class:"track"}, fill), num) }; }).filter(r => r.v);
+    stage.replaceChildren(h("div",{class:"rv-in"}, h("p",{class:"rv-kick"},"Le categorie"), h("h2",{class:"rv-dish"},"Gusto, aspetto e fantasia"), h("div",{class:"rv-cats"}, rows.map(r => r.el)), h("p",{class:"rv-hint"},"Il gusto conta doppio nel voto finale")));
+    rows.forEach((r, i) => setTimeout(() => { r.fill.style.width = (r.v / 5 * 100) + "%"; countUp(r.num, r.v, 900, true); DCGames.sfx("ok"); }, 300 + i * 700));
+    return "Il voto finale 🥁";
+  });
+  steps.push(() => {
+    const num = h("b",{class:"rv-score"},"?"), stars = h("div",{class:"rv-stars"}), msg = h("p",{class:"rv-word"},"");
+    stage.replaceChildren(h("div",{class:"rv-in"}, h("p",{class:"rv-kick"},"Il voto finale di " + chef.name), chefAv(false), num, stars, msg));
+    nextB.disabled = true; DCGames.drum(2.4);
+    const t0 = performance.now();
+    (function spin(t){ if(t - t0 < 2400){ num.textContent = fmtAvg(1 + Math.random() * 4); num.classList.toggle("blink"); requestAnimationFrame(spin); return; }
+      num.classList.remove("blink"); num.textContent = fmtAvg(a); num.classList.add("land"); stars.replaceChildren(miniStars(a)); msg.textContent = WORDS[Math.max(1, Math.round(a))] + "!";
+      confetti(); DCGames.fanfare(); nextB.disabled = false; })(t0);
+    return sameMonth ? "E la corona? 👑" : preds.length ? "Il pronostico 🔮" : "Fine ▶";
+  });
+  if(sameMonth) steps.push(() => {
+    let body;
+    if(wins){
+      const av = chefAv(true); av.classList.add("crowned");
+      body = [h("p",{class:"rv-kick"},"La corona di " + month), av, h("h2",{class:"rv-dish"}, "👑 " + chef.name + (before && before.chefId === chef.id ? " difende la corona!" : " conquista la corona!")),
+        h("p",{class:"rv-hint"}, before ? (before.chefId === chef.id ? "Ha battuto il suo stesso record: " + fmtAvg(before.a) + " → " + fmtAvg(a) : "La ruba a " + (beforeM ? beforeM.name : "chi l'aveva") + " (" + fmtAvg(before.a) + " ★)") : "È il primo voto del mese: la corona è sua!")];
+      setTimeout(() => { confetti(); DCGames.fanfare(); }, 500);
+    } else {
+      body = [h("p",{class:"rv-kick"},"La corona di " + month), beforeM ? h("div",{class:"rv-av",html:AV.render(beforeM.av, { crown:true, wear:wearOf(beforeM.id) })}) : null,
+        h("h2",{class:"rv-dish"}, "La corona resta a " + (beforeM ? beforeM.name : "chi ce l'ha")), h("p",{class:"rv-hint"}, chef.name + " si ferma a " + fmtAvg(a) + " contro " + fmtAvg(before.a) + ". Mancavano " + fmtAvg(Math.max(.1, before.a - a + .05)) + " stelle: la prossima volta!")];
+    }
+    stage.replaceChildren(h("div",{class:"rv-in"}, body));
+    return preds.length ? "Il pronostico 🔮" : "Fine ▶";
+  });
+  if(preds.length) steps.push(() => {
+    const w = preds[0];
+    if(!c.predWin && !opt.noAward) Store.send({ op:"predAward", date:id }).catch(() => {});
+    stage.replaceChildren(h("div",{class:"rv-in"}, h("p",{class:"rv-kick"},"Il pronostico"), h("h2",{class:"rv-dish"}, "🔮 Vince " + w.m.name + "!"),
+      h("p",{class:"rv-hint"}, "Aveva detto " + fmtAvg(w.v) + ", il voto è " + fmtAvg(a) + ". +10 🪙"),
+      h("div",{class:"rv-preds"}, preds.map((p, i) => h("div",{class:"rv-pred" + (i === 0 ? " win" : "")}, mAv(p.m,"rv-pav"), h("span",null, p.m.name), h("b",null, fmtAvg(p.v)), h("small",null, i === 0 ? "🏆" : "±" + fmtAvg(p.d)))))));
+    DCGames.sfx("big");
+    return "Fine ▶";
+  });
+  steps.push(() => {
+    stage.replaceChildren(h("div",{class:"rv-in"}, h("div",{class:"big-emoji"},"🎉"), h("h2",{class:"rv-dish"},"Che serata!"), h("p",{class:"rv-hint"},"Salvate il ricordo e mandatelo ai parenti lontani."),
+      h("div",{class:"rv-end"},
+        h("button",{class:"btn red block",type:"button",onclick:() => shareCard(id)},"📤 Condividi la card"),
+        h("button",{class:"btn soft block",type:"button",onclick:() => printKit("cert", id)},"🖨️ Stampa l'attestato dello chef"),
+        !c.photo ? h("button",{class:"btn soft block",type:"button",onclick:() => pickPhoto(id)},"📸 Aggiungi la foto del piatto") : null,
+        h("button",{class:"btn ghost block",type:"button",onclick:close},"Chiudi"))));
+    return null;
+  });
+  let i = -1;
+  function go(){
+    i++; if(i >= steps.length){ close(); return; }
+    dots.replaceChildren.apply(dots, steps.map((_, k) => h("i",{class:k <= i ? "on" : ""})));
+    const label = steps[i]();
+    nextB.hidden = !label; if(label) nextB.textContent = label;
+  }
+  function close(){ root.replaceChildren(); document.body.style.overflow = ""; render(); }
+  nextB.onclick = go;
+  DCGames.unlock();
+  go();
+}
+
+/* ---------- card da condividere (1080x1350, perfetta per storie e WhatsApp) ---------- */
+function loadImg(src){ return new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ko; i.src = src; }); }
+function wrapText(x, text, maxW){ const w = String(text).split(" "), out = []; let line = ""; w.forEach(word => { const t = line ? line + " " + word : word; if(x.measureText(t).width > maxW && line){ out.push(line); line = word; } else line = t; }); if(line) out.push(line); return out; }
+async function drawCard(id, withAv){
+  const c = fam().dinners[id], vs = votesOf(id), chef = chefOf(c), a = avgOf(vs), W = 1080, H = 1350;
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = H; const x = cv.getContext("2d");
+  const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, "#FFE7A8"); g.addColorStop(.5, "#FFF6E6"); g.addColorStop(1, "#FDF2EC"); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  x.save(); x.translate(W / 2, 470); x.fillStyle = "rgba(255,255,255,.45)"; for(let i = 0; i < 24; i++){ x.rotate(Math.PI / 12); x.beginPath(); x.moveTo(0, 0); x.lineTo(-60, -900); x.lineTo(60, -900); x.closePath(); x.fill(); } x.restore();
+  x.textAlign = "center"; x.textBaseline = "alphabetic";
+  x.fillStyle = "#E5412F"; x.font = "900 40px Nunito, system-ui, sans-serif"; x.fillText("👑  CHEF DELLA SETTIMANA  👑", W / 2, 105);
+  x.fillStyle = "#8C6B6F"; x.font = "800 34px Nunito, system-ui, sans-serif"; x.fillText((fam().name || "La nostra famiglia") + " · " + fmtLong(id), W / 2, 155);
+  let ay = 200;
+  if(c.photo){
+    try{ const ph = await loadImg(c.photo); const bw = 860, bh = 520, bx = (W - bw) / 2, by = 195; x.save(); x.beginPath(); x.roundRect ? x.roundRect(bx, by, bw, bh, 40) : x.rect(bx, by, bw, bh); x.clip(); const k = Math.max(bw / ph.width, bh / ph.height); x.drawImage(ph, bx + (bw - ph.width * k) / 2, by + (bh - ph.height * k) / 2, ph.width * k, ph.height * k); x.restore(); ay = 560; }catch(e){}
+  }
+  if(withAv){
+    const svg = AV.render(chef.av, { crown:true, wear: chef.id ? wearOf(chef.id) : {} }), im = await loadImg("data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg));
+    const s = c.photo ? 300 : 520, ax = c.photo ? 120 : (W - s) / 2; x.drawImage(im, ax, c.photo ? ay : 190, s, s * 226 / 200);
+  } else if(!c.photo){ x.font = "300px serif"; x.fillText(dishEmoji(c.dish), W / 2, 560); }
+  let y = c.photo ? 960 : 860;
+  x.fillStyle = "#3A1A1F"; x.font = "400 86px 'Bagel Fat One', Nunito, system-ui, sans-serif";
+  wrapText(x, c.dish, 920).slice(0, 2).forEach(l => { x.fillText(l, W / 2, y); y += 92; });
+  x.fillStyle = "#8C6B6F"; x.font = "800 42px Nunito, system-ui, sans-serif"; x.fillText("di " + chef.name, W / 2, y); y += 150;
+  x.fillStyle = "#E5412F"; x.font = "400 150px 'Bagel Fat One', Nunito, system-ui, sans-serif"; x.fillText(fmtAvg(a), W / 2 - 140, y);
+  x.fillStyle = "#FFB21E"; x.font = "70px serif"; x.textAlign = "left"; x.fillText("★".repeat(Math.round(a)), W / 2 + 10, y - 30); x.fillStyle = "#F0DDD5"; x.fillText("★".repeat(5 - Math.round(a)), W / 2 + 10 + x.measureText("★".repeat(Math.round(a))).width, y - 30); x.textAlign = "center";
+  const best = vs.filter(v => v.comment).sort((p, q) => q.stars - p.stars)[0];
+  if(best){ y += 90; x.fillStyle = "#B92E20"; x.font = "600 58px Caveat, 'Segoe Print', cursive"; wrapText(x, "“" + best.comment + "”", 900).slice(0, 2).forEach(l => { x.fillText(l, W / 2, y); y += 62; }); }
+  x.fillStyle = "#3A1A1F"; x.fillRect(0, H - 92, W, 92); x.fillStyle = "#FFB21E"; x.font = "400 44px 'Bagel Fat One', Nunito, sans-serif"; x.fillText("Dinner Crown", W / 2, H - 32);
+  return cv;
+}
+async function shareCard(id){
+  const c = fam().dinners[id]; if(!c || !votesOf(id).length){ toast("Prima servono i voti"); return; }
+  try{ await document.fonts.ready; }catch(e){}
+  let cv, blob;
+  try{ cv = await drawCard(id, true); blob = await new Promise(r => cv.toBlob(r, "image/png")); }catch(e){ blob = null; }
+  if(!blob){ cv = await drawCard(id, false); blob = await new Promise(r => cv.toBlob(r, "image/png")); }
+  if(!blob){ toast("Non riesco a creare la card"); return; }
+  const name = "chef-" + (c.dish || "cena").toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".png", url = URL.createObjectURL(blob), root = document.getElementById("tour-root");
+  const closeM = () => { root.replaceChildren(); URL.revokeObjectURL(url); };
+  const file = (window.File ? new File([blob], name, { type:"image/png" }) : null);
+  const canShare = !!(file && navigator.canShare && navigator.canShare({ files:[file] }));
+  root.replaceChildren(h("div",{class:"tour","data-nopen":"",onclick:e => { if(e.target.classList.contains("tour")) closeM(); }}, h("div",{class:"tour-card sc-card"},
+    h("img",{src:url,alt:"Card dello chef della settimana",class:"sc-img"}),
+    canShare ? h("button",{class:"btn red block",type:"button",onclick:async () => { try{ await navigator.share({ files:[file], title:"Dinner Crown", text:"👑 " + chefOf(c).name + " è lo chef della settimana con " + c.dish + "!" }); }catch(e){} }},"📤 Condividi") : null,
+    h("a",{class:"btn " + (canShare ? "soft" : "red") + " block",href:url,download:name},"⬇️ Scarica l'immagine"),
+    h("button",{class:"link",type:"button",onclick:closeM},"Chiudi"))));
+}
+
+/* ---------- da stampare: corona vera, attestato, ricettario ---------- */
+function crownSvg(label){
+  return '<svg viewBox="0 0 190 100" width="190mm" height="100mm" xmlns="http://www.w3.org/2000/svg"><path d="M2 98 L2 40 L20 60 L38 10 L57 56 L95 2 L133 56 L152 10 L170 60 L188 40 L188 98 Z" fill="#FFB21E" stroke="#3A1A1F" stroke-width=".8" stroke-dasharray="3 2"/>' +
+    '<path d="M2 72 L188 72" stroke="#E99C00" stroke-width="3"/><g fill="#E5412F"><circle cx="38" cy="16" r="5"/><circle cx="152" cy="16" r="5"/></g><circle cx="95" cy="10" r="6" fill="#3E7BC4"/><g fill="#2E9D5B"><circle cx="20" cy="56" r="3.5"/><circle cx="170" cy="56" r="3.5"/></g>' +
+    '<text x="95" y="91" text-anchor="middle" font-family="Bagel Fat One, Arial Rounded MT Bold, sans-serif" font-size="15" fill="#3A1A1F">' + String(label || "CHEF").replace(/[&<>"]/g, "") + '</text></svg>';
+}
+function stripSvg(){ return '<svg viewBox="0 0 190 30" width="190mm" height="30mm" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="188" height="28" fill="#FFB21E" stroke="#3A1A1F" stroke-width=".6" stroke-dasharray="3 2"/><rect x="1" y="1" width="14" height="28" fill="#FFE7A8"/><text x="8" y="17" text-anchor="middle" font-size="4" font-family="Nunito,sans-serif" transform="rotate(-90 8 15)">INCOLLA</text>' + Array.from({ length:8 }, (_, i) => '<text x="' + (32 + i * 20) + '" y="20" text-anchor="middle" font-size="11" fill="#E5412F">★</text>').join("") + '</svg>'; }
+function printKit(kind, id){
+  const pr = document.getElementById("print-root"), fname = fam().name || "La nostra famiglia", pages = [];
+  const c = id ? fam().dinners[id] : null, vs = id ? votesOf(id) : [], chef = c ? chefOf(c) : null;
+  if(kind === "crown"){
+    pages.push(h("section",{class:"pr-page pr-crown"}, h("h1",null,"La corona dello chef 👑"), h("p",null,"Ritaglia lungo le linee tratteggiate, unisci i 3 pezzi con lo scotch (le parti gialle chiare vanno sotto) e regola sulla testa dello chef."),
+      h("div",{html:crownSvg(chef ? chef.name.toUpperCase() : "CHEF")}), h("div",{html:stripSvg()}), h("div",{html:stripSvg()}), h("p",{class:"pr-small"}, "Dinner Crown · " + fname)));
+    if(c) pages.push(certPage(id));
+  } else if(kind === "cert") pages.push(certPage(id));
+  else if(kind === "book"){
+    const ids = recipeDinners().slice().reverse();
+    pages.push(h("section",{class:"pr-page pr-cover"}, h("div",{class:"pr-crown-ico"},"👑"), h("h1",null,"Il ricettario"), h("h2",null, fname), h("p",null, ids.length + (ids.length === 1 ? " ricetta" : " ricette") + " votate a tavola · " + new Date().getFullYear()), h("p",{class:"pr-small"},"Ogni piatto qui dentro ha preso almeno 4 stelle dalla famiglia.")));
+    ids.forEach(rid => {
+      const rc = fam().dinners[rid], rv = votesOf(rid), r = rc.recipe || {}, ln = t => String(t || "").split("\n").map(s => s.trim()).filter(Boolean);
+      pages.push(h("section",{class:"pr-page pr-recipe"}, dishArt(rc, "pr-art"), h("h1",null, rc.dish), h("p",{class:"pr-meta"}, "di " + chefOf(rc).name + " · " + fmtLong(rid) + (rv.length ? " · " + fmtAvg(avgOf(rv)) + " ★" : "")),
+        r.ing ? h("div",{class:"pr-cols"}, h("div",null, h("h3",null,"Ingredienti"), h("ul",null, ln(r.ing).map(s => h("li",null,s)))), h("div",null, h("h3",null,"Come si fa"), h("ol",null, ln(r.steps).map(s => h("li",null,s))))) : h("p",null,"Ricetta da scrivere a mano: ______________________________"),
+        rv.filter(v => v.comment).length ? h("p",{class:"pr-quote"}, "“" + rv.filter(v => v.comment).sort((p, q) => q.stars - p.stars)[0].comment + "”") : null));
+    });
+  }
+  pr.replaceChildren.apply(pr, pages);
+  setTimeout(() => { try{ window.print(); }catch(e){ toast("La stampa non è disponibile qui"); } }, 150);
+}
+function certPage(id){
+  const c = fam().dinners[id], vs = votesOf(id), chef = chefOf(c), a = avgOf(vs);
+  return h("section",{class:"pr-page pr-cert"}, h("div",{class:"pr-frame"},
+    h("div",{class:"pr-crown-ico"},"👑"), h("p",{class:"pr-k"},"Attestato ufficiale"), h("h1",null,"Chef della settimana"), h("p",null,"conferito a"), h("h2",null, chef.name),
+    h("p",null,"per il piatto"), h("h3",null, "«" + c.dish + "»"), h("p",{class:"pr-score"}, fmtAvg(a) + " ★ · " + vs.length + " voti segreti"),
+    h("p",null, fmtLong(id) + " · " + (fam().name || "")),
+    h("div",{class:"pr-sign"}, h("span",null,"La giuria (anonima)"), h("span",null,"Il capotavola"))));
+}
+
+/* ---------- tour della demo: porta subito al momento più bello ---------- */
+const TOUR = [
+  { ico:"🍽️", t:"Una sera a settimana, uno chef", p:"A turno qualcuno cucina. Gli altri dicono se ci sono e propongono piatti sulla ruota." },
+  { ico:"🔮", t:"Prima di cena: il pronostico", p:"In 5 secondi ognuno indovina il voto che prenderà lo chef. Chi ci va più vicino vince. Perfetto anche per chi non ha tempo di giocare." },
+  { ico:"📵", t:"A tavola, telefoni giù", p:"Durante la cena l'app è vietata. A fine cena tutti votano in segreto: gusto, aspetto e fantasia." },
+  { ico:"🎮", t:"Durante la settimana si gioca", p:"10 lavoretti in città, ognuno un gioco diverso da 25 secondi. Si battono i record dei parenti e si guadagnano monete." },
+  { ico:"🎬", t:"Poi arriva la rivelazione", p:"Un telefono al centro del tavolo: i voti escono uno alla volta, poi il voto finale e la corona. Guardala adesso!" }
+];
+function startTour(force){
+  if(Store.mode !== "demo") return;
+  if(!force && lsGet("dc_tour_done")) return;
+  ui.tour = 0; renderTour();
+}
+function renderTour(){
+  const root = document.getElementById("tour-root");
+  if(ui.tour == null){ root.replaceChildren(); return; }
+  const st = TOUR[ui.tour], last = ui.tour === TOUR.length - 1;
+  const end = () => { ui.tour = null; lsSet("dc_tour_done","1"); renderTour(); };
+  root.replaceChildren(h("div",{class:"tour","data-nopen":"",role:"dialog","aria-modal":"true","aria-label":"Come funziona"}, h("div",{class:"tour-card"},
+    h("div",{class:"tour-ico"}, st.ico), h("h2",null, st.t), h("p",null, st.p),
+    h("div",{class:"tour-dots"}, TOUR.map((_, i) => h("i",{class:i === ui.tour ? "on" : ""}))),
+    last ? h("button",{class:"btn gold block",type:"button",onclick:() => { end(); openReveal(slots().vot, { demo:true }); }},"🎬 Guarda la rivelazione")
+         : h("button",{class:"btn red block",type:"button",onclick:() => { ui.tour++; renderTour(); }},"Avanti"),
+    h("button",{class:"link",type:"button",onclick:end}, last ? "Esplora da solo" : "Salta il tour"))));
+}
+
 /* ---------- feedback ---------- */
 let toastT = 0;
 function toast(msg){ const t = document.getElementById("toast"); t.textContent = msg; t.hidden = false; t.classList.remove("show"); void t.offsetWidth; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 2600); }
@@ -1148,11 +2783,12 @@ function confetti(){
 }
 
 /* ---------- render ---------- */
-const VIEW_FN = { cena:viewCena, chef:viewChef, corona:viewCorona, storico:viewStorico, famiglia:viewFamiglia };
+const VIEW_FN = { cena:viewCena, chef:viewChef, gioca:viewGioca, corona:viewCorona, famiglia:viewFamiglia };
 function saveFocus(){ const a = document.activeElement; return a && a.id && (a.tagName === "INPUT" || a.tagName === "TEXTAREA") ? { id:a.id, s:a.selectionStart, e:a.selectionEnd } : null; }
 function restoreFocus(f){ if(!f) return; const el = document.getElementById(f.id); if(el){ el.focus({preventScroll:true}); try{ el.setSelectionRange(f.s, f.e); }catch(e){} } }
 function render(){
   if(ui.spinning) return;
+  if(window.DCCity && DCCity.isOpen() && document.activeElement && document.activeElement.id === "shop-in-g") return;
   const f = saveFocus();
   const inFamily = Store.ready && (Store.mode === "live" || Store.mode === "demo");
   const needWho = inFamily && !meId();
@@ -1164,12 +2800,12 @@ function render(){
   if(me){ meBtn.replaceChildren(h("div",{html:avOf(me)}), h("span",{class:"edit","aria-hidden":"true"},"✎")); meBtn.onclick = () => openEditor(me.id); }
   document.getElementById("fam-name").textContent = inFamily && fam().name ? fam().name : "La serata dello chef";
   ["welcome","who"].concat(VIEWS).forEach(v => { document.getElementById("v-"+v).hidden = true; });
-  VIEWS.forEach(v => { const b = document.querySelector('[data-tab="'+v+'"]'); if(showTabs && ui.tab === v) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
+  TABS.forEach(v => { const b = document.querySelector('[data-tab="'+v+'"]'); if(showTabs && (TAB_OF[ui.tab] || ui.tab) === v) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
   let box;
   if(!Store.ready){ box = document.getElementById("v-cena"); box.replaceChildren(h("div",{class:"loader"}, h("div",{class:"mini"}), h("p",null,"Apparecchio la tavola…"))); }
   else if(!inFamily){ box = document.getElementById("v-welcome"); box.replaceChildren.apply(box, viewWelcome()); }
   else if(needWho){ box = document.getElementById("v-who"); box.replaceChildren.apply(box, viewWho()); }
-  else { box = document.getElementById("v-"+ui.tab); box.replaceChildren.apply(box, VIEW_FN[ui.tab]().filter(Boolean)); }
+  else { box = document.getElementById("v-"+ui.tab); box.replaceChildren.apply(box, VIEW_FN[ui.tab]().filter(Boolean)); const ban = phoneBan(); if(ban) box.prepend(ban); }
   box.hidden = false;
   restoreFocus(f);
   setTimeout(checkRemoteSpin, 300);
@@ -1178,9 +2814,10 @@ function render(){
 document.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => go(b.dataset.tab)));
 document.addEventListener("keydown", e => { if(e.key === "Escape" && ui.editor && !(ui.editor.first && !members().length)) closeEditor(); });
 setInterval(() => { const a = document.activeElement; if(!document.hidden && !ui.editor && !(a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA" || a.tagName === "SELECT"))) render(); }, 60000);
-Store.subs.push(() => { render(); });
+Store.subs.push(() => { render(); if(window.DCCity && DCCity.isOpen()) DCCity.refresh(); if(Store.ready && meId()){ checkGifts(); checkStreak(); } });
+setInterval(() => { if(window.DCCity && DCCity.isOpen() && dinnerState().at){ DCCity.close(); toast("📵 È l'ora della cena: la città chiude!"); } }, 30000);
 render();
-Store.init();
+Store.init().then(() => setTimeout(() => startTour(false), 700));
 })();
 </script>
 

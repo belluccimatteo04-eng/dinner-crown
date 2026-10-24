@@ -35,6 +35,29 @@
   ];
 
   const DEFAULT = PRESETS[0].av;
+
+  /* vestiti speciali (si comprano in Boutique) */
+  const HATS = {
+    cowboy: (T, L, R) => [`<path d="M62 ${T + 22} C60 ${T - 34} 140 ${T - 34} 138 ${T + 22} Z" fill="#B06E3A"/><path d="M100 ${T - 22} C94 ${T - 10} 106 ${T - 10} 100 ${T - 22}" stroke="#8A5228" stroke-width="4"/><rect x="62" y="${T + 6}" width="76" height="10" fill="#6B3B1E"/><ellipse cx="100" cy="${T + 22}" rx="80" ry="15" fill="#9A5B2E"/><ellipse cx="100" cy="${T + 18}" rx="66" ry="7" fill="#B06E3A"/>`, T - 50],
+    pirata: (T, L, R) => [`<path d="M26 ${T + 28} Q100 ${T - 62} 174 ${T + 28} Q100 ${T + 6} 26 ${T + 28} Z" fill="#2A1D1A"/><path d="M34 ${T + 24} Q100 ${T + 4} 166 ${T + 24}" stroke="#E9B949" stroke-width="4" fill="none"/><circle cx="100" cy="${T - 6}" r="10" fill="#fff"/><circle cx="96" cy="${T - 8}" r="2.4" fill="#2A1D1A"/><circle cx="104" cy="${T - 8}" r="2.4" fill="#2A1D1A"/><path d="M88 ${T + 8} L112 ${T - 2} M88 ${T - 2} L112 ${T + 8}" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>`, T - 46],
+    elica: (T, L, R) => [`<path d="M${L - 2} ${T + 36} C${L - 2} ${T - 16} ${R + 2} ${T - 16} ${R + 2} ${T + 36} Z" fill="#3E7BC4"/><path d="M100 ${T - 14} C78 ${T - 14} ${L + 4} ${T + 4} ${L} ${T + 34} L100 ${T + 34} Z" fill="#E5412F"/><path d="M100 ${T - 14} L100 ${T + 34} L${R} ${T + 34} C${R - 4} ${T + 4} 122 ${T - 14} 100 ${T - 14} Z" fill="#FFB21E" opacity=".9"/><path d="M${L - 2} ${T + 32} L${R + 30} ${T + 36}" stroke="#2E9D5B" stroke-width="8" stroke-linecap="round"/><path d="M100 ${T - 14} L100 ${T - 30}" stroke="#555" stroke-width="4"/><ellipse cx="82" cy="${T - 32}" rx="20" ry="6" fill="#E5412F"/><ellipse cx="118" cy="${T - 32}" rx="20" ry="6" fill="#FFB21E"/><circle cx="100" cy="${T - 32}" r="5" fill="#555"/>`, T - 56],
+    gatto: (T, L, R) => [`<path d="M${L + 4} ${T + 30} L${L + 6} ${T - 34} L${L + 46} ${T + 6} Z" fill="#3D3A47"/><path d="M${L + 12} ${T + 18} L${L + 13} ${T - 18} L${L + 36} ${T + 6} Z" fill="#FF9AB5"/><path d="M${R - 4} ${T + 30} L${R - 6} ${T - 34} L${R - 46} ${T + 6} Z" fill="#3D3A47"/><path d="M${R - 12} ${T + 18} L${R - 13} ${T - 18} L${R - 36} ${T + 6} Z" fill="#FF9AB5"/><path d="M${L + 2} ${T + 34} C${L + 8} ${T - 2} ${R - 8} ${T - 2} ${R - 2} ${T + 34}" fill="none" stroke="#3D3A47" stroke-width="8" stroke-linecap="round"/>`, T - 44],
+    coniglio: (T, L, R) => [`<g transform="rotate(-10 80 ${T})"><ellipse cx="80" cy="${T - 40}" rx="15" ry="44" fill="#fff" stroke="#E6DDE6" stroke-width="3"/><ellipse cx="80" cy="${T - 38}" rx="7" ry="32" fill="#FFB3C7"/></g><g transform="rotate(10 120 ${T})"><ellipse cx="120" cy="${T - 40}" rx="15" ry="44" fill="#fff" stroke="#E6DDE6" stroke-width="3"/><ellipse cx="120" cy="${T - 38}" rx="7" ry="32" fill="#FFB3C7"/></g><path d="M${L + 2} ${T + 34} C${L + 8} ${T - 2} ${R - 8} ${T - 2} ${R - 2} ${T + 34}" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/>`, T - 90],
+    fiori: (T, L, R) => { let g = ""; const cols = ["#FF6F91", "#FFD23F", "#9B7BFF", "#FF8C42", "#5CC8FF", "#FF6F91", "#FFD23F"]; for (let i = 0; i < 7; i++) { const a = Math.PI * (1.08 + i * .14), x = 100 + Math.cos(a) * 54, y = T + 40 + Math.sin(a) * 48; g += `<circle cx="${x - 8}" cy="${y + 4}" r="5" fill="#6BBF59"/>` + [0, 72, 144, 216, 288].map(d => `<circle cx="${x + Math.cos(d * Math.PI / 180) * 6.5}" cy="${y + Math.sin(d * Math.PI / 180) * 6.5}" r="6" fill="${cols[i]}"/>`).join("") + `<circle cx="${x}" cy="${y}" r="4.5" fill="#FFF3B0"/>`; } return [g, T - 30]; },
+    mago: (T, L, R) => [`<path d="M56 ${T + 24} L106 ${T - 92} L144 ${T + 24} Z" fill="#5B45C2"/><path d="M106 ${T - 92} Q124 ${T - 86} 132 ${T - 70}" stroke="#5B45C2" stroke-width="10" fill="none" stroke-linecap="round"/><text x="96" y="${T - 20}" font-size="20" fill="#FFD23F" text-anchor="middle">★</text><text x="114" y="${T + 6}" font-size="14" fill="#FFD23F" text-anchor="middle">★</text><text x="88" y="${T + 10}" font-size="12" fill="#fff" text-anchor="middle">✦</text><ellipse cx="100" cy="${T + 24}" rx="70" ry="13" fill="#46349E"/>`, T - 104],
+    vichingo: (T, L, R) => [`<path d="M${L - 2} ${T + 40} C${L - 2} ${T - 16} ${R + 2} ${T - 16} ${R + 2} ${T + 40} Z" fill="#A7B0BE"/><path d="M${L - 4} ${T + 34} L${R + 4} ${T + 34}" stroke="#C99A3A" stroke-width="9"/><path d="M100 ${T - 14} L100 ${T + 34}" stroke="#C99A3A" stroke-width="7"/><path d="M${L} ${T + 20} C${L - 30} ${T + 10} ${L - 34} ${T - 22} ${L - 18} ${T - 40} C${L - 18} ${T - 18} ${L - 8} ${T - 2} ${L + 8} ${T + 4} Z" fill="#FFF6E5" stroke="#E4D6BC" stroke-width="2"/><path d="M${R} ${T + 20} C${R + 30} ${T + 10} ${R + 34} ${T - 22} ${R + 18} ${T - 40} C${R + 18} ${T - 18} ${R + 8} ${T - 2} ${R - 8} ${T + 4} Z" fill="#FFF6E5" stroke="#E4D6BC" stroke-width="2"/>`, T - 40],
+    zucca: (T, L, R) => [`<g><ellipse cx="100" cy="${T + 4}" rx="56" ry="36" fill="#F28C28"/><ellipse cx="78" cy="${T + 6}" rx="22" ry="34" fill="#F7A440"/><ellipse cx="122" cy="${T + 6}" rx="22" ry="34" fill="#E07B1A"/><ellipse cx="100" cy="${T + 4}" rx="20" ry="36" fill="#FF9B38"/><path d="M100 ${T - 30} Q98 ${T - 46} 110 ${T - 50}" stroke="#4E8B3A" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M84 ${T + 2} l8 -9 l8 9 z M108 ${T + 2} l8 -9 l8 9 z" fill="#5A2A0A"/><path d="M84 ${T + 16} q16 12 32 0 l-6 2 l-4 -4 l-6 4 l-6 -4 l-4 4 z" fill="#5A2A0A"/></g>`, T - 50],
+    babbo: (T, L, R) => [`<path d="M${L} ${T + 30} C${L + 10} ${T - 30} ${R - 4} ${T - 40} ${R + 26} ${T + 6} C${R + 10} ${T - 4} ${R - 10} ${T - 2} ${R - 2} ${T + 30} Z" fill="#E5412F"/><rect x="${L - 6}" y="${T + 20}" width="${R - L + 12}" height="20" rx="10" fill="#fff"/><circle cx="${R + 26}" cy="${T + 8}" r="13" fill="#fff"/>`, T - 40],
+    paglia: (T, L, R) => [`<path d="M64 ${T + 22} C64 ${T - 26} 136 ${T - 26} 136 ${T + 22} Z" fill="#E8C36A"/><rect x="64" y="${T + 6}" width="72" height="10" fill="#E5412F"/><ellipse cx="100" cy="${T + 22}" rx="86" ry="16" fill="#F1D27E"/><path d="M30 ${T + 22} Q100 ${T + 34} 170 ${T + 22}" stroke="#D6AE52" stroke-width="2" fill="none"/>`, T - 44],
+    tiara: (T, L, R) => [`<path d="M${L + 8} ${T + 24} Q100 ${T + 8} ${R - 8} ${T + 24}" stroke="#FFB21E" stroke-width="7" fill="none" stroke-linecap="round"/>` + [[66, 14, 12], [100, -8, 18], [134, 14, 12], [83, 4, 10], [117, 4, 10]].map(([x, dy, r]) => `<text x="${x}" y="${T + dy + r * .4}" font-size="${r * 2}" text-anchor="middle" fill="#FFD23F" stroke="#E99C00" stroke-width="1.5">★</text>`).join(""), T - 40]
+  };
+  const FACEW = {
+    stelle: (a, b, y) => [a, b].map(x => `<path d="M${x} ${y - 16} L${x + 5} ${y - 5} L${x + 16} ${y - 4} L${x + 8} ${y + 4} L${x + 10} ${y + 15} L${x} ${y + 9} L${x - 10} ${y + 15} L${x - 8} ${y + 4} L${x - 16} ${y - 4} L${x - 5} ${y - 5} Z" fill="#FFD23F" fill-opacity=".85" stroke="#E99C00" stroke-width="2.5" stroke-linejoin="round"/>`).join("") + `<path d="M${a + 14} ${y - 2} Q100 ${y - 8} ${b - 14} ${y - 2}" stroke="#E99C00" stroke-width="3" fill="none"/>`,
+    baffi: (a, b, y) => `<path d="M100 117 C90 108 70 108 62 122 C70 118 80 126 100 121 C120 126 130 118 138 122 C130 108 110 108 100 117 Z" fill="#3B2418"/>`,
+    clown: (a, b, y) => `<circle cx="100" cy="108" r="11" fill="#E5412F"/><circle cx="96" cy="104" r="3.5" fill="#fff" opacity=".6"/>`,
+    maschera: (a, b, y) => `<path d="M${a - 22} ${y - 4} C${a - 20} ${y - 18} ${a + 8} ${y - 16} 100 ${y - 6} C${b - 8} ${y - 16} ${b + 20} ${y - 18} ${b + 22} ${y - 4} C${b + 20} ${y + 14} ${b - 6} ${y + 14} 100 ${y + 6} C${a + 6} ${y + 14} ${a - 20} ${y + 14} ${a - 22} ${y - 4} Z" fill="#E5412F"/><ellipse cx="${a}" cy="${y}" rx="9" ry="7" fill="#fff"/><ellipse cx="${b}" cy="${y}" rx="9" ry="7" fill="#fff"/><circle cx="${a}" cy="${y}" r="4" fill="#1A1113"/><circle cx="${b}" cy="${y}" r="4" fill="#1A1113"/>`
+  };
+  const PETS = { cane: "🐶", micio: "🐱", coniglietto: "🐰", pappagallo: "🦜", tartaruga: "🐢" };
   let uid = 0;
 
   function clean(av) {
@@ -214,6 +237,11 @@
       case 5: ac = `<g transform="translate(${R - 10} ${T + 30})">${[0, 72, 144, 216, 288].map(a => `<circle cx="${Math.cos(a * Math.PI / 180) * 7}" cy="${Math.sin(a * Math.PI / 180) * 7}" r="6.5" fill="${A}"/>`).join("")}<circle r="5" fill="#FFD23F"/></g>`; break;
       case 6: ac = `<g><path d="M${L + 10} ${T + 24} L${R - 10} ${T + 24} L${R - 8} ${T + 2} L${L + 8} ${T + 2} Z" fill="#F7F3EE" stroke="#E4DDD3" stroke-width="2"/><g fill="#FFFFFF" stroke="#E9E2D8" stroke-width="2"><circle cx="${L + 20}" cy="${T - 14}" r="19"/><circle cx="${R - 20}" cy="${T - 14}" r="19"/><circle cx="84" cy="${T - 32}" r="19"/><circle cx="116" cy="${T - 32}" r="19"/><circle cx="100" cy="${T - 18}" r="22"/></g><path d="M${L + 10} ${T + 6} L${R - 10} ${T + 6}" stroke="#E9E2D8" stroke-width="2"/></g>`; crownY = T - 66; break;
     }
+    const wear = opts.wear || {};
+    if (wear.hat && !opts.crown && HATS[wear.hat]) { const hh = HATS[wear.hat](T, L, R); ac = hh[0]; crownY = hh[1]; }
+    if (wear.face && FACEW[wear.face]) gl += FACEW[wear.face](exL, exR, ey);
+    let pet = "";
+    if (wear.pet && PETS[wear.pet]) pet = `<text x="168" y="196" font-size="50" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">${PETS[wear.pet]}</text>`;
     let crown = "";
     if (opts.crown) crown = `<g transform="translate(100 ${crownY}) rotate(-8)"><path d="M-30 14 L-26 -12 L-12 2 L0 -18 L12 2 L26 -12 L30 14 Z" fill="#FFB21E" stroke="#E99C00" stroke-width="3" stroke-linejoin="round"/><g fill="#E5412F"><circle cx="-26" cy="-13" r="3.6"/><circle cx="0" cy="-19" r="3.6"/><circle cx="26" cy="-13" r="3.6"/></g><path d="M-26 8 L26 8" stroke="#fff" stroke-width="2.4" opacity=".5"/></g>`;
 
@@ -221,17 +249,24 @@
     const body = opts.badge === false ? `${back}${neck}${torso}` : `<g clip-path="url(#${id}c)">${back}${neck}${torso}</g>`;
     const vb = opts.tight ? "10 18 180 182" : "0 -26 200 226";
     const label = opts.label ? ` role="img" aria-label="${String(opts.label).replace(/[&<>"]/g, "")}"` : ` aria-hidden="true"`;
-    s = `<svg class="${opts.cls || "av"}" viewBox="${vb}" xmlns="http://www.w3.org/2000/svg"${label}>${defs}${bg}${body}${ears}${head}${face}${front}${gl}${ac}${crown}</svg>`;
+    s = `<svg class="${opts.cls || "av"}" viewBox="${vb}" xmlns="http://www.w3.org/2000/svg"${label}>${defs}${bg}${body}${ears}${head}${face}${front}${gl}${ac}${crown}${pet}</svg>`;
     return s;
   }
 
-  g.DCAvatar = { OPTS, KEYS, PRESETS, render, clean, random, shade };
+  g.DCAvatar = { OPTS, KEYS, PRESETS, render, clean, random, shade, PETS };
 
   /* ---------- Wheel of dishes (DOM-built, so user text is never parsed as markup) ---------- */
   const WCOLS = ["#E5412F", "#FFB21E", "#2E9D5B", "#3E7BC4", "#E86A9A", "#A98BD9"];
   const NS = "http://www.w3.org/2000/svg";
   function el(tag, attrs) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
   function short(t, n) { t = String(t || ""); return t.length > n ? t.slice(0, n - 1) + "…" : t; }
+  function twoLines(t, n) {
+    if (t.length <= n) return [t];
+    const w = t.split(" "); let a = "", i = 0;
+    while (i < w.length && (a + (a ? " " : "") + w[i]).length <= n) { a += (a ? " " : "") + w[i]; i++; }
+    if (!a) return [short(t, n)];
+    return [a, short(w.slice(i).join(" "), n)];
+  }
   function wheel(labels, opts) {
     opts = opts || {};
     const n = Math.max(labels.length, 1), R = 150, C = 160;
@@ -253,8 +288,11 @@
     }
     labels.forEach((lab, i) => {
       const mid = ((i + .5) / n) * 360;
-      const t = el("text", { x: C, y: C - R * .58, "text-anchor": "middle", "dominant-baseline": "middle", fill: (i % WCOLS.length === 1) ? "#3A1A1F" : "#fff", "font-family": "Nunito, sans-serif", "font-weight": "800", "font-size": n > 8 ? 11 : n > 5 ? 12.5 : 14, transform: `rotate(${mid} ${C} ${C}) rotate(-90 ${C} ${C - R * .58})` });
-      t.textContent = short(lab, n > 8 ? 12 : 16);
+      const fs = n > 8 ? 11 : n > 5 ? 12.5 : 14, max = n > 8 ? 11 : 14;
+      const t = el("text", { x: C, y: C - R * .58, "text-anchor": "middle", "dominant-baseline": "middle", fill: (i % WCOLS.length === 1) ? "#3A1A1F" : "#fff", "font-family": "Nunito, sans-serif", "font-weight": "800", "font-size": fs, transform: `rotate(${mid} ${C} ${C}) rotate(-90 ${C} ${C - R * .58})` });
+      /* nomi lunghi su due righe invece che tagliati */
+      const lines = twoLines(String(lab || ""), max);
+      lines.forEach((ln, k) => { const ts = el("tspan", { x: C, dy: k === 0 ? (lines.length > 1 ? -fs * .55 : 0) : fs * 1.1 }); ts.textContent = ln; t.appendChild(ts); });
       rot.appendChild(t);
     });
     for (let i = 0; i < 24; i++) { const a = i / 24 * 2 * Math.PI; rot.appendChild(el("circle", { cx: C + (R + 4) * Math.cos(a), cy: C + (R + 4) * Math.sin(a), r: 2.4, fill: i % 2 ? "#FFB21E" : "#fff" })); }
