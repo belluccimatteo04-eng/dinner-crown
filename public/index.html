@@ -185,6 +185,35 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 /* app showcase */
 .phones{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,3vw,36px);align-items:start}
+.phones.four{grid-template-columns:repeat(4,1fr)}
+.phones.four .phone{max-width:250px}
+.rev-band{background:radial-gradient(ellipse at 50% 0%,#5B2C86,#2A1640 70%);color:#fff;overflow:hidden}
+.rev-band h2,.rev-band h3{color:#fff}
+.rev-band .lead,.rev-band .ph p{color:rgba(255,255,255,.75)}
+.rev-band .eyebrow{color:var(--gold)}
+.rev-band .phone{background:#120a1c;box-shadow:0 34px 60px -26px rgba(0,0,0,.8)}
+.city-band{background:linear-gradient(180deg,#E9F7E4,var(--cream))}
+.city-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(30px,5vw,70px);align-items:center}
+.city-grid > *{min-width:0}
+.city-phones{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:end}
+.city-phones .phone{border-radius:30px;padding:7px}
+.city-phones .phone img{border-radius:24px}
+.city-phones .phone:nth-child(2){transform:translateY(-26px)}
+.feats{list-style:none;margin:26px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.feats li{background:var(--paper);border-radius:20px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 1px 0 var(--line)}
+.feats li i{font-style:normal;font-size:1.6rem;line-height:1}
+.feats li b{display:block;font-weight:800}
+.feats li span{color:var(--muted);font-size:.92rem;line-height:1.35;display:block}
+.ban-band{background:var(--ink);color:#fff}
+.ban-wrap{display:grid;grid-template-columns:auto 1fr;gap:clamp(24px,5vw,60px);align-items:center}
+.ban-ico{width:clamp(120px,18vw,200px);aspect-ratio:1;border-radius:50%;background:var(--tomato,#E5412F);display:grid;place-items:center;font-size:clamp(4rem,9vw,6.5rem);box-shadow:0 0 0 14px rgba(229,65,47,.18),0 0 0 28px rgba(229,65,47,.08)}
+.ban-band h2{color:#fff;font-size:clamp(2rem,4.6vw,3.4rem);max-width:18ch}
+.ban-band h2 span{color:var(--gold)}
+.ban-band .lead{color:rgba(255,255,255,.78);margin-top:16px;max-width:58ch}
+.ban-pts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
+.ban-pts div{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:18px}
+.ban-pts b{display:block;font-family:var(--f-display,inherit);font-size:1.6rem;color:var(--gold);line-height:1.1}
+.ban-pts span{color:rgba(255,255,255,.75);font-size:.92rem}
 .ph{display:flex;flex-direction:column;gap:16px;align-items:center;text-align:center}
 .ph:nth-child(2){margin-top:40px}
 .phone{background:#1d1416;border-radius:44px;padding:10px;box-shadow:0 34px 60px -26px rgba(58,26,31,.7);max-width:300px;width:100%;transition:transform .3s}
@@ -301,6 +330,11 @@ footer a:hover{color:#fff}
   .pop.p1{left:-8px}.pop.p2{right:-8px}.pop.p3{left:-4px}
   .moments,.who-grid{grid-template-columns:1fr}
   .phones{grid-template-columns:1fr;max-width:340px;margin:0 auto}
+  .phones.four{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;max-width:none;margin:0 -16px;padding:4px 16px 14px;gap:16px}
+  .phones.four .ph{flex:0 0 70%;scroll-snap-align:center}
+  .city-grid,.ban-wrap{grid-template-columns:1fr}
+  .ban-ico{margin:0 auto}
+  .feats,.ban-pts{grid-template-columns:1fr}
   .ph:nth-child(2){margin-top:0}
 }
 @media (max-width:640px){
@@ -332,7 +366,7 @@ footer a:hover{color:#fff}
 <header class="nav" id="nav">
   <div class="wrap">
     <a class="logo" href="#top" aria-label="Dinner Crown"><i><svg><use href="#crownw"/></svg></i><b>Dinner Crown</b></a>
-    <nav class="nav-links" aria-label="Sezioni"><a href="#come">Come funziona</a><a href="#personaggi">Personaggi</a><a href="#ruota">La ruota</a><a href="#app">L'app</a><a href="#domande">Domande</a></nav>
+    <nav class="nav-links" aria-label="Sezioni"><a href="#come">Come funziona</a><a href="#telefoni">Telefoni giù</a><a href="#rivelazione">Rivelazione</a><a href="#citta">La città</a><a href="#personaggi">Personaggi</a><a href="#domande">Domande</a></nav>
     <a class="btn btn-red" href="#prezzi" data-track="nav_cta">Inizia ora</a>
   </div>
 </header>
@@ -344,17 +378,17 @@ footer a:hover{color:#fff}
       <div class="hero-copy">
         <p class="eyebrow">👑 Il gioco della cena di famiglia</p>
         <h1 id="hero-h">Riporta la famiglia a tavola. <em>Una sera a settimana.</em></h1>
-        <p class="lead">Crea il tuo personaggio, cucina a turno, vota in segreto e conquista la corona. Dinner Crown trasforma la cena in un gioco che tutti aspettano: nonni, genitori, figli. Anche chi non vedi da troppo tempo.</p>
+        <p class="lead">Crea il tuo personaggio, cucina a turno, vota in segreto e scopri i voti con una rivelazione da show. Tra una cena e l'altra c'è una città da esplorare con 10 minigiochi. E a tavola? Telefoni giù: chi tocca l'app perde metà delle monete.</p>
         <div class="hero-cta">
           <a class="btn btn-red" href="#prezzi" data-track="hero_cta">Inizia la vostra tradizione</a>
           <a class="btn btn-ghost" href="app/?demo=1" target="_blank" rel="noopener" data-track="demo">Prova la demo</a>
         </div>
-        <div class="micro"><span>⚡ Accesso immediato</span><span>📱 Su ogni telefono, senza app store</span><span>♾️ Un solo pagamento</span></div>
+        <div class="micro"><span>⚡ Accesso immediato</span><span>📱 Su ogni telefono, senza app store</span><span>🎮 Città e 10 minigiochi</span><span>♾️ Un solo pagamento</span></div>
       </div>
       <div class="hero-art">
         <div class="hero-frame"><img src="img/hero-family.webp" alt="Una famiglia di personaggi animati festeggia la figlia che porta in tavola la lasagna con la corona in testa" width="1100" height="1366"></div>
         <div class="pop p1" aria-hidden="true"><div class="pav" data-av="4"></div><div>Nonna Rita<small>🙌 Ci sono stasera!</small></div></div>
-        <div class="pop p2" aria-hidden="true"><span class="ic" style="background:var(--gold-soft)">⭐</span><div>4,8 stelle<small>Lasagna di Sofia</small></div></div>
+        <div class="pop p2" aria-hidden="true"><span class="ic" style="background:var(--gold-soft)">🎬</span><div>Voto finale: 4,8<small>Sofia conquista la corona!</small></div></div>
         <div class="pop p3" aria-hidden="true"><span class="ic" style="background:var(--tomato-soft)">🔥</span><div>6 settimane insieme<small>Nessuno ha mancato una cena</small></div></div>
         <span class="sparkle" style="right:8%;top:-3%" aria-hidden="true">✦</span>
         <span class="sparkle" style="left:4%;top:44%;animation-delay:-1.2s;font-size:1.1rem" aria-hidden="true">✦</span>
@@ -363,7 +397,8 @@ footer a:hover{color:#fff}
   </section>
 
   <div class="mq-wrap" aria-hidden="true"><div class="marquee"><div class="track">
-    <span>Colazione per cena</span><span>Ingrediente misterioso</span><span>Sfida da 20 €</span><span>Giro del mondo</span><span>I bambini comandano</span><span>Cena al contrario</span><span>La ricetta della nonna</span><span>Pizza come vuoi tu</span><span>Menù segreto</span>
+    <span>📵 Telefoni giù a tavola</span><span>🎬 La rivelazione dei voti</span><span>🍕 Pizza su ordinazione</span><span>🔮 Il pronostico</span><span>🎁 Ingrediente segreto</span><span>👗 Boutique e animaletti</span><span>🏆 Record di famiglia</span><span>🎡 La ruota dei piatti</span><span>📸 Album delle cene</span>
+    <span>📵 Telefoni giù a tavola</span><span>🎬 La rivelazione dei voti</span><span>🍕 Pizza su ordinazione</span><span>🔮 Il pronostico</span><span>🎁 Ingrediente segreto</span><span>👗 Boutique e animaletti</span><span>🏆 Record di famiglia</span><span>🎡 La ruota dei piatti</span><span>📸 Album delle cene</span>
     <span>Colazione per cena</span><span>Ingrediente misterioso</span><span>Sfida da 20 €</span><span>Giro del mondo</span><span>I bambini comandano</span><span>Cena al contrario</span><span>La ricetta della nonna</span><span>Pizza come vuoi tu</span><span>Menù segreto</span>
   </div></div></div>
 
@@ -389,10 +424,10 @@ footer a:hover{color:#fff}
       <div class="levels-grid">
         <ol class="levels">
           <li class="level rv"><span class="lv"><small>Livello</small><b>1</b></span><div><h3>Crea il tuo personaggio</h3><p>Capelli, occhi, barba, occhiali, cappello da chef. Ognuno si crea il suo, come in un videogioco.</p></div></li>
-          <li class="level rv"><span class="lv"><small>Livello</small><b>2</b></span><div><h3>Rispondi "Ci sono!"</h3><p>Vedi la tavola con tutti i personaggi: chi c'è, chi manca, chi deve ancora rispondere.</p></div></li>
-          <li class="level rv"><span class="lv"><small>Livello</small><b>3</b></span><div><h3>Lo chef cucina</h3><p>A turno, anche i bambini. Il piatto lo sceglie lo chef, oppure lo decide la ruota dei piatti.</p></div></li>
-          <li class="level rv"><span class="lv"><small>Livello</small><b>4</b></span><div><h3>Voto segreto</h3><p>Da 1 a 5 stelle, con il perché. Nessuno sa chi ha votato cosa, e i risultati si svelano solo dopo aver votato.</p></div></li>
-          <li class="level rv"><span class="lv"><small>Livello</small><b>5</b></span><div><h3>Conquista la corona</h3><p>Il punteggio più alto del mese porta la corona, sul personaggio e (se volete) in testa. Battetelo per rubarla.</p></div></li>
+          <li class="level rv"><span class="lv"><small>Livello</small><b>2</b></span><div><h3>Rispondi "Ci sono!" e aiuta lo chef</h3><p>Vedi chi ci sarà a tavola. Sulla lista della spesa scrivi "Ci penso io" e quando compri un ingrediente guadagni monete.</p></div></li>
+          <li class="level rv"><span class="lv"><small>Livello</small><b>3</b></span><div><h3>Lo chef cucina</h3><p>A turno, anche i bambini. Il piatto lo sceglie lo chef, oppure lo decide la ruota. Prima di cena ognuno fa il suo pronostico sul voto.</p></div></li>
+          <li class="level rv"><span class="lv"><small>Livello</small><b>4</b></span><div><h3>Telefoni giù, si mangia</h3><p>Per 90 minuti l'app si blocca: chi la tocca perde metà delle monete. Si parla, si ride, si assaggia.</p></div></li>
+          <li class="level rv"><span class="lv"><small>Livello</small><b>5</b></span><div><h3>Voto segreto e rivelazione</h3><p>Gusto, aspetto e fantasia, con il perché. Poi i voti si svelano uno a uno come in TV: voto finale, corona del mese e chi ha indovinato il pronostico.</p></div></li>
         </ol>
         <div class="shot rv"><img src="img/voting.webp" alt="La famiglia di personaggi alza le palette con le stelle mentre il papà chef aspetta il verdetto" loading="lazy" width="1600" height="1074"></div>
       </div>
@@ -455,7 +490,61 @@ footer a:hover{color:#fff}
       <div class="phones">
         <div class="ph rv"><div class="phone"><img src="img/app-home.webp" alt="Schermata con la tavola della prossima cena e i personaggi della famiglia seduti attorno" loading="lazy" width="660" height="1428"></div><h3>La tavola della settimana</h3><p>Vedi chi ci sarà, chi cucina e cosa si mangia. Un tocco e rispondi "Ci sono!".</p></div>
         <div class="ph rv"><div class="phone"><img src="img/app-editor.webp" alt="Editor del personaggio con le opzioni per i capelli" loading="lazy" width="660" height="1428"></div><h3>Il tuo personaggio</h3><p>Lo crei in un minuto e lo cambi quando vuoi. Ci sono anche personaggi pronti.</p></div>
-        <div class="ph rv"><div class="phone"><img src="img/app-crown.webp" alt="Schermata della corona del mese con la classifica degli chef" loading="lazy" width="660" height="1428"></div><h3>La corona del mese</h3><p>Classifica, piatto più amato e l'album di tutte le vostre cene.</p></div>
+        <div class="ph rv"><div class="phone"><img src="img/app-city.webp" alt="La città del gioco con il personaggio e i comandi" loading="lazy" width="660" height="1428"></div><h3>La città</h3><p>Monete, minigiochi e la spesa per lo chef. Pochi minuti al giorno.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHONE BAN -->
+  <section class="band ban-band" id="telefoni" aria-labelledby="ban-h">
+    <div class="wrap ban-wrap">
+      <div class="ban-ico" aria-hidden="true">📵</div>
+      <div>
+        <p class="eyebrow" style="color:var(--gold)">La regola d'oro</p>
+        <h2 id="ban-h" style="margin-top:12px">Un'app che ti dice di <span>mettere giù il telefono.</span></h2>
+        <p class="lead">Durante la cena Dinner Crown si blocca da sola. Chi tocca un pulsante perde metà delle monete, e il giorno dopo tutta la famiglia vede chi ci è cascato. Il voto si apre solo dopo, tutti insieme.</p>
+        <div class="ban-pts">
+          <div><b>90 minuti</b><span>di cena senza schermi, ogni settimana</span></div>
+          <div><b>−50%</b><span>delle monete a chi prende il telefono a tavola</span></div>
+          <div><b>Pochi minuti al giorno</b><span>di gioco: 4 lavoretti e 8 monete, poi la città si riposa</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REVEAL -->
+  <section class="band rev-band" id="rivelazione" aria-labelledby="rev-h">
+    <div class="wrap">
+      <div class="sec-head center"><p class="eyebrow">🎬 Dopo cena</p><h2 id="rev-h">La rivelazione dei voti. Come in uno show.</h2><p class="lead">Il telefono va al centro del tavolo e i voti segreti si svelano uno alla volta, con il commento e la musica. Tutti trattengono il fiato.</p></div>
+      <div class="phones four">
+        <div class="ph rv"><div class="phone"><img src="img/app-vote.webp" alt="Un voto segreto con il commento scritto a mano" loading="lazy" width="660" height="1428"></div><h3>I voti segreti</h3><p>Uno alla volta, anonimi, con il perché.</p></div>
+        <div class="ph rv"><div class="phone"><img src="img/app-score.webp" alt="Il voto finale dello chef con le stelle" loading="lazy" width="660" height="1428"></div><h3>Il voto finale</h3><p>Gusto, aspetto e fantasia diventano il voto dello chef.</p></div>
+        <div class="ph rv"><div class="phone"><img src="img/app-crown.webp" alt="Lo chef conquista la corona del mese" loading="lazy" width="660" height="1428"></div><h3>La corona</h3><p>Il migliore del mese la porta sul personaggio.</p></div>
+        <div class="ph rv"><div class="phone"><img src="img/app-pred.webp" alt="Classifica del pronostico con chi ci è andato più vicino" loading="lazy" width="660" height="1428"></div><h3>Il pronostico</h3><p>Chi indovina il voto vince 10 monete.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CITY -->
+  <section class="band city-band" id="citta" aria-labelledby="city-h">
+    <div class="wrap city-grid">
+      <div>
+        <p class="eyebrow">🎮 Tra una cena e l'altra</p>
+        <h2 id="city-h" style="margin-top:14px">Una città da esplorare con il tuo personaggio.</h2>
+        <p class="lead" style="margin-top:18px">Esci di casa, cerca le monete, entra in pizzeria, in officina o in biblioteca per un minigioco veloce. Con le monete vesti il tuo personaggio e fai regali. È il motivo per aprire l'app ogni giorno e aspettare la cena insieme.</p>
+        <ul class="feats">
+          <li><i>🕹️</i><div><b>10 minigiochi diversi</b><span>Pizza su ordinazione, bucato, pesca, gelati… con livelli e record di famiglia</span></div></li>
+          <li><i>📋</i><div><b>Missioni del giorno</b><span>3 sfide nuove ogni giorno e premi per chi gioca più giorni di fila</span></div></li>
+          <li><i>👗</i><div><b>Boutique e animaletti</b><span>Cappelli, occhiali buffi, cagnolini: si vedono anche a tavola</span></div></li>
+          <li><i>🎁</i><div><b>Ingrediente segreto</b><span>Nascosto in città: chi lo trova obbliga lo chef a usarlo</span></div></li>
+          <li><i>🏆</i><div><b>Classifica della settimana</b><span>Il campione si festeggia a cena</span></div></li>
+          <li><i>🏗️</i><div><b>La città cresce</b><span>Più cene fate, più posti si aprono: gelateria, luna park, porto</span></div></li>
+        </ul>
+      </div>
+      <div class="city-phones">
+        <div class="phone rv"><img src="img/app-city.webp" alt="Il personaggio cammina per le strade della città" loading="lazy" width="660" height="1428"></div>
+        <div class="phone rv"><img src="img/app-pizza.webp" alt="Minigioco della pizzeria con gli ingredienti da mettere in ordine" loading="lazy" width="660" height="1428"></div>
+        <div class="phone rv"><img src="img/app-job.webp" alt="Ingresso della pizzeria con il record di famiglia" loading="lazy" width="660" height="1428"></div>
       </div>
     </div>
   </section>
@@ -514,9 +603,13 @@ footer a:hover{color:#fff}
             <li><i>🧑‍🎨</i><div><b>Editor dei personaggi</b><span>Più di 10 categorie e personaggi pronti da modificare</span></div></li>
             <li><i>🍽️</i><div><b>La tavola della settimana</b><span>Chi c'è, chi manca, chi cucina e cosa si mangia</span></div></li>
             <li><i>🎡</i><div><b>La ruota dei piatti</b><span>Ognuno propone, la ruota decide, lo chef cucina</span></div></li>
-            <li><i>⭐</i><div><b>Voto segreto con commenti</b><span>Risultati svelati solo dopo il tuo voto</span></div></li>
-            <li><i>👑</i><div><b>Corona del mese e classifica</b><span>Più il piatto più amato e l'album delle cene</span></div></li>
-            <li><i>🔔</i><div><b>Promemoria sul calendario</b><span>Prima della cena e quando è ora di votare</span></div></li>
+            <li><i>⭐</i><div><b>Voto segreto in 3 categorie</b><span>Gusto, aspetto e fantasia, con il commento</span></div></li>
+            <li><i>🎬</i><div><b>La rivelazione dei voti</b><span>Voto finale, corona del mese e pronostico</span></div></li>
+            <li><i>📵</i><div><b>Modalità "telefoni giù"</b><span>Durante la cena l'app si blocca: chi la tocca perde metà delle monete</span></div></li>
+            <li><i>🎮</i><div><b>La città e 10 minigiochi</b><span>Missioni, record di famiglia, boutique, regali, eventi</span></div></li>
+            <li><i>🛒</i><div><b>Lista della spesa condivisa</b><span>"Ci penso io" e monete a chi aiuta lo chef</span></div></li>
+            <li><i>📸</i><div><b>Album delle cene e ricette</b><span>Foto del piatto e ricetta salvate per sempre</span></div></li>
+            <li><i>🔔</i><div><b>Promemoria sul calendario</b><span>Prima della cena e quando è ora del voto</span></div></li>
           </ul>
         </div>
         <div class="box rv">
@@ -559,8 +652,11 @@ footer a:hover{color:#fff}
             <li><svg><use href="#check"/></svg><b>L'app Dinner Crown per tutta la famiglia</b></li>
             <li><svg><use href="#check"/></svg>Editor dei personaggi e personaggi pronti</li>
             <li><svg><use href="#check"/></svg>Tavola della settimana con le presenze</li>
-            <li><svg><use href="#check"/></svg>La ruota dei piatti</li>
-            <li><svg><use href="#check"/></svg>Voto segreto, corona del mese, album delle cene</li>
+            <li><svg><use href="#check"/></svg>La ruota dei piatti e la lista della spesa</li>
+            <li><svg><use href="#check"/></svg>Voto segreto e rivelazione da show</li>
+            <li><svg><use href="#check"/></svg>Modalità "telefoni giù" durante la cena</li>
+            <li><svg><use href="#check"/></svg><b>La città con 10 minigiochi</b>, missioni e boutique</li>
+            <li><svg><use href="#check"/></svg>Corona del mese, album con foto e ricette</li>
             <li><svg><use href="#check"/></svg>Fino a 16 persone, nessun abbonamento</li>
           </ul>
           <a class="btn btn-gold" href="#" data-checkout="complete" data-track="buy_complete">Prendi il Kit Completo</a>
@@ -579,6 +675,9 @@ footer a:hover{color:#fff}
       <details><summary>Come entra il resto della famiglia?</summary><p>Chi crea la famiglia riceve un link di invito. Lo manda nel gruppo WhatsApp, ognuno lo apre, crea il suo personaggio e risponde se ci sarà alla prossima cena.</p></details>
       <details><summary>E i nonni senza smartphone?</summary><p>Nessun problema: puoi creare il loro personaggio dal tuo telefono, e per votare c'è sempre la scheda di carta del kit.</p></details>
       <details><summary>Come funziona la ruota dei piatti?</summary><p>Prima della cena ognuno può proporre fino a 2 piatti. Quando volete, uno di voi gira la ruota: il risultato è uguale per tutti e lo chef deve cucinare il piatto uscito. Se preferite, potete non usarla e lasciar scegliere lo chef.</p></details>
+      <details><summary>Il gioco non rischia di tenerli incollati al telefono?</summary><p>È fatto apposta per evitarlo. I lavoretti che pagano sono 4 al giorno e le monete da trovare 8: si gioca pochi minuti, poi la città si riposa. E durante la cena l'app si blocca: chi la tocca perde metà delle monete.</p></details>
+      <details><summary>Cos'è la città?</summary><p>Un piccolo mondo in cui ti muovi con il tuo personaggio. Cerchi le monete, entri negli edifici per un minigioco veloce, fai le missioni del giorno, compri vestiti in Boutique e trovi l'ingrediente segreto della settimana. Più cene fate, più la città cresce.</p></details>
+      <details><summary>Come funziona la rivelazione?</summary><p>Dopo cena ognuno vota in segreto gusto, aspetto e fantasia. Poi il telefono va al centro del tavolo e i voti si svelano uno a uno, fino al voto finale, alla corona del mese e a chi ha indovinato il pronostico.</p></details>
       <details><summary>Il voto è davvero anonimo?</summary><p>Sì. I voti vengono salvati senza nome: nessuno in famiglia può sapere chi ha dato quale punteggio. E vedi i risultati solo dopo aver votato.</p></details>
       <details><summary>Dobbiamo cenare per forza di mercoledì?</summary><p>No, scegliete voi giorno e orario. L'importante è che sia sempre lo stesso: è così che nasce una tradizione.</p></details>
       <details><summary>Per quante persone funziona?</summary><p>Fino a 16 personaggi per famiglia: genitori, figli, nonni, zii, cugini.</p></details>
